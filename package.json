@@ -1,0 +1,21 @@
+{
+  "name": "npa43a-audio-visualizer",
+  "version": "1.0.0",
+  "description": "Web-based real-time audio visualization dashboard for NPA43A amplifier",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "node src/protocol-test.js"
+  },
+  "dependencies": {
+    "ws": "^8.14.2",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["audio", "visualizer", "amplifier", "npa43a", "websocket"],
+  "author": "",
+  "license": "MIT"
+}

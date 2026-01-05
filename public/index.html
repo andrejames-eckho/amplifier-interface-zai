@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPA43A Audio Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NPA43A Audio Visualizer</h1>
+            <div class="connection-panel">
+                <div class="connection-status" id="connectionStatus">
+                    <span class="status-indicator" id="statusIndicator"></span>
+                    <span class="status-text" id="statusText">Disconnected</span>
+                </div>
+                <div class="connection-controls">
+                    <input type="text" id="amplifierIP" placeholder="Amplifier IP Address" value="192.168.1.100">
+                    <button id="connectBtn">Connect</button>
+                    <button id="disconnectBtn" disabled>Disconnect</button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="meters-section">
+                <h2>Inputs</h2>
+                <div class="meters-grid">
+                    <div class="meter-container" data-channel="input-1">
+                        <div class="meter-label">Input 1</div>
+                        <div class="meter-display">
+                            <div class="meter-value" id="input-1-value">-60.0</div>
+                            <div class="meter-unit">dB</div>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar" id="input-1-bar">
+                                <div class="meter-fill"></div>
+                            </div>
+                            <div class="meter-scale">
+                                <span>+10</span>
+                                <span>0</span>
+                                <span>-6</span>
+                                <span>-20</span>
+                                <span>-60</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="meter-container" data-channel="input-2">
+                        <div class="meter-label">Input 2</div>
+                        <div class="meter-display">
+                            <div class="meter-value" id="input-2-value">-60.0</div>
+                            <div class="meter-unit">dB</div>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar" id="input-2-bar">
+                                <div class="meter-fill"></div>
+                            </div>
+                            <div class="meter-scale">
+                                <span>+10</span>
+                                <span>0</span>
+                                <span>-6</span>
+                                <span>-20</span>
+                                <span>-60</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="meter-container" data-channel="input-3">
+                        <div class="meter-label">Input 3</div>
+                        <div class="meter-display">
+                            <div class="meter-value" id="input-3-value">-60.0</div>
+                            <div class="meter-unit">dB</div>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar" id="input-3-bar">
+                                <div class="meter-fill"></div>
+                            </div>
+                            <div class="meter-scale">
+                                <span>+10</span>
+                                <span>0</span>
+                                <span>-6</span>
+                                <span>-20</span>
+                                <span>-60</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="meter-container" data-channel="input-4">
+                        <div class="meter-label">Input 4</div>
+                        <div class="meter-display">
+                            <div class="meter-value" id="input-4-value">-60.0</div>
+                            <div class="meter-unit">dB</div>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar" id="input-4-bar">
+                                <div class="meter-fill"></div>
+                            </div>
+                            <div class="meter-scale">
+                                <span>+10</span>
+                                <span>0</span>
+                                <span>-6</span>
+                                <span>-20</span>
+                                <span>-60</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="meters-section">
+                <h2>Outputs</h2>
+                <div class="meters-grid">
+                    <div class="meter-container" data-channel="output-1">
+                        <div class="meter-label">Output 1</div>
+                        <div class="meter-display">
+                            <div class="meter-value" id="output-1-value">-60.0</div>
+                            <div class="meter-unit">dB</div>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar" id="output-1-bar">
+                                <div class="meter-fill"></div>
+                            </div>
+                            <div class="meter-scale">
+                                <span>+10</span>
+                                <span>0</span>
+                                <span>-6</span>
+                                <span>-20</span>
+                                <span>-60</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="meter-container" data-channel="output-2">
+                        <div class="meter-label">Output 2</div>
+                        <div class="meter-display">
+                            <div class="meter-value" id="output-2-value">-60.0</div>
+                            <div class="meter-unit">dB</div>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar" id="output-2-bar">
+                                <div class="meter-fill"></div>
+                            </div>
+                            <div class="meter-scale">
+                                <span>+10</span>
+                                <span>0</span>
+                                <span>-6</span>
+                                <span>-20</span>
+                                <span>-60</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="meter-container" data-channel="output-3">
+                        <div class="meter-label">Output 3</div>
+                        <div class="meter-display">
+                            <div class="meter-value" id="output-3-value">-60.0</div>
+                            <div class="meter-unit">dB</div>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar" id="output-3-bar">
+                                <div class="meter-fill"></div>
+                            </div>
+                            <div class="meter-scale">
+                                <span>+10</span>
+                                <span>0</span>
+                                <span>-6</span>
+                                <span>-20</span>
+                                <span>-60</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="meter-container" data-channel="output-4">
+                        <div class="meter-label">Output 4</div>
+                        <div class="meter-display">
+                            <div class="meter-value" id="output-4-value">-60.0</div>
+                            <div class="meter-unit">dB</div>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar" id="output-4-bar">
+                                <div class="meter-fill"></div>
+                            </div>
+                            <div class="meter-scale">
+                                <span>+10</span>
+                                <span>0</span>
+                                <span>-6</span>
+                                <span>-20</span>
+                                <span>-60</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <div class="error-toast" id="errorToast">
+            <span class="error-message" id="errorMessage"></span>
+            <button class="error-close" onclick="hideError()">×</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
