@@ -44,6 +44,35 @@ class AudioVisualizerServer {
             res.json({ success: true, message: 'Disconnected from amplifier' });
         });
 
+        // API endpoint for mute control
+        this.app.post('/api/mute', express.json(), (req, res) => {
+            const { type, id, mute } = req.body;
+            
+            if (!this.amplifierClient || !this.amplifierClient.isConnected) {
+                return res.status(400).json({ error: 'Not connected to amplifier' });
+            }
+            
+            try {
+                if (type === 'all-output') {
+                    this.amplifierClient.setMute('all-output', null, mute);
+                } else if (type === 'input' || type === 'output') {
+                    if (!id || id < 1 || id > 4) {
+                        return res.status(400).json({ error: 'Invalid channel ID. Must be 1-4' });
+                    }
+                    this.amplifierClient.setMute(type, id, mute);
+                } else {
+                    return res.status(400).json({ error: 'Invalid type. Must be input, output, or all-output' });
+                }
+                
+                res.json({ 
+                    success: true, 
+                    message: `${mute ? 'Muted' : 'Unmuted'} ${type}${id ? ' ' + id : ''}` 
+                });
+            } catch (err) {
+                res.status(500).json({ error: err.message });
+            }
+        });
+
         // API endpoint to get connection status
         this.app.get('/api/status', (req, res) => {
             res.json({

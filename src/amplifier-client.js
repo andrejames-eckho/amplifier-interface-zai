@@ -181,6 +181,81 @@ class NPA43AClient extends EventEmitter {
         }
     }
 
+    createMuteCommand(channelType, channelId, mute = true) {
+        let type, id;
+        
+        if (channelType === 'all-output') {
+            type = 0x02;
+            id = 0x00;
+        } else if (channelType === 'input') {
+            type = 0x01;
+            id = channelId;
+        } else if (channelType === 'output') {
+            type = 0x02;
+            id = channelId;
+        } else {
+            throw new Error(`Invalid channel type: ${channelType}`);
+        }
+        
+        return Buffer.from([
+            0xA5, 0xC3, 0x3C, 0x5A, // Start Header
+            this.deviceId,           // Device ID
+            0x36,                   // Write Command
+            0x03,                   // Function Code (Mute)
+            0x03,                   // Data Length
+            0x03,                   // Fixed
+            type,                   // Type (Input/Output)
+            id,                     // Channel ID
+            mute ? 0x01 : 0x00,     // Mute state (1=mute, 0=unmute)
+            0xEE                    // End Header
+        ]);
+    }
+
+    createMuteStatusCommand(channelType, channelId) {
+        let type, id;
+        
+        if (channelType === 'input') {
+            type = 0x01;
+            id = channelId;
+        } else if (channelType === 'output') {
+            type = 0x02;
+            id = channelId;
+        } else {
+            throw new Error(`Invalid channel type: ${channelType}`);
+        }
+        
+        return Buffer.from([
+            0xA5, 0xC3, 0x3C, 0x5A, // Start Header
+            this.deviceId,           // Device ID
+            0x63,                   // Read Command
+            0x03,                   // Function Code (Mute Status)
+            0x02,                   // Data Length
+            type,                   // Type (Input/Output)
+            id,                     // Channel ID
+            0xEE                    // End Header
+        ]);
+    }
+
+    async setMute(channelType, channelId, mute = true) {
+        if (!this.isConnected || !this.client) {
+            throw new Error('Not connected to amplifier');
+        }
+
+        const command = this.createMuteCommand(channelType, channelId, mute);
+        this.client.write(command);
+        
+        console.log(`Sent ${mute ? 'mute' : 'unmute'} command for ${channelType}${channelId !== undefined ? ' ' + channelId : ''}`);
+    }
+
+    async getMuteStatus(channelType, channelId) {
+        if (!this.isConnected || !this.client) {
+            throw new Error('Not connected to amplifier');
+        }
+
+        const command = this.createMuteStatusCommand(channelType, channelId);
+        this.client.write(command);
+    }
+
     disconnect() {
         this.stopPolling();
         if (this.client) {

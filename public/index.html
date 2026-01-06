@@ -19,6 +19,10 @@
                     <input type="text" id="amplifierIP" placeholder="Amplifier IP Address" value="192.168.1.100">
                     <button id="connectBtn">Connect</button>
                     <button id="disconnectBtn" disabled>Disconnect</button>
+                    <button id="masterMuteBtn" disabled class="mute-btn">
+                        <span class="mute-icon">🔊</span>
+                        <span class="mute-text">Mute All</span>
+                    </button>
                 </div>
             </div>
         </header>
@@ -45,6 +49,9 @@
                                 <span>-60</span>
                             </div>
                         </div>
+                        <button class="channel-mute-btn" data-channel="input-1" disabled>
+                            <span class="mute-icon">🔊</span>
+                        </button>
                     </div>
 
                     <div class="meter-container" data-channel="input-2">
@@ -65,6 +72,9 @@
                                 <span>-60</span>
                             </div>
                         </div>
+                        <button class="channel-mute-btn" data-channel="input-2" disabled>
+                            <span class="mute-icon">🔊</span>
+                        </button>
                     </div>
 
                     <div class="meter-container" data-channel="input-3">
@@ -85,6 +95,9 @@
                                 <span>-60</span>
                             </div>
                         </div>
+                        <button class="channel-mute-btn" data-channel="input-3" disabled>
+                            <span class="mute-icon">🔊</span>
+                        </button>
                     </div>
 
                     <div class="meter-container" data-channel="input-4">
@@ -105,6 +118,9 @@
                                 <span>-60</span>
                             </div>
                         </div>
+                        <button class="channel-mute-btn" data-channel="input-4" disabled>
+                            <span class="mute-icon">🔊</span>
+                        </button>
                     </div>
                 </div>
             </section>
@@ -130,6 +146,9 @@
                                 <span>-60</span>
                             </div>
                         </div>
+                        <button class="channel-mute-btn" data-channel="output-1" disabled>
+                            <span class="mute-icon">🔊</span>
+                        </button>
                     </div>
 
                     <div class="meter-container" data-channel="output-2">
@@ -150,6 +169,9 @@
                                 <span>-60</span>
                             </div>
                         </div>
+                        <button class="channel-mute-btn" data-channel="output-2" disabled>
+                            <span class="mute-icon">🔊</span>
+                        </button>
                     </div>
 
                     <div class="meter-container" data-channel="output-3">
@@ -170,6 +192,9 @@
                                 <span>-60</span>
                             </div>
                         </div>
+                        <button class="channel-mute-btn" data-channel="output-3" disabled>
+                            <span class="mute-icon">🔊</span>
+                        </button>
                     </div>
 
                     <div class="meter-container" data-channel="output-4">
@@ -190,6 +215,9 @@
                                 <span>-60</span>
                             </div>
                         </div>
+                        <button class="channel-mute-btn" data-channel="output-4" disabled>
+                            <span class="mute-icon">🔊</span>
+                        </button>
                     </div>
                 </div>
             </section>

@@ -19,6 +19,14 @@ class AudioVisualizer {
         this.statusIndicator = document.getElementById('statusIndicator');
         this.statusText = document.getElementById('statusText');
         
+        // Mute button elements
+        this.masterMuteBtn = document.getElementById('masterMuteBtn');
+        this.masterMuteIcon = this.masterMuteBtn.querySelector('.mute-icon');
+        this.masterMuteText = this.masterMuteBtn.querySelector('.mute-text');
+        
+        // Channel mute buttons
+        this.channelMuteBtns = document.querySelectorAll('.channel-mute-btn');
+        
         // Error toast
         this.errorToast = document.getElementById('errorToast');
         this.errorMessage = document.getElementById('errorMessage');
@@ -37,11 +45,28 @@ class AudioVisualizer {
                 fill: document.querySelector(`#output-${i}-bar .meter-fill`)
             };
         }
+        
+        // Track mute states
+        this.muteStates = {
+            master: false,
+            channels: {}
+        };
     }
 
     bindEvents() {
         this.connectBtn.addEventListener('click', () => this.connect());
         this.disconnectBtn.addEventListener('click', () => this.disconnect());
+        
+        // Master mute button
+        this.masterMuteBtn.addEventListener('click', () => this.toggleMasterMute());
+        
+        // Channel mute buttons
+        this.channelMuteBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const channel = btn.dataset.channel;
+                this.toggleChannelMute(channel, btn);
+            });
+        });
         
         // Allow Enter key to connect
         this.amplifierIPInput.addEventListener('keypress', (e) => {
@@ -116,16 +141,123 @@ class AudioVisualizer {
             this.connectBtn.disabled = true;
             this.disconnectBtn.disabled = false;
             this.amplifierIPInput.disabled = true;
+            this.masterMuteBtn.disabled = false;
+            this.channelMuteBtns.forEach(btn => btn.disabled = false);
         } else {
             this.statusIndicator.classList.remove('connected');
             this.statusText.textContent = 'Disconnected';
             this.connectBtn.disabled = false;
             this.disconnectBtn.disabled = true;
             this.amplifierIPInput.disabled = false;
+            this.masterMuteBtn.disabled = true;
+            this.channelMuteBtns.forEach(btn => btn.disabled = true);
             
             // Reset all meters to -60dB
             this.resetAllMeters();
+            
+            // Reset mute states
+            this.resetMuteStates();
         }
+    }
+
+    async toggleMasterMute() {
+        try {
+            const newState = !this.muteStates.master;
+            
+            const response = await fetch('/api/mute', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    type: 'all-output',
+                    mute: newState 
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Mute command failed');
+            }
+            
+            this.muteStates.master = newState;
+            this.updateMasterMuteButton();
+            
+        } catch (err) {
+            this.showError(err.message);
+        }
+    }
+
+    async toggleChannelMute(channel, button) {
+        try {
+            const [channelType, channelId] = channel.split('-');
+            const currentState = this.muteStates.channels[channel] || false;
+            const newState = !currentState;
+            
+            const response = await fetch('/api/mute', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    type: channelType,
+                    id: parseInt(channelId),
+                    mute: newState 
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Mute command failed');
+            }
+            
+            this.muteStates.channels[channel] = newState;
+            this.updateChannelMuteButton(button, newState);
+            
+        } catch (err) {
+            this.showError(err.message);
+        }
+    }
+
+    updateMasterMuteButton() {
+        if (this.muteStates.master) {
+            this.masterMuteBtn.classList.add('muted');
+            this.masterMuteIcon.textContent = '🔇';
+            this.masterMuteText.textContent = 'Unmute All';
+        } else {
+            this.masterMuteBtn.classList.remove('muted');
+            this.masterMuteIcon.textContent = '🔊';
+            this.masterMuteText.textContent = 'Mute All';
+        }
+    }
+
+    updateChannelMuteButton(button, isMuted) {
+        const icon = button.querySelector('.mute-icon');
+        if (isMuted) {
+            button.classList.add('muted');
+            icon.textContent = '🔇';
+        } else {
+            button.classList.remove('muted');
+            icon.textContent = '🔊';
+        }
+    }
+
+    resetMuteStates() {
+        this.muteStates.master = false;
+        this.muteStates.channels = {};
+        
+        // Reset master mute button
+        this.masterMuteBtn.classList.remove('muted');
+        this.masterMuteIcon.textContent = '🔊';
+        this.masterMuteText.textContent = 'Mute All';
+        
+        // Reset all channel mute buttons
+        this.channelMuteBtns.forEach(btn => {
+            btn.classList.remove('muted');
+            btn.querySelector('.mute-icon').textContent = '🔊';
+        });
     }
 
     updateMeter(channelType, channelId, dbValue) {
