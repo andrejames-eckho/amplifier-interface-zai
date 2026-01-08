@@ -5,10 +5,13 @@ class AudioVisualizer {
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
         this.reconnectDelay = 2000;
+        this.lastStatusUpdate = 0;
+        this.connectionStatusCheckInterval = null;
         
         this.initializeElements();
         this.bindEvents();
         this.connectWebSocket();
+        this.startConnectionStatusMonitoring();
     }
 
     initializeElements() {
@@ -57,16 +60,16 @@ class AudioVisualizer {
         this.connectBtn.addEventListener('click', () => this.connect());
         this.disconnectBtn.addEventListener('click', () => this.disconnect());
         
-        // Master mute button
-        this.masterMuteBtn.addEventListener('click', () => this.toggleMasterMute());
+        // Master mute button - disabled as indicator only
+        // this.masterMuteBtn.addEventListener('click', () => this.toggleMasterMute());
         
-        // Channel mute buttons
-        this.channelMuteBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const channel = btn.dataset.channel;
-                this.toggleChannelMute(channel, btn);
-            });
-        });
+        // Channel mute buttons - disabled as indicators only
+        // this.channelMuteBtns.forEach(btn => {
+        //     btn.addEventListener('click', () => {
+        //         const channel = btn.dataset.channel;
+        //         this.toggleChannelMute(channel, btn);
+        //     });
+        // });
         
         // Allow Enter key to connect
         this.amplifierIPInput.addEventListener('keypress', (e) => {
@@ -87,12 +90,18 @@ class AudioVisualizer {
         this.ws.onopen = () => {
             console.log('WebSocket connected');
             this.reconnectAttempts = 0;
+            this.lastStatusUpdate = Date.now();
         };
         
         this.ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
                 this.handleMessage(data);
+                
+                // Update last status update timestamp for monitoring
+                if (data.type === 'status') {
+                    this.lastStatusUpdate = Date.now();
+                }
             } catch (err) {
                 console.error('Failed to parse WebSocket message:', err);
             }
@@ -118,13 +127,40 @@ class AudioVisualizer {
         };
     }
 
+    startConnectionStatusMonitoring() {
+        // Check if we're receiving status updates regularly
+        this.connectionStatusCheckInterval = setInterval(() => {
+            const now = Date.now();
+            const timeSinceLastUpdate = now - this.lastStatusUpdate;
+            
+            // If we haven't received a status update in 15 seconds, show warning
+            if (timeSinceLastUpdate > 15000 && this.isConnected) {
+                console.warn('⚠️ No status updates received for 15 seconds');
+                this.statusText.textContent = 'Connected (checking...)';
+                this.statusIndicator.classList.add('warning');
+            }
+        }, 5000);
+    }
+
+    stopConnectionStatusMonitoring() {
+        if (this.connectionStatusCheckInterval) {
+            clearInterval(this.connectionStatusCheckInterval);
+            this.connectionStatusCheckInterval = null;
+        }
+    }
+
     handleMessage(data) {
+        console.log('📨 Frontend received message:', data);
         switch (data.type) {
             case 'status':
+                console.log('🔄 Updating connection status to:', data.connected);
                 this.updateConnectionStatus(data.connected, data.amplifierIP);
                 break;
             case 'audioData':
                 this.updateMeter(data.channelType, data.channelId, data.db);
+                break;
+            case 'muteStatus':
+                this.updateMuteStatus(data.channelType, data.channelId, data.muted);
                 break;
             case 'error':
                 this.showError(data.message);
@@ -136,6 +172,7 @@ class AudioVisualizer {
         this.isConnected = connected;
         
         if (connected) {
+            this.statusIndicator.classList.remove('connected', 'warning');
             this.statusIndicator.classList.add('connected');
             this.statusText.textContent = `Connected to ${amplifierIP}`;
             this.connectBtn.disabled = true;
@@ -144,7 +181,7 @@ class AudioVisualizer {
             this.masterMuteBtn.disabled = false;
             this.channelMuteBtns.forEach(btn => btn.disabled = false);
         } else {
-            this.statusIndicator.classList.remove('connected');
+            this.statusIndicator.classList.remove('connected', 'warning');
             this.statusText.textContent = 'Disconnected';
             this.connectBtn.disabled = false;
             this.disconnectBtn.disabled = true;
@@ -161,75 +198,24 @@ class AudioVisualizer {
     }
 
     async toggleMasterMute() {
-        try {
-            const newState = !this.muteStates.master;
-            
-            const response = await fetch('/api/mute', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    type: 'all-output',
-                    mute: newState 
-                })
-            });
-            
-            const result = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(result.error || 'Mute command failed');
-            }
-            
-            this.muteStates.master = newState;
-            this.updateMasterMuteButton();
-            
-        } catch (err) {
-            this.showError(err.message);
-        }
+        // Disabled - now an indicator only
+        console.log('Master mute is now indicator only - use amplifier to control mute');
     }
 
     async toggleChannelMute(channel, button) {
-        try {
-            const [channelType, channelId] = channel.split('-');
-            const currentState = this.muteStates.channels[channel] || false;
-            const newState = !currentState;
-            
-            const response = await fetch('/api/mute', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    type: channelType,
-                    id: parseInt(channelId),
-                    mute: newState 
-                })
-            });
-            
-            const result = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(result.error || 'Mute command failed');
-            }
-            
-            this.muteStates.channels[channel] = newState;
-            this.updateChannelMuteButton(button, newState);
-            
-        } catch (err) {
-            this.showError(err.message);
-        }
+        // Disabled - now indicator only
+        console.log('Channel mute is now indicator only - use amplifier to control mute');
     }
 
     updateMasterMuteButton() {
         if (this.muteStates.master) {
             this.masterMuteBtn.classList.add('muted');
             this.masterMuteIcon.textContent = '🔇';
-            this.masterMuteText.textContent = 'Unmute All';
+            this.masterMuteText.textContent = 'All Muted';
         } else {
             this.masterMuteBtn.classList.remove('muted');
             this.masterMuteIcon.textContent = '🔊';
-            this.masterMuteText.textContent = 'Mute All';
+            this.masterMuteText.textContent = 'All Unmuted';
         }
     }
 
@@ -251,13 +237,53 @@ class AudioVisualizer {
         // Reset master mute button
         this.masterMuteBtn.classList.remove('muted');
         this.masterMuteIcon.textContent = '🔊';
-        this.masterMuteText.textContent = 'Mute All';
+        this.masterMuteText.textContent = 'All Unmuted';
         
-        // Reset all channel mute buttons
+        // Reset all channel mute buttons and meter containers
         this.channelMuteBtns.forEach(btn => {
             btn.classList.remove('muted');
             btn.querySelector('.mute-icon').textContent = '🔊';
         });
+        
+        // Reset all meter container styling
+        document.querySelectorAll('.meter-container.muted').forEach(container => {
+            container.classList.remove('muted');
+        });
+    }
+
+    updateMuteStatus(channelType, channelId, isMuted) {
+        // Only update if we're connected to avoid race conditions
+        if (!this.isConnected) {
+            return;
+        }
+        
+        // Handle master mute status
+        if (channelType === 'output' && channelId === 0) {
+            this.muteStates.master = isMuted;
+            this.updateMasterMuteButton();
+            return;
+        }
+        
+        const channelKey = `${channelType}-${channelId}`;
+        
+        // Update local mute state to match amplifier
+        this.muteStates.channels[channelKey] = isMuted;
+        
+        // Find the corresponding button and update it
+        const button = document.querySelector(`[data-channel="${channelKey}"]`);
+        if (button) {
+            this.updateChannelMuteButton(button, isMuted);
+        }
+        
+        // Also update the meter container styling
+        const meterContainer = document.querySelector(`.meter-container[data-channel="${channelKey}"]`);
+        if (meterContainer) {
+            if (isMuted) {
+                meterContainer.classList.add('muted');
+            } else {
+                meterContainer.classList.remove('muted');
+            }
+        }
     }
 
     updateMeter(channelType, channelId, dbValue) {

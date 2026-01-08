@@ -12,9 +12,13 @@ class AudioVisualizerServer {
         this.wss = new WebSocket.Server({ server: this.server });
         this.amplifierClient = null;
         this.connectedClients = new Set();
+        this.statusBroadcastInterval = null;
+        this.heartbeatInterval = null;
         
         this.setupExpress();
         this.setupWebSocket();
+        this.startPeriodicStatusBroadcast();
+        this.startHeartbeat();
     }
 
     setupExpress() {
@@ -48,27 +52,40 @@ class AudioVisualizerServer {
         this.app.post('/api/mute', express.json(), (req, res) => {
             const { type, id, mute } = req.body;
             
+            console.log(`\n=== MUTE API CALL ===`);
+            console.log(`Request body:`, req.body);
+            console.log(`Type: ${type}, ID: ${id}, Mute: ${mute}`);
+            
             if (!this.amplifierClient || !this.amplifierClient.isConnected) {
+                console.log(`❌ Not connected to amplifier`);
                 return res.status(400).json({ error: 'Not connected to amplifier' });
             }
             
+            console.log(`✓ Amplifier connected, sending command...`);
+            
             try {
                 if (type === 'all-output') {
+                    console.log(`Sending master mute command (all-output)`);
                     this.amplifierClient.setMute('all-output', null, mute);
                 } else if (type === 'input' || type === 'output') {
                     if (!id || id < 1 || id > 4) {
+                        console.log(`❌ Invalid channel ID: ${id}`);
                         return res.status(400).json({ error: 'Invalid channel ID. Must be 1-4' });
                     }
+                    console.log(`Sending channel mute command: ${type} ${id}`);
                     this.amplifierClient.setMute(type, id, mute);
                 } else {
+                    console.log(`❌ Invalid type: ${type}`);
                     return res.status(400).json({ error: 'Invalid type. Must be input, output, or all-output' });
                 }
                 
+                console.log(`✓ Command sent successfully`);
                 res.json({ 
                     success: true, 
                     message: `${mute ? 'Muted' : 'Unmuted'} ${type}${id ? ' ' + id : ''}` 
                 });
             } catch (err) {
+                console.log(`❌ Error sending command:`, err.message);
                 res.status(500).json({ error: err.message });
             }
         });
@@ -93,12 +110,8 @@ class AudioVisualizerServer {
             console.log('WebSocket client connected');
             this.connectedClients.add(ws);
 
-            // Send current status
-            ws.send(JSON.stringify({
-                type: 'status',
-                connected: this.amplifierClient && this.amplifierClient.isConnected,
-                amplifierIP: this.amplifierClient ? this.amplifierClient.amplifierIP : null
-            }));
+            // Send current status immediately
+            this.broadcastCurrentStatus();
 
             ws.on('close', () => {
                 console.log('WebSocket client disconnected');
@@ -109,15 +122,67 @@ class AudioVisualizerServer {
                 console.error('WebSocket error:', err.message);
                 this.connectedClients.delete(ws);
             });
+
+            // Handle pong responses for heartbeat
+            ws.on('pong', () => {
+                ws.isAlive = true;
+            });
+
+            // Mark as alive for heartbeat tracking
+            ws.isAlive = true;
         });
+    }
+
+    startPeriodicStatusBroadcast() {
+        // Broadcast status every 5 seconds to ensure frontend stays updated
+        this.statusBroadcastInterval = setInterval(() => {
+            this.broadcastCurrentStatus();
+        }, 5000);
+    }
+
+    startHeartbeat() {
+        // WebSocket heartbeat to detect dead connections
+        this.heartbeatInterval = setInterval(() => {
+            this.connectedClients.forEach(ws => {
+                if (!ws.isAlive) {
+                    console.log('Terminating dead WebSocket connection');
+                    ws.terminate();
+                    this.connectedClients.delete(ws);
+                    return;
+                }
+
+                ws.isAlive = false;
+                ws.ping();
+            });
+        }, 30000); // 30 second heartbeat
+    }
+
+    stopPeriodicUpdates() {
+        if (this.statusBroadcastInterval) {
+            clearInterval(this.statusBroadcastInterval);
+            this.statusBroadcastInterval = null;
+        }
+        if (this.heartbeatInterval) {
+            clearInterval(this.heartbeatInterval);
+            this.heartbeatInterval = null;
+        }
     }
 
     broadcast(data) {
         const message = JSON.stringify(data);
+        console.log('📡 Broadcasting to', this.connectedClients.size, 'clients:', data);
         this.connectedClients.forEach(ws => {
             if (ws.readyState === WebSocket.OPEN) {
                 ws.send(message);
             }
+        });
+    }
+
+    broadcastCurrentStatus() {
+        this.broadcast({
+            type: 'status',
+            connected: this.amplifierClient && this.amplifierClient.isConnected,
+            amplifierIP: this.amplifierClient ? this.amplifierClient.amplifierIP : null
         });
     }
 
@@ -133,29 +198,33 @@ class AudioVisualizerServer {
             
             // Set up event handlers
             this.amplifierClient.on('connected', () => {
-                console.log('Amplifier connected, starting polling');
-                this.broadcast({
-                    type: 'status',
-                    connected: true,
-                    amplifierIP: amplifierIP
-                });
+                console.log('🔗 Amplifier connected event received, starting polling');
+                this.broadcastCurrentStatus();
                 this.amplifierClient.startPolling(250); // Poll every 250ms
             });
 
             this.amplifierClient.on('disconnected', () => {
                 console.log('Amplifier disconnected');
-                this.broadcast({
-                    type: 'status',
-                    connected: false,
-                    amplifierIP: null
-                });
+                this.broadcastCurrentStatus();
             });
 
             this.amplifierClient.on('data', (data) => {
-                this.broadcast({
-                    type: 'audioData',
-                    ...data
-                });
+                if (data.db !== undefined) {
+                    // Audio level data
+                    this.broadcast({
+                        type: 'audioData',
+                        ...data
+                    });
+                } else if (data.muted !== undefined) {
+                    // Mute status data
+                    this.broadcast({
+                        type: 'muteStatus',
+                        channelType: data.channelType,
+                        channelId: data.channelId,
+                        muted: data.muted,
+                        timestamp: data.timestamp
+                    });
+                }
             });
 
             this.amplifierClient.on('error', (err) => {
@@ -184,11 +253,7 @@ class AudioVisualizerServer {
             this.amplifierClient.disconnect();
             this.amplifierClient = null;
             
-            this.broadcast({
-                type: 'status',
-                connected: false,
-                amplifierIP: null
-            });
+            this.broadcastCurrentStatus();
         }
     }
 
@@ -201,6 +266,7 @@ class AudioVisualizerServer {
 
     stop() {
         this.disconnectFromAmplifier();
+        this.stopPeriodicUpdates();
         this.server.close();
     }
 }
