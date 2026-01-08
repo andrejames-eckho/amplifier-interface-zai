@@ -269,14 +269,14 @@ class AudioVisualizer {
             return;
         }
         
-        // Clamp value to range -60 to +10
-        const clampedDb = Math.max(-60, Math.min(10, dbValue));
+        // Clamp value to range -60 to +60
+        const clampedDb = Math.max(-60, Math.min(60, dbValue));
         
         // Update numeric display
         meter.value.textContent = clampedDb.toFixed(1);
         
-        // Calculate bar height (0% at -60dB, 100% at +10dB)
-        const percentage = ((clampedDb + 60) / 70) * 100;
+        // Calculate bar height (0% at -60dB, 100% at +60dB)
+        const percentage = ((clampedDb + 60) / 120) * 100;
         meter.fill.style.height = `${Math.max(0, Math.min(100, percentage))}%`;
         
         // Update color based on level
