@@ -22,11 +22,6 @@ class AudioVisualizer {
         this.statusIndicator = document.getElementById('statusIndicator');
         this.statusText = document.getElementById('statusText');
         
-        // Mute button elements
-        this.masterMuteBtn = document.getElementById('masterMuteBtn');
-        this.masterMuteIcon = this.masterMuteBtn.querySelector('.mute-icon');
-        this.masterMuteText = this.masterMuteBtn.querySelector('.mute-text');
-        
         // Channel mute buttons
         this.channelMuteBtns = document.querySelectorAll('.channel-mute-btn');
         
@@ -59,9 +54,6 @@ class AudioVisualizer {
     bindEvents() {
         this.connectBtn.addEventListener('click', () => this.connect());
         this.disconnectBtn.addEventListener('click', () => this.disconnect());
-        
-        // Master mute button - disabled as indicator only
-        // this.masterMuteBtn.addEventListener('click', () => this.toggleMasterMute());
         
         // Channel mute buttons - disabled as indicators only
         // this.channelMuteBtns.forEach(btn => {
@@ -178,7 +170,6 @@ class AudioVisualizer {
             this.connectBtn.disabled = true;
             this.disconnectBtn.disabled = false;
             this.amplifierIPInput.disabled = true;
-            this.masterMuteBtn.disabled = false;
             this.channelMuteBtns.forEach(btn => btn.disabled = false);
         } else {
             this.statusIndicator.classList.remove('connected', 'warning');
@@ -186,7 +177,6 @@ class AudioVisualizer {
             this.connectBtn.disabled = false;
             this.disconnectBtn.disabled = true;
             this.amplifierIPInput.disabled = false;
-            this.masterMuteBtn.disabled = true;
             this.channelMuteBtns.forEach(btn => btn.disabled = true);
             
             // Reset all meters to -60dB
@@ -207,17 +197,6 @@ class AudioVisualizer {
         console.log('Channel mute is now indicator only - use amplifier to control mute');
     }
 
-    updateMasterMuteButton() {
-        if (this.muteStates.master) {
-            this.masterMuteBtn.classList.add('muted');
-            this.masterMuteIcon.textContent = '🔇';
-            this.masterMuteText.textContent = 'All Muted';
-        } else {
-            this.masterMuteBtn.classList.remove('muted');
-            this.masterMuteIcon.textContent = '🔊';
-            this.masterMuteText.textContent = 'All Unmuted';
-        }
-    }
 
     updateChannelMuteButton(button, isMuted) {
         const icon = button.querySelector('.mute-icon');
@@ -233,11 +212,6 @@ class AudioVisualizer {
     resetMuteStates() {
         this.muteStates.master = false;
         this.muteStates.channels = {};
-        
-        // Reset master mute button
-        this.masterMuteBtn.classList.remove('muted');
-        this.masterMuteIcon.textContent = '🔊';
-        this.masterMuteText.textContent = 'All Unmuted';
         
         // Reset all channel mute buttons and meter containers
         this.channelMuteBtns.forEach(btn => {
@@ -260,7 +234,6 @@ class AudioVisualizer {
         // Handle master mute status
         if (channelType === 'output' && channelId === 0) {
             this.muteStates.master = isMuted;
-            this.updateMasterMuteButton();
             return;
         }
         
