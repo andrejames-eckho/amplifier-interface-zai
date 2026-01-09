@@ -581,6 +581,53 @@ button:disabled {
     font-size: 1rem;
 }
 
+/* Channel IP Selector Styles */
+.channel-ip-selector {
+    margin-top: 15px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ip-selector-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.channel-ip-dropdown {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.channel-ip-dropdown:focus {
+    outline: none;
+    border-color: rgba(76, 175, 80, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.channel-ip-dropdown option {
+    background: #2a5298;
+    color: white;
+    padding: 8px;
+}
+
+.channel-ip-dropdown:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 main {
     display: flex;
     flex-direction: column;

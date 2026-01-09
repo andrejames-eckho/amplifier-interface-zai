@@ -19,6 +19,15 @@ class AudioVisualizerServer {
         this.savedIPs = this.loadIPAddresses();
         this.currentIP = null;
         
+        // Channel IP assignments storage
+        this.channelIPAssignments = {};
+        this.channelAssignmentsFile = path.join(__dirname, 'channel-assignments.json');
+        this.loadChannelAssignments();
+        
+        // Per-channel amplifier clients for monitoring different IPs
+        this.channelClients = new Map(); // Map of IP -> NPA43AClient
+        this.channelClientData = new Map(); // Map of channel -> latest data
+        
         this.setupExpress();
         this.setupWebSocket();
         this.startPeriodicStatusBroadcast();
@@ -42,6 +51,26 @@ class AudioVisualizerServer {
             fs.writeFileSync(this.ipStorageFile, JSON.stringify(this.savedIPs, null, 2));
         } catch (err) {
             console.error('Error saving IP addresses:', err.message);
+        }
+    }
+
+    loadChannelAssignments() {
+        try {
+            if (fs.existsSync(this.channelAssignmentsFile)) {
+                const data = fs.readFileSync(this.channelAssignmentsFile, 'utf8');
+                this.channelIPAssignments = JSON.parse(data);
+                console.log('Loaded channel IP assignments:', this.channelIPAssignments);
+            }
+        } catch (err) {
+            console.error('Error loading channel assignments:', err.message);
+        }
+    }
+
+    saveChannelAssignments() {
+        try {
+            fs.writeFileSync(this.channelAssignmentsFile, JSON.stringify(this.channelIPAssignments, null, 2));
+        } catch (err) {
+            console.error('Error saving channel assignments:', err.message);
         }
     }
 
@@ -219,7 +248,60 @@ class AudioVisualizerServer {
                 connected: this.amplifierClient && this.amplifierClient.isConnected,
                 amplifierIP: this.amplifierClient ? this.amplifierClient.amplifierIP : null,
                 currentIP: this.currentIP,
-                clientCount: this.connectedClients.size
+                clientCount: this.connectedClients.size,
+                channelAssignments: this.channelIPAssignments
+            });
+        });
+
+        // API endpoint for channel IP assignments
+        this.app.post('/api/channel-ip', express.json(), (req, res) => {
+            const { channel, ip } = req.body;
+            
+            console.log(`\n=== CHANNEL IP ASSIGNMENT ===`);
+            console.log(`Channel: ${channel}, IP: ${ip}`);
+            
+            if (!channel) {
+                return res.status(400).json({ error: 'Channel is required' });
+            }
+            
+            // Validate channel format (input-1, input-2, output-1, output-2, etc.)
+            const channelRegex = /^(input|output)-[1-4]$/;
+            if (!channelRegex.test(channel)) {
+                return res.status(400).json({ error: 'Invalid channel format. Must be input-1 through input-4 or output-1 through output-4' });
+            }
+            
+            if (ip && ip !== '') {
+                // Validate IP format if provided
+                const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+                if (!ipRegex.test(ip)) {
+                    return res.status(400).json({ error: 'Invalid IP address format' });
+                }
+                
+                // Check if IP exists in saved list
+                const savedIP = this.savedIPs.find(savedIP => savedIP.ip === ip);
+                if (!savedIP) {
+                    return res.status(400).json({ error: 'IP address not found in saved list' });
+                }
+                
+                // Assign IP to channel
+                this.channelIPAssignments[channel] = ip;
+                console.log(`✓ Assigned IP ${ip} to channel ${channel}`);
+            } else {
+                // Remove IP assignment from channel
+                delete this.channelIPAssignments[channel];
+                console.log(`✓ Removed IP assignment from channel ${channel}`);
+            }
+            
+            // Save assignments to file
+            this.saveChannelAssignments();
+            
+            // Implement per-channel monitoring logic
+            this.updateChannelMonitoring();
+            
+            res.json({ 
+                success: true, 
+                message: ip ? `Channel ${channel} assigned to IP ${ip}` : `Channel ${channel} reverted to default monitoring`,
+                channelAssignments: this.channelIPAssignments
             });
         });
 
@@ -333,21 +415,27 @@ class AudioVisualizerServer {
             });
 
             this.amplifierClient.on('data', (data) => {
-                if (data.db !== undefined) {
-                    // Audio level data
-                    this.broadcast({
-                        type: 'audioData',
-                        ...data
-                    });
-                } else if (data.muted !== undefined) {
-                    // Mute status data
-                    this.broadcast({
-                        type: 'muteStatus',
-                        channelType: data.channelType,
-                        channelId: data.channelId,
-                        muted: data.muted,
-                        timestamp: data.timestamp
-                    });
+                const channelKey = `${data.channelType}-${data.channelId}`;
+                
+                // Only broadcast data for channels that are NOT assigned to a specific IP
+                // (i.e., channels that should use the default/current IP monitoring)
+                if (!this.channelIPAssignments[channelKey]) {
+                    if (data.db !== undefined) {
+                        // Audio level data
+                        this.broadcast({
+                            type: 'audioData',
+                            ...data
+                        });
+                    } else if (data.muted !== undefined) {
+                        // Mute status data
+                        this.broadcast({
+                            type: 'muteStatus',
+                            channelType: data.channelType,
+                            channelId: data.channelId,
+                            muted: data.muted,
+                            timestamp: data.timestamp
+                        });
+                    }
                 }
             });
 
@@ -372,6 +460,126 @@ class AudioVisualizerServer {
         }
     }
 
+    async updateChannelMonitoring() {
+        console.log('\n=== UPDATING CHANNEL MONITORING ===');
+        console.log('Current assignments:', this.channelIPAssignments);
+        
+        // Get all unique IPs that need to be monitored
+        const requiredIPs = new Set();
+        const ipToChannels = new Map(); // IP -> Set of channels
+        
+        // Add current IP for default monitoring
+        if (this.currentIP) {
+            requiredIPs.add(this.currentIP);
+            ipToChannels.set(this.currentIP, new Set());
+        }
+        
+        // Add assigned IPs
+        for (const [channel, ip] of Object.entries(this.channelIPAssignments)) {
+            if (ip && ip !== '') {
+                requiredIPs.add(ip);
+                if (!ipToChannels.has(ip)) {
+                    ipToChannels.set(ip, new Set());
+                }
+                ipToChannels.get(ip).add(channel);
+            }
+        }
+        
+        console.log('Required IPs:', Array.from(requiredIPs));
+        console.log('IP to channels mapping:', Object.fromEntries(ipToChannels));
+        
+        // Disconnect clients that are no longer needed
+        for (const [ip, client] of this.channelClients.entries()) {
+            if (!requiredIPs.has(ip)) {
+                console.log(`Disconnecting client for IP ${ip} (no longer needed)`);
+                client.disconnect();
+                this.channelClients.delete(ip);
+            }
+        }
+        
+        // Connect to new IPs that aren't already connected
+        for (const ip of requiredIPs) {
+            if (!this.channelClients.has(ip)) {
+                console.log(`Creating new client for IP ${ip}`);
+                await this.createChannelClient(ip);
+            }
+        }
+        
+        console.log('=== END CHANNEL MONITORING UPDATE ===\n');
+    }
+
+    async createChannelClient(ip) {
+        try {
+            const client = new NPA43AClient(ip);
+            
+            // Set up event handlers for channel-specific client
+            client.on('connected', () => {
+                console.log(`🔗 Channel client connected to ${ip}`);
+                client.startPolling(250);
+            });
+
+            client.on('disconnected', () => {
+                console.log(`Channel client disconnected from ${ip}`);
+            });
+
+            client.on('data', (data) => {
+                // Store the data for this IP
+                const ipKey = ip;
+                if (!this.channelClientData.has(ipKey)) {
+                    this.channelClientData.set(ipKey, new Map());
+                }
+                const ipData = this.channelClientData.get(ipKey);
+                
+                const channelKey = `${data.channelType}-${data.channelId}`;
+                ipData.set(channelKey, data);
+                
+                // Only broadcast data for channels that are assigned to this specific IP
+                if (this.channelIPAssignments[channelKey] === ip) {
+                    if (data.db !== undefined) {
+                        this.broadcast({
+                            type: 'audioData',
+                            ...data
+                        });
+                    } else if (data.muted !== undefined) {
+                        this.broadcast({
+                            type: 'muteStatus',
+                            channelType: data.channelType,
+                            channelId: data.channelId,
+                            muted: data.muted,
+                            timestamp: data.timestamp
+                        });
+                    }
+                }
+            });
+
+            client.on('error', (err) => {
+                console.error(`Channel client error for ${ip}:`, err.message);
+                this.broadcast({
+                    type: 'error',
+                    message: `Channel monitoring error for ${ip}: ${err.message}`
+                });
+            });
+
+            // Connect to the amplifier
+            await client.connect();
+            this.channelClients.set(ip, client);
+            
+            // Initialize data storage for this IP
+            if (!this.channelClientData.has(ip)) {
+                this.channelClientData.set(ip, new Map());
+            }
+            
+            console.log(`✓ Channel client created and connected to ${ip}`);
+            
+        } catch (err) {
+            console.error(`Failed to create channel client for ${ip}:`, err.message);
+            this.broadcast({
+                type: 'error',
+                message: `Failed to connect to ${ip}: ${err.message}`
+            });
+        }
+    }
+
     disconnectFromAmplifier() {
         if (this.amplifierClient) {
             this.amplifierClient.disconnect();
@@ -379,6 +587,14 @@ class AudioVisualizerServer {
             
             this.broadcastCurrentStatus();
         }
+        
+        // Disconnect all channel clients
+        for (const [ip, client] of this.channelClients.entries()) {
+            console.log(`Disconnecting channel client for ${ip}`);
+            client.disconnect();
+        }
+        this.channelClients.clear();
+        this.channelClientData.clear();
     }
 
     start() {
@@ -391,6 +607,14 @@ class AudioVisualizerServer {
     stop() {
         this.disconnectFromAmplifier();
         this.stopPeriodicUpdates();
+        
+        // Ensure all channel clients are disconnected
+        for (const [ip, client] of this.channelClients.entries()) {
+            client.disconnect();
+        }
+        this.channelClients.clear();
+        this.channelClientData.clear();
+        
         this.server.close();
     }
 }

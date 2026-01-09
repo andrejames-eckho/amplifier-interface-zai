@@ -37,6 +37,9 @@ class AudioVisualizer {
         // Channel mute buttons
         this.channelMuteBtns = document.querySelectorAll('.channel-mute-btn');
         
+        // Channel IP dropdowns
+        this.channelIPDropdowns = document.querySelectorAll('.channel-ip-dropdown');
+        
         // Error toast
         this.errorToast = document.getElementById('errorToast');
         this.errorMessage = document.getElementById('errorMessage');
@@ -65,6 +68,9 @@ class AudioVisualizer {
         // IP management
         this.savedIPs = [];
         this.currentIP = null;
+        
+        // Channel IP assignments
+        this.channelIPAssignments = {};
     }
 
     bindEvents() {
@@ -91,6 +97,15 @@ class AudioVisualizer {
             if (e.key === 'Enter') {
                 this.addNewIP();
             }
+        });
+        
+        // Channel IP dropdown change events
+        this.channelIPDropdowns.forEach(dropdown => {
+            console.log(`🎣 Binding change event to dropdown: ${dropdown.dataset.channel}`);
+            dropdown.addEventListener('change', (e) => {
+                console.log(`🎯 Change event fired on ${e.target.dataset.channel}, value: ${e.target.value}`);
+                this.handleChannelIPChange(e.target.dataset.channel, e.target.value);
+            });
         });
     }
 
@@ -199,6 +214,9 @@ class AudioVisualizer {
             this.statusText.textContent = `Connected to ${amplifierIP}`;
             this.channelMuteBtns.forEach(btn => btn.disabled = false);
             
+            // Enable channel IP dropdowns when connected
+            this.channelIPDropdowns.forEach(dropdown => dropdown.disabled = false);
+            
             // Clear any warning state when we get a status update
             this.statusIndicator.classList.remove('warning');
         } else {
@@ -206,6 +224,9 @@ class AudioVisualizer {
             this.statusIndicator.classList.add('disconnected');
             this.statusText.textContent = 'Disconnected';
             this.channelMuteBtns.forEach(btn => btn.disabled = true);
+            
+            // Disable channel IP dropdowns when disconnected
+            this.channelIPDropdowns.forEach(dropdown => dropdown.disabled = true);
             
             // Reset all meters to -60dB
             this.resetAllMeters();
@@ -346,6 +367,7 @@ class AudioVisualizer {
                 this.currentIP = result.currentIP;
                 this.updateConnectionStatus(this.isConnected, this.currentIP);
                 this.renderIPCards(); // Render cards in hamburger menu
+                this.populateChannelIPDropdowns(); // Populate channel dropdowns
             }
         } catch (err) {
             console.error('Failed to load IPs:', err);
@@ -571,9 +593,104 @@ class AudioVisualizer {
     hideError() {
         this.errorToast.classList.remove('show');
     }
+
+    populateChannelIPDropdowns() {
+        console.log(`🔄 Populating channel IP dropdowns...`);
+        console.log(`📋 Available IPs:`, this.savedIPs);
+        console.log(`🎛️ Found ${this.channelIPDropdowns.length} dropdowns`);
+        
+        this.channelIPDropdowns.forEach(dropdown => {
+            const channel = dropdown.dataset.channel;
+            console.log(`📍 Processing dropdown for channel: ${channel}`);
+            
+            // Clear existing options except the default
+            dropdown.innerHTML = '<option value="">Default</option>';
+            
+            // Add saved IPs
+            this.savedIPs.forEach(ip => {
+                const option = document.createElement('option');
+                option.value = ip.ip;
+                option.textContent = `${ip.name || ip.ip} (${ip.ip})`;
+                
+                // Set as selected if this channel is assigned to this IP
+                if (this.channelIPAssignments[channel] === ip.ip) {
+                    option.selected = true;
+                    console.log(`✅ Pre-selecting IP ${ip.ip} for channel ${channel}`);
+                }
+                
+                dropdown.appendChild(option);
+            });
+            
+            // Enable/disable based on connection status
+            dropdown.disabled = !this.isConnected;
+            console.log(`🔌 Dropdown ${channel} enabled: ${!dropdown.disabled}`);
+        });
+        
+        console.log(`✅ Channel IP dropdowns populated`);
+    }
+
+    handleChannelIPChange(channel, selectedIP) {
+        console.log(`🔄 Channel IP Change triggered: ${channel} -> ${selectedIP}`);
+        console.log(`🔗 Connection status: ${this.isConnected}`);
+        
+        // Temporarily allow changes even when not connected for testing
+        if (!this.isConnected) {
+            console.log('⚠️ Not connected, but allowing change for testing');
+            // return; // Commented out for testing
+        }
+        
+        // Update the channel IP assignment
+        if (selectedIP === '') {
+            delete this.channelIPAssignments[channel];
+            console.log(`Channel ${channel} reverted to default IP monitoring`);
+        } else {
+            this.channelIPAssignments[channel] = selectedIP;
+            console.log(`Channel ${channel} assigned to monitor IP: ${selectedIP}`);
+        }
+        
+        console.log(`📤 Sending assignment to server...`);
+        // Send assignment to server
+        this.sendChannelIPAssignment(channel, selectedIP);
+    }
+
+    async sendChannelIPAssignment(channel, ip) {
+        try {
+            console.log(`📡 Sending request: POST /api/channel-ip with body:`, { channel, ip });
+            
+            const response = await fetch('/api/channel-ip', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ channel, ip })
+            });
+            
+            console.log(`📥 Response status: ${response.status} ${response.statusText}`);
+            
+            const result = await response.json();
+            console.log(`📥 Response data:`, result);
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to assign IP to channel');
+            }
+            
+            console.log(`✅ Channel ${channel} IP assignment updated successfully`);
+            
+        } catch (err) {
+            console.error('❌ Failed to update channel IP assignment:', err);
+            this.showError(err.message);
+            
+            // Revert dropdown to previous state on error
+            const dropdown = document.querySelector(`[data-channel="${channel}"]`);
+            if (dropdown) {
+                dropdown.value = this.channelIPAssignments[channel] || '';
+            }
+        }
+    }
 }
 
 // Initialize the application when DOM is loaded
+
 document.addEventListener('DOMContentLoaded', () => {
     new AudioVisualizer();
 });
