@@ -7,6 +7,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="menu-content" id="menuContent">
+            <div class="menu-header">
+                <h3>Amplifiers</h3>
+                <button id="manageIPsFromMenu" class="secondary-btn">Manage IPs</button>
+            </div>
+            <div class="ip-cards-list" id="ipCardsList">
+                <!-- IP cards will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header>
             <h1>NPA43A Audio Visualizer</h1>
@@ -16,10 +29,34 @@
                     <span class="status-text" id="statusText">Disconnected</span>
                 </div>
                 <div class="connection-controls">
-                    <input type="text" id="amplifierIP" placeholder="Amplifier IP Address" value="169.254.21.36">
-                    <button id="connectBtn">Connect</button>
-                    <button id="disconnectBtn" disabled>Disconnect</button>
-                                    </div>
+                    <!-- Amplifier selection moved to hamburger menu -->
+                </div>
+            </div>
+            
+            <!-- IP Management Modal -->
+            <div id="ipModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Manage Amplifier IPs</h3>
+                        <span class="close" id="closeModal">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="add-ip-section">
+                            <h4>Add New IP</h4>
+                            <div class="add-ip-form">
+                                <input type="text" id="newIP" placeholder="IP Address (e.g., 192.168.1.100)">
+                                <input type="text" id="newIPName" placeholder="Optional Name (e.g., Main Amp)">
+                                <button id="addIPBtn">Add</button>
+                            </div>
+                        </div>
+                        <div class="saved-ips-section">
+                            <h4>Saved IPs</h4>
+                            <div id="savedIPsList" class="ips-list">
+                                <!-- IPs will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
 

@@ -11,10 +11,140 @@ body {
     min-height: 100vh;
 }
 
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.menu-content {
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.menu-header h3 {
+    margin: 0;
+    font-weight: 400;
+    font-size: 1.2rem;
+    color: white;
+}
+
+.ip-cards-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.ip-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.ip-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.ip-card.active {
+    background: rgba(76, 175, 80, 0.2);
+    border-color: #4CAF50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+}
+
+.ip-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.ip-card-name {
+    font-weight: 500;
+    font-size: 1rem;
+    color: white;
+}
+
+.ip-card-status {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.ip-card.active .ip-card-status {
+    background: #4CAF50;
+    color: white;
+}
+
+.ip-card-ip {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'Courier New', monospace;
+}
+
+.no-ips {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+    padding: 20px;
+}
+
+.menu-footer {
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.menu-footer button {
+    width: 100%;
+    padding: 10px;
+}
+
+/* Adjust main container to account for sidebar */
 .container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
+    margin-left: 280px;
+    background: rgba(30, 60, 114, 0.1);
+    border-radius: 12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 240px;
+    }
+    
+    .container {
+        margin-left: 240px;
+    }
 }
 
 header {
@@ -41,6 +171,217 @@ h1 {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.connection-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.ip-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ip-selector label {
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.ip-selector select {
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1rem;
+}
+
+.ip-selector select option {
+    background: #2a5298;
+    color: white;
+}
+
+.ip-management {
+    display: flex;
+    justify-content: center;
+}
+
+.secondary-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-weight: 400;
+}
+
+.close {
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.add-ip-section, .saved-ips-section {
+    margin-bottom: 25px;
+}
+
+.add-ip-section h4, .saved-ips-section h4 {
+    margin-bottom: 15px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.add-ip-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.add-ip-form input {
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1rem;
+}
+
+.add-ip-form input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.add-ip-form input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.ips-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.ip-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ip-item:last-child {
+    border-bottom: none;
+}
+
+.ip-info {
+    flex: 1;
+}
+
+.ip-name {
+    font-weight: 500;
+    margin-bottom: 3px;
+}
+
+.ip-address {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.ip-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.delete-btn {
+    background: rgba(255, 67, 54, 0.8);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+    background: rgba(255, 67, 54, 1);
+    transform: translateY(-1px);
+}
+
+.current-ip {
+    background: rgba(76, 175, 80, 0.2);
+    border-left: 3px solid #4CAF50;
+}
+
+.current-ip .ip-name::after {
+    content: " (Current)";
+    color: #4CAF50;
+    font-size: 0.8rem;
+    font-weight: normal;
+}
+
 .connection-status {
     display: flex;
     align-items: center;
@@ -60,6 +401,11 @@ h1 {
 .status-indicator.connected {
     background: #28a745;
     box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+}
+
+.status-indicator.disconnected {
+    background: #dc3545;
+    box-shadow: 0 0 8px rgba(220, 53, 69, 0.5);
 }
 
 .status-indicator.warning {

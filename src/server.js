@@ -2,6 +2,7 @@ const express = require('express');
 const WebSocket = require('ws');
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
 const NPA43AClient = require('./amplifier-client');
 
 class AudioVisualizerServer {
@@ -14,11 +15,34 @@ class AudioVisualizerServer {
         this.connectedClients = new Set();
         this.statusBroadcastInterval = null;
         this.heartbeatInterval = null;
+        this.ipStorageFile = path.join(__dirname, 'ip-addresses.json');
+        this.savedIPs = this.loadIPAddresses();
+        this.currentIP = null;
         
         this.setupExpress();
         this.setupWebSocket();
         this.startPeriodicStatusBroadcast();
         this.startHeartbeat();
+    }
+
+    loadIPAddresses() {
+        try {
+            if (fs.existsSync(this.ipStorageFile)) {
+                const data = fs.readFileSync(this.ipStorageFile, 'utf8');
+                return JSON.parse(data);
+            }
+        } catch (err) {
+            console.error('Error loading IP addresses:', err.message);
+        }
+        return [];
+    }
+
+    saveIPAddresses() {
+        try {
+            fs.writeFileSync(this.ipStorageFile, JSON.stringify(this.savedIPs, null, 2));
+        } catch (err) {
+            console.error('Error saving IP addresses:', err.message);
+        }
     }
 
     setupExpress() {
@@ -35,7 +59,106 @@ class AudioVisualizerServer {
 
             this.connectToAmplifier(amplifierIP)
                 .then(() => {
+                    this.currentIP = amplifierIP;
                     res.json({ success: true, message: 'Connected to amplifier' });
+                })
+                .catch(err => {
+                    res.status(500).json({ error: err.message });
+                });
+        });
+
+        // API endpoint to get all saved IP addresses
+        this.app.get('/api/ips', (req, res) => {
+            res.json({
+                ips: this.savedIPs,
+                currentIP: this.currentIP
+            });
+        });
+
+        // API endpoint to add a new IP address
+        this.app.post('/api/ips', express.json(), (req, res) => {
+            const { ip, name } = req.body;
+            
+            if (!ip) {
+                return res.status(400).json({ error: 'IP address is required' });
+            }
+
+            // Validate IP format (basic validation)
+            const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            if (!ipRegex.test(ip)) {
+                return res.status(400).json({ error: 'Invalid IP address format' });
+            }
+
+            // Check if IP already exists
+            if (this.savedIPs.find(savedIP => savedIP.ip === ip)) {
+                return res.status(400).json({ error: 'IP address already exists' });
+            }
+
+            const newIP = {
+                id: Date.now().toString(),
+                ip: ip,
+                name: name || ip,
+                addedAt: new Date().toISOString()
+            };
+
+            this.savedIPs.push(newIP);
+            this.saveIPAddresses();
+            
+            res.json({ 
+                success: true, 
+                message: 'IP address added successfully',
+                ip: newIP
+            });
+        });
+
+        // API endpoint to remove an IP address
+        this.app.delete('/api/ips/:id', (req, res) => {
+            const { id } = req.params;
+            
+            const index = this.savedIPs.findIndex(ip => ip.id === id);
+            if (index === -1) {
+                return res.status(404).json({ error: 'IP address not found' });
+            }
+
+            const removedIP = this.savedIPs[index];
+            this.savedIPs.splice(index, 1);
+            this.saveIPAddresses();
+
+            // If the removed IP was current connection, disconnect
+            if (this.currentIP === removedIP.ip) {
+                this.disconnectFromAmplifier();
+                this.currentIP = null;
+            }
+
+            res.json({ 
+                success: true, 
+                message: 'IP address removed successfully',
+                removedIP: removedIP
+            });
+        });
+
+        // API endpoint to switch to a different IP
+        this.app.post('/api/switch', express.json(), (req, res) => {
+            const { ip } = req.body;
+            
+            if (!ip) {
+                return res.status(400).json({ error: 'IP address is required' });
+            }
+
+            // Check if IP exists in saved list
+            const savedIP = this.savedIPs.find(savedIP => savedIP.ip === ip);
+            if (!savedIP) {
+                return res.status(404).json({ error: 'IP address not found in saved list' });
+            }
+
+            this.connectToAmplifier(ip)
+                .then(() => {
+                    this.currentIP = ip;
+                    res.json({ 
+                        success: true, 
+                        message: `Switched to ${savedIP.name || ip}`,
+                        currentIP: ip
+                    });
                 })
                 .catch(err => {
                     res.status(500).json({ error: err.message });
@@ -95,6 +218,7 @@ class AudioVisualizerServer {
             res.json({
                 connected: this.amplifierClient && this.amplifierClient.isConnected,
                 amplifierIP: this.amplifierClient ? this.amplifierClient.amplifierIP : null,
+                currentIP: this.currentIP,
                 clientCount: this.connectedClients.size
             });
         });
@@ -134,10 +258,10 @@ class AudioVisualizerServer {
     }
 
     startPeriodicStatusBroadcast() {
-        // Broadcast status every 5 seconds to ensure frontend stays updated
+        // Broadcast status every 10 seconds to ensure frontend stays updated
         this.statusBroadcastInterval = setInterval(() => {
             this.broadcastCurrentStatus();
-        }, 5000);
+        }, 10000);
     }
 
     startHeartbeat() {

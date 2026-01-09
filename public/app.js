@@ -11,16 +11,28 @@ class AudioVisualizer {
         this.initializeElements();
         this.bindEvents();
         this.connectWebSocket();
+        this.loadIPs();
         this.startConnectionStatusMonitoring();
     }
 
     initializeElements() {
+        // Sidebar elements
+        this.sidebar = document.getElementById('sidebar');
+        this.menuContent = document.getElementById('menuContent');
+        this.ipCardsList = document.getElementById('ipCardsList');
+        this.manageIPsFromMenu = document.getElementById('manageIPsFromMenu');
+        
         // Connection elements
-        this.amplifierIPInput = document.getElementById('amplifierIP');
-        this.connectBtn = document.getElementById('connectBtn');
-        this.disconnectBtn = document.getElementById('disconnectBtn');
         this.statusIndicator = document.getElementById('statusIndicator');
         this.statusText = document.getElementById('statusText');
+        
+        // Modal elements
+        this.ipModal = document.getElementById('ipModal');
+        this.closeModal = document.getElementById('closeModal');
+        this.newIPInput = document.getElementById('newIP');
+        this.newIPNameInput = document.getElementById('newIPName');
+        this.addIPBtn = document.getElementById('addIPBtn');
+        this.savedIPsList = document.getElementById('savedIPsList');
         
         // Channel mute buttons
         this.channelMuteBtns = document.querySelectorAll('.channel-mute-btn');
@@ -49,24 +61,35 @@ class AudioVisualizer {
             master: false,
             channels: {}
         };
+        
+        // IP management
+        this.savedIPs = [];
+        this.currentIP = null;
     }
 
     bindEvents() {
-        this.connectBtn.addEventListener('click', () => this.connect());
-        this.disconnectBtn.addEventListener('click', () => this.disconnect());
+        // Sidebar events
+        this.manageIPsFromMenu.addEventListener('click', () => this.openIPModal());
+        this.closeModal.addEventListener('click', () => this.closeIPModal());
+        this.addIPBtn.addEventListener('click', () => this.addNewIP());
         
-        // Channel mute buttons - disabled as indicators only
-        // this.channelMuteBtns.forEach(btn => {
-        //     btn.addEventListener('click', () => {
-        //         const channel = btn.dataset.channel;
-        //         this.toggleChannelMute(channel, btn);
-        //     });
-        // });
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === this.ipModal) {
+                this.closeIPModal();
+            }
+        });
         
-        // Allow Enter key to connect
-        this.amplifierIPInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !this.connectBtn.disabled) {
-                this.connect();
+        // Allow Enter key to add IP
+        this.newIPInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.addNewIP();
+            }
+        });
+        
+        this.newIPNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.addNewIP();
             }
         });
     }
@@ -83,6 +106,7 @@ class AudioVisualizer {
             console.log('WebSocket connected');
             this.reconnectAttempts = 0;
             this.lastStatusUpdate = Date.now();
+            this.loadIPs(); // Load IPs when WebSocket connects
         };
         
         this.ws.onmessage = (event) => {
@@ -125,13 +149,19 @@ class AudioVisualizer {
             const now = Date.now();
             const timeSinceLastUpdate = now - this.lastStatusUpdate;
             
-            // If we haven't received a status update in 15 seconds, show warning
-            if (timeSinceLastUpdate > 15000 && this.isConnected) {
-                console.warn('⚠️ No status updates received for 15 seconds');
-                this.statusText.textContent = 'Connected (checking...)';
-                this.statusIndicator.classList.add('warning');
+            // Only show warning if we're supposed to be connected but haven't received updates for 20 seconds
+            if (timeSinceLastUpdate > 20000 && this.isConnected) {
+                if (!this.statusIndicator.classList.contains('warning')) {
+                    console.warn('⚠️ No status updates received for 20 seconds');
+                    this.statusText.textContent = 'Connected (checking...)';
+                    this.statusIndicator.classList.add('warning');
+                }
+            } else if (this.isConnected && this.statusIndicator.classList.contains('warning') && timeSinceLastUpdate < 20000) {
+                // Clear warning state if we start receiving updates again
+                this.statusIndicator.classList.remove('warning');
+                this.statusText.textContent = `Connected to ${this.currentIP || 'amplifier'}`;
             }
-        }, 5000);
+        }, 10000); // Check every 10 seconds instead of 5
     }
 
     stopConnectionStatusMonitoring() {
@@ -164,19 +194,17 @@ class AudioVisualizer {
         this.isConnected = connected;
         
         if (connected) {
-            this.statusIndicator.classList.remove('connected', 'warning');
+            this.statusIndicator.classList.remove('disconnected', 'warning');
             this.statusIndicator.classList.add('connected');
             this.statusText.textContent = `Connected to ${amplifierIP}`;
-            this.connectBtn.disabled = true;
-            this.disconnectBtn.disabled = false;
-            this.amplifierIPInput.disabled = true;
             this.channelMuteBtns.forEach(btn => btn.disabled = false);
+            
+            // Clear any warning state when we get a status update
+            this.statusIndicator.classList.remove('warning');
         } else {
             this.statusIndicator.classList.remove('connected', 'warning');
+            this.statusIndicator.classList.add('disconnected');
             this.statusText.textContent = 'Disconnected';
-            this.connectBtn.disabled = false;
-            this.disconnectBtn.disabled = true;
-            this.amplifierIPInput.disabled = false;
             this.channelMuteBtns.forEach(btn => btn.disabled = true);
             
             // Reset all meters to -60dB
@@ -308,60 +336,149 @@ class AudioVisualizer {
         });
     }
 
-    async connect() {
-        const amplifierIP = this.amplifierIPInput.value.trim();
+    async loadIPs() {
+        try {
+            const response = await fetch('/api/ips');
+            const result = await response.json();
+            
+            if (response.ok) {
+                this.savedIPs = result.ips || [];
+                this.currentIP = result.currentIP;
+                this.updateConnectionStatus(this.isConnected, this.currentIP);
+                this.renderIPCards(); // Render cards in hamburger menu
+            }
+        } catch (err) {
+            console.error('Failed to load IPs:', err);
+        }
+    }
+
+
+
+    openIPModal() {
+        this.ipModal.style.display = 'block';
+        this.loadSavedIPs();
+    }
+
+    closeIPModal() {
+        this.ipModal.style.display = 'none';
+        this.newIPInput.value = '';
+        this.newIPNameInput.value = '';
+    }
+
+    async addNewIP() {
+        const ip = this.newIPInput.value.trim();
+        const name = this.newIPNameInput.value.trim();
         
-        if (!amplifierIP) {
-            this.showError('Please enter an amplifier IP address');
+        if (!ip) {
+            this.showError('IP address is required');
             return;
         }
         
-        if (!this.isValidIP(amplifierIP)) {
-            this.showError('Please enter a valid IP address');
+        if (!this.isValidIP(ip)) {
+            this.showError('Invalid IP address format');
             return;
         }
         
         try {
-            this.connectBtn.disabled = true;
-            this.connectBtn.textContent = 'Connecting...';
+            this.addIPBtn.disabled = true;
+            this.addIPBtn.textContent = 'Adding...';
             
-            const response = await fetch('/api/connect', {
+            const response = await fetch('/api/ips', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ amplifierIP })
+                body: JSON.stringify({ ip, name })
             });
             
             const result = await response.json();
             
             if (!response.ok) {
-                throw new Error(result.error || 'Connection failed');
+                throw new Error(result.error || 'Failed to add IP');
             }
             
-            console.log('Connection request sent successfully');
+            this.newIPInput.value = '';
+            this.newIPNameInput.value = '';
+            this.loadSavedIPs();
+            this.loadIPs(); // Refresh the main dropdown and cards
             
         } catch (err) {
             this.showError(err.message);
         } finally {
-            this.connectBtn.disabled = false;
-            this.connectBtn.textContent = 'Connect';
+            this.addIPBtn.disabled = false;
+            this.addIPBtn.textContent = 'Add';
         }
     }
 
-    async disconnect() {
+    async loadSavedIPs() {
         try {
-            const response = await fetch('/api/disconnect', {
-                method: 'POST'
+            const response = await fetch('/api/ips');
+            const result = await response.json();
+            
+            if (response.ok) {
+                this.savedIPs = result.ips || [];
+                this.renderSavedIPs();
+            }
+        } catch (err) {
+            console.error('Failed to load saved IPs:', err);
+        }
+    }
+
+    renderSavedIPs() {
+        this.savedIPsList.innerHTML = '';
+        
+        if (this.savedIPs.length === 0) {
+            this.savedIPsList.innerHTML = '<div class="no-ips">No saved IP addresses</div>';
+            return;
+        }
+        
+        this.savedIPs.forEach(ip => {
+            const ipItem = document.createElement('div');
+            ipItem.className = 'ip-item';
+            if (ip.ip === this.currentIP) {
+                ipItem.classList.add('current-ip');
+            }
+            
+            ipItem.innerHTML = `
+                <div class="ip-info">
+                    <div class="ip-name">${ip.name || ip.ip}</div>
+                    <div class="ip-address">${ip.ip}</div>
+                </div>
+                <div class="ip-actions">
+                    <button class="delete-btn" data-id="${ip.id}">Delete</button>
+                </div>
+            `;
+            
+            this.savedIPsList.appendChild(ipItem);
+        });
+        
+        // Add delete event listeners
+        this.savedIPsList.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.dataset.id;
+                this.deleteIP(id);
+            });
+        });
+    }
+
+    async deleteIP(id) {
+        if (!confirm('Are you sure you want to delete this IP address?')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/ips/${id}`, {
+                method: 'DELETE'
             });
             
             const result = await response.json();
             
             if (!response.ok) {
-                throw new Error(result.error || 'Disconnect failed');
+                throw new Error(result.error || 'Failed to delete IP');
             }
             
-            console.log('Disconnect request sent successfully');
+            this.loadSavedIPs();
+            this.loadIPs(); // Refresh the main dropdown and cards
             
         } catch (err) {
             this.showError(err.message);
@@ -371,6 +488,74 @@ class AudioVisualizer {
     isValidIP(ip) {
         const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
         return ipRegex.test(ip);
+    }
+
+
+    renderIPCards() {
+        this.ipCardsList.innerHTML = '';
+        
+        if (this.savedIPs.length === 0) {
+            this.ipCardsList.innerHTML = '<div class="no-ips">No saved amplifiers</div>';
+            return;
+        }
+        
+        this.savedIPs.forEach(ip => {
+            const ipCard = document.createElement('div');
+            ipCard.className = 'ip-card';
+            if (ip.ip === this.currentIP) {
+                ipCard.classList.add('active');
+            }
+            
+            ipCard.innerHTML = `
+                <div class="ip-card-header">
+                    <div class="ip-card-name">${ip.name || ip.ip}</div>
+                    <div class="ip-card-status">${ip.ip === this.currentIP ? 'Current' : 'Available'}</div>
+                </div>
+                <div class="ip-card-ip">${ip.ip}</div>
+            `;
+            
+            ipCard.addEventListener('click', () => this.switchToIP(ip.ip));
+            this.ipCardsList.appendChild(ipCard);
+        });
+    }
+
+    async switchToIP(ip) {
+        if (ip === this.currentIP) {
+            return; // Already connected to this IP
+        }
+        
+        try {
+            // Show loading state
+            const cards = this.ipCardsList.querySelectorAll('.ip-card');
+            cards.forEach(card => {
+                if (card.querySelector('.ip-card-ip').textContent === ip) {
+                    card.style.opacity = '0.6';
+                    card.style.pointerEvents = 'none';
+                }
+            });
+            
+            const response = await fetch('/api/switch', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ip })
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Switch failed');
+            }
+            
+            this.currentIP = ip;
+            this.renderIPCards();
+            
+        } catch (err) {
+            this.showError(err.message);
+            // Reset card states on error
+            this.renderIPCards();
+        }
     }
 
     showError(message) {
