@@ -24,6 +24,10 @@ class AudioVisualizerServer {
         this.channelAssignmentsFile = path.join(__dirname, 'channel-assignments.json');
         this.loadChannelAssignments();
         
+        // Channel number assignments storage (maps display channel to actual amplifier channel)
+        this.channelNumberAssignments = {};
+        this.loadChannelNumberAssignments();
+        
         // Per-channel amplifier clients for monitoring different IPs
         this.channelClients = new Map(); // Map of IP -> NPA43AClient
         this.channelClientData = new Map(); // Map of channel -> latest data
@@ -58,17 +62,29 @@ class AudioVisualizerServer {
         try {
             if (fs.existsSync(this.channelAssignmentsFile)) {
                 const data = fs.readFileSync(this.channelAssignmentsFile, 'utf8');
-                this.channelIPAssignments = JSON.parse(data);
+                const assignments = JSON.parse(data);
+                this.channelIPAssignments = assignments.ipAssignments || {};
+                this.channelNumberAssignments = assignments.numberAssignments || {};
                 console.log('Loaded channel IP assignments:', this.channelIPAssignments);
+                console.log('Loaded channel number assignments:', this.channelNumberAssignments);
             }
         } catch (err) {
             console.error('Error loading channel assignments:', err.message);
         }
     }
 
+    loadChannelNumberAssignments() {
+        // This method is now integrated into loadChannelAssignments for simplicity
+        // Keeping it for compatibility but it doesn't need to do anything
+    }
+
     saveChannelAssignments() {
         try {
-            fs.writeFileSync(this.channelAssignmentsFile, JSON.stringify(this.channelIPAssignments, null, 2));
+            const assignments = {
+                ipAssignments: this.channelIPAssignments,
+                numberAssignments: this.channelNumberAssignments
+            };
+            fs.writeFileSync(this.channelAssignmentsFile, JSON.stringify(assignments, null, 2));
         } catch (err) {
             console.error('Error saving channel assignments:', err.message);
         }
@@ -249,7 +265,54 @@ class AudioVisualizerServer {
                 amplifierIP: this.amplifierClient ? this.amplifierClient.amplifierIP : null,
                 currentIP: this.currentIP,
                 clientCount: this.connectedClients.size,
-                channelAssignments: this.channelIPAssignments
+                channelAssignments: this.channelIPAssignments,
+                channelNumberAssignments: this.channelNumberAssignments
+            });
+        });
+
+        // API endpoint to get all channel assignments
+        this.app.get('/api/channel-assignments', (req, res) => {
+            res.json({
+                channelNumberAssignments: this.channelNumberAssignments,
+                channelIPAssignments: this.channelIPAssignments
+            });
+        });
+
+        // API endpoint for channel number assignments
+        this.app.post('/api/channel-number', express.json(), (req, res) => {
+            const { channel, channelNumber } = req.body;
+            
+            console.log(`\n=== CHANNEL NUMBER ASSIGNMENT ===`);
+            console.log(`Channel: ${channel}, Channel Number: ${channelNumber}`);
+            
+            if (!channel) {
+                return res.status(400).json({ error: 'Channel is required' });
+            }
+            
+            if (!channelNumber || channelNumber < 1 || channelNumber > 4) {
+                return res.status(400).json({ error: 'Channel number must be between 1 and 4' });
+            }
+            
+            // Validate channel format (input-1, input-2, output-1, output-2, etc.)
+            const channelRegex = /^(input|output)-[1-4]$/;
+            if (!channelRegex.test(channel)) {
+                return res.status(400).json({ error: 'Invalid channel format. Must be input-1 through input-4 or output-1 through output-4' });
+            }
+            
+            // Assign channel number
+            this.channelNumberAssignments[channel] = parseInt(channelNumber);
+            console.log(`✓ Assigned channel number ${channelNumber} to display channel ${channel}`);
+            
+            // Save assignments to file
+            this.saveChannelAssignments();
+            
+            // Update channel monitoring to apply new channel number mappings
+            this.updateChannelMonitoring();
+            
+            res.json({ 
+                success: true, 
+                message: `Channel ${channel} assigned to amplifier channel ${channelNumber}`,
+                channelNumberAssignments: this.channelNumberAssignments
             });
         });
 
@@ -399,8 +462,20 @@ class AudioVisualizerServer {
                 this.disconnectFromAmplifier();
             }
 
+            // Create channel mapping for the main client (channels not assigned to specific IPs)
+            const channelMapping = {};
+            for (const [displayChannel, assignedIP] of Object.entries(this.channelIPAssignments)) {
+                if (!assignedIP || assignedIP === '') {
+                    // This display channel uses the default/main IP
+                    const actualChannelId = this.channelNumberAssignments[displayChannel] || parseInt(displayChannel.split('-')[1]);
+                    channelMapping[displayChannel] = actualChannelId;
+                }
+            }
+            
+            console.log(`Creating main amplifier client for IP ${amplifierIP} with mapping:`, channelMapping);
+            
             // Create new client
-            this.amplifierClient = new NPA43AClient(amplifierIP);
+            this.amplifierClient = new NPA43AClient(amplifierIP, 8234, Object.keys(channelMapping).length > 0 ? channelMapping : null);
             
             // Set up event handlers
             this.amplifierClient.on('connected', () => {
@@ -420,6 +495,7 @@ class AudioVisualizerServer {
                 // Only broadcast data for channels that are NOT assigned to a specific IP
                 // (i.e., channels that should use the default/current IP monitoring)
                 if (!this.channelIPAssignments[channelKey]) {
+                    console.log(`📡 Main client broadcasting data for unassigned channel: ${channelKey}`);
                     if (data.db !== undefined) {
                         // Audio level data
                         this.broadcast({
@@ -436,6 +512,8 @@ class AudioVisualizerServer {
                             timestamp: data.timestamp
                         });
                     }
+                } else {
+                    console.log(`🚫 Main client blocking data for assigned channel: ${channelKey} (assigned to ${this.channelIPAssignments[channelKey]})`);
                 }
             });
 
@@ -462,7 +540,27 @@ class AudioVisualizerServer {
 
     async updateChannelMonitoring() {
         console.log('\n=== UPDATING CHANNEL MONITORING ===');
-        console.log('Current assignments:', this.channelIPAssignments);
+        console.log('Current IP assignments:', this.channelIPAssignments);
+        console.log('Current channel number assignments:', this.channelNumberAssignments);
+        
+        // Update main amplifier client if it exists
+        if (this.amplifierClient && this.currentIP) {
+            console.log('Updating main amplifier client with new channel mappings...');
+            
+            // Create new channel mapping for the main client
+            const channelMapping = {};
+            for (const [displayChannel, assignedIP] of Object.entries(this.channelIPAssignments)) {
+                if (!assignedIP || assignedIP === '') {
+                    // This display channel uses the default/main IP
+                    const actualChannelId = this.channelNumberAssignments[displayChannel] || parseInt(displayChannel.split('-')[1]);
+                    channelMapping[displayChannel] = actualChannelId;
+                }
+            }
+            
+            // Update the main client's channel mapping
+            this.amplifierClient.channelMapping = Object.keys(channelMapping).length > 0 ? channelMapping : null;
+            console.log('Main client updated with mapping:', channelMapping);
+        }
         
         // Get all unique IPs that need to be monitored
         const requiredIPs = new Set();
@@ -494,15 +592,18 @@ class AudioVisualizerServer {
                 console.log(`Disconnecting client for IP ${ip} (no longer needed)`);
                 client.disconnect();
                 this.channelClients.delete(ip);
+            } else {
+                // Update existing clients with new channel mappings
+                console.log(`Updating client for IP ${ip} with new channel mappings`);
+                client.disconnect();
+                this.channelClients.delete(ip);
             }
         }
         
-        // Connect to new IPs that aren't already connected
+        // Connect to all required IPs (both new and updated)
         for (const ip of requiredIPs) {
-            if (!this.channelClients.has(ip)) {
-                console.log(`Creating new client for IP ${ip}`);
-                await this.createChannelClient(ip);
-            }
+            console.log(`Creating/Recreating client for IP ${ip}`);
+            await this.createChannelClient(ip);
         }
         
         console.log('=== END CHANNEL MONITORING UPDATE ===\n');
@@ -510,7 +611,19 @@ class AudioVisualizerServer {
 
     async createChannelClient(ip) {
         try {
-            const client = new NPA43AClient(ip);
+            // Create channel mapping for this IP based on assignments
+            const channelMapping = {};
+            for (const [displayChannel, assignedIP] of Object.entries(this.channelIPAssignments)) {
+                if (assignedIP === ip) {
+                    // This display channel is assigned to this IP
+                    const actualChannelId = this.channelNumberAssignments[displayChannel] || parseInt(displayChannel.split('-')[1]);
+                    channelMapping[displayChannel] = actualChannelId;
+                }
+            }
+            
+            console.log(`Creating channel client for IP ${ip} with mapping:`, channelMapping);
+            
+            const client = new NPA43AClient(ip, 8234, Object.keys(channelMapping).length > 0 ? channelMapping : null);
             
             // Set up event handlers for channel-specific client
             client.on('connected', () => {
@@ -535,6 +648,7 @@ class AudioVisualizerServer {
                 
                 // Only broadcast data for channels that are assigned to this specific IP
                 if (this.channelIPAssignments[channelKey] === ip) {
+                    console.log(`📡 Channel client ${ip} broadcasting data for assigned channel: ${channelKey}`);
                     if (data.db !== undefined) {
                         this.broadcast({
                             type: 'audioData',
@@ -549,6 +663,8 @@ class AudioVisualizerServer {
                             timestamp: data.timestamp
                         });
                     }
+                } else {
+                    console.log(`🚫 Channel client ${ip} blocking data for unassigned channel: ${channelKey}`);
                 }
             });
 

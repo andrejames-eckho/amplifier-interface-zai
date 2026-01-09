@@ -40,6 +40,9 @@ class AudioVisualizer {
         // Channel IP dropdowns
         this.channelIPDropdowns = document.querySelectorAll('.channel-ip-dropdown');
         
+        // Channel number dropdowns
+        this.channelNumberDropdowns = document.querySelectorAll('.channel-number-dropdown');
+        
         // Error toast
         this.errorToast = document.getElementById('errorToast');
         this.errorMessage = document.getElementById('errorMessage');
@@ -71,6 +74,9 @@ class AudioVisualizer {
         
         // Channel IP assignments
         this.channelIPAssignments = {};
+        
+        // Channel number assignments (maps display channel to actual amplifier channel)
+        this.channelNumberAssignments = {};
     }
 
     bindEvents() {
@@ -105,6 +111,15 @@ class AudioVisualizer {
             dropdown.addEventListener('change', (e) => {
                 console.log(`🎯 Change event fired on ${e.target.dataset.channel}, value: ${e.target.value}`);
                 this.handleChannelIPChange(e.target.dataset.channel, e.target.value);
+            });
+        });
+        
+        // Channel number dropdown change events
+        this.channelNumberDropdowns.forEach(dropdown => {
+            console.log(`🎣 Binding change event to channel number dropdown: ${dropdown.dataset.channel}`);
+            dropdown.addEventListener('change', (e) => {
+                console.log(`🎯 Channel number change event fired on ${e.target.dataset.channel}, value: ${e.target.value}`);
+                this.handleChannelNumberChange(e.target.dataset.channel, e.target.value);
             });
         });
     }
@@ -217,6 +232,9 @@ class AudioVisualizer {
             // Enable channel IP dropdowns when connected
             this.channelIPDropdowns.forEach(dropdown => dropdown.disabled = false);
             
+            // Enable channel number dropdowns when connected
+            this.channelNumberDropdowns.forEach(dropdown => dropdown.disabled = false);
+            
             // Clear any warning state when we get a status update
             this.statusIndicator.classList.remove('warning');
         } else {
@@ -227,6 +245,9 @@ class AudioVisualizer {
             
             // Disable channel IP dropdowns when disconnected
             this.channelIPDropdowns.forEach(dropdown => dropdown.disabled = true);
+            
+            // Disable channel number dropdowns when disconnected
+            this.channelNumberDropdowns.forEach(dropdown => dropdown.disabled = true);
             
             // Reset all meters to -60dB
             this.resetAllMeters();
@@ -368,9 +389,24 @@ class AudioVisualizer {
                 this.updateConnectionStatus(this.isConnected, this.currentIP);
                 this.renderIPCards(); // Render cards in hamburger menu
                 this.populateChannelIPDropdowns(); // Populate channel dropdowns
+                this.loadChannelNumberAssignments(); // Load channel number assignments
             }
         } catch (err) {
             console.error('Failed to load IPs:', err);
+        }
+    }
+
+    async loadChannelNumberAssignments() {
+        try {
+            const response = await fetch('/api/channel-assignments');
+            const result = await response.json();
+            
+            if (response.ok) {
+                this.channelNumberAssignments = result.channelNumberAssignments || {};
+                this.populateChannelNumberDropdowns(); // Populate channel number dropdowns
+            }
+        } catch (err) {
+            console.error('Failed to load channel number assignments:', err);
         }
     }
 
@@ -629,6 +665,30 @@ class AudioVisualizer {
         console.log(`✅ Channel IP dropdowns populated`);
     }
 
+    populateChannelNumberDropdowns() {
+        console.log(`🔄 Populating channel number dropdowns...`);
+        console.log(`📋 Channel number assignments:`, this.channelNumberAssignments);
+        console.log(`🎛️ Found ${this.channelNumberDropdowns.length} channel number dropdowns`);
+        
+        this.channelNumberDropdowns.forEach(dropdown => {
+            const channel = dropdown.dataset.channel;
+            console.log(`📍 Processing channel number dropdown for channel: ${channel}`);
+            
+            // Set the selected value based on assignments or default to the display channel number
+            const defaultChannelNumber = channel.split('-')[1]; // Extract number from "input-1", "output-2", etc.
+            const assignedChannelNumber = this.channelNumberAssignments[channel] || defaultChannelNumber;
+            
+            dropdown.value = assignedChannelNumber.toString();
+            console.log(`✅ Set channel number for ${channel}: ${assignedChannelNumber}`);
+            
+            // Enable/disable based on connection status
+            dropdown.disabled = !this.isConnected;
+            console.log(`🔌 Channel number dropdown ${channel} enabled: ${!dropdown.disabled}`);
+        });
+        
+        console.log(`✅ Channel number dropdowns populated`);
+    }
+
     handleChannelIPChange(channel, selectedIP) {
         console.log(`🔄 Channel IP Change triggered: ${channel} -> ${selectedIP}`);
         console.log(`🔗 Connection status: ${this.isConnected}`);
@@ -684,6 +744,59 @@ class AudioVisualizer {
             const dropdown = document.querySelector(`[data-channel="${channel}"]`);
             if (dropdown) {
                 dropdown.value = this.channelIPAssignments[channel] || '';
+            }
+        }
+    }
+
+    handleChannelNumberChange(channel, selectedChannelNumber) {
+        console.log(`🔄 Channel Number Change triggered: ${channel} -> ${selectedChannelNumber}`);
+        console.log(`🔗 Connection status: ${this.isConnected}`);
+        
+        // Temporarily allow changes even when not connected for testing
+        if (!this.isConnected) {
+            console.log('⚠️ Not connected, but allowing channel number change for testing');
+        }
+        
+        // Update the channel number assignment
+        this.channelNumberAssignments[channel] = parseInt(selectedChannelNumber);
+        console.log(`Channel ${channel} assigned to amplifier channel: ${selectedChannelNumber}`);
+        
+        console.log(`📤 Sending channel number assignment to server...`);
+        // Send assignment to server
+        this.sendChannelNumberAssignment(channel, selectedChannelNumber);
+    }
+
+    async sendChannelNumberAssignment(channel, channelNumber) {
+        try {
+            console.log(`📡 Sending request: POST /api/channel-number with body:`, { channel, channelNumber });
+            
+            const response = await fetch('/api/channel-number', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ channel, channelNumber })
+            });
+            
+            console.log(`📥 Response status: ${response.status} ${response.statusText}`);
+            
+            const result = await response.json();
+            console.log(`📥 Response data:`, result);
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to assign channel number');
+            }
+            
+            console.log(`✅ Channel ${channel} number assignment updated successfully`);
+            
+        } catch (err) {
+            console.error('❌ Failed to update channel number assignment:', err);
+            this.showError(err.message);
+            
+            // Revert dropdown to previous state on error
+            const dropdown = document.querySelector(`.channel-number-dropdown[data-channel="${channel}"]`);
+            if (dropdown) {
+                dropdown.value = this.channelNumberAssignments[channel] || channel.split('-')[1];
             }
         }
     }
