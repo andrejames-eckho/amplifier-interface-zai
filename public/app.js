@@ -592,6 +592,33 @@ class AudioVisualizer {
                 }
             });
             
+            // First, bulk assign all channels to this IP
+            console.log(`🔄 Bulk assigning all channels to IP: ${ip}`);
+            const bulkResponse = await fetch('/api/bulk-assign', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ip })
+            });
+            
+            const bulkResult = await bulkResponse.json();
+            
+            if (!bulkResponse.ok) {
+                throw new Error(bulkResult.error || 'Failed to bulk assign channels');
+            }
+            
+            console.log(`✅ Bulk assignment successful:`, bulkResult);
+            
+            // Update local assignments with server response
+            this.channelIPAssignments = bulkResult.channelIPAssignments;
+            this.channelNumberAssignments = bulkResult.channelNumberAssignments;
+            
+            // Update dropdowns to reflect new assignments
+            this.populateChannelIPDropdowns();
+            this.populateChannelNumberDropdowns();
+            
+            // Then switch the main connection to this IP
             const response = await fetch('/api/switch', {
                 method: 'POST',
                 headers: {
@@ -674,12 +701,16 @@ class AudioVisualizer {
             const channel = dropdown.dataset.channel;
             console.log(`📍 Processing channel number dropdown for channel: ${channel}`);
             
-            // Set the selected value based on assignments or default to the display channel number
-            const defaultChannelNumber = channel.split('-')[1]; // Extract number from "input-1", "output-2", etc.
-            const assignedChannelNumber = this.channelNumberAssignments[channel] || defaultChannelNumber;
-            
-            dropdown.value = assignedChannelNumber.toString();
-            console.log(`✅ Set channel number for ${channel}: ${assignedChannelNumber}`);
+            // Only set the selected value if this channel has an explicit assignment
+            const assignedChannelNumber = this.channelNumberAssignments[channel];
+            if (assignedChannelNumber) {
+                dropdown.value = assignedChannelNumber.toString();
+                console.log(`✅ Set channel number for ${channel}: ${assignedChannelNumber}`);
+            } else {
+                // No assignment - leave dropdown unselected (first option will be empty)
+                dropdown.selectedIndex = 0;
+                console.log(`⚪ No channel number assignment for ${channel} - leaving unselected`);
+            }
             
             // Enable/disable based on connection status
             dropdown.disabled = !this.isConnected;
@@ -796,7 +827,12 @@ class AudioVisualizer {
             // Revert dropdown to previous state on error
             const dropdown = document.querySelector(`.channel-number-dropdown[data-channel="${channel}"]`);
             if (dropdown) {
-                dropdown.value = this.channelNumberAssignments[channel] || channel.split('-')[1];
+                const previousValue = this.channelNumberAssignments[channel];
+                if (previousValue) {
+                    dropdown.value = previousValue.toString();
+                } else {
+                    dropdown.selectedIndex = 0;
+                }
             }
         }
     }

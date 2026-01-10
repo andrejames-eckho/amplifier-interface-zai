@@ -270,6 +270,57 @@ class AudioVisualizerServer {
             });
         });
 
+        // API endpoint for bulk channel assignment when IP is selected from sidebar
+        this.app.post('/api/bulk-assign', express.json(), (req, res) => {
+            const { ip } = req.body;
+            
+            console.log(`\n=== BULK CHANNEL ASSIGNMENT ===`);
+            console.log(`Assigning all channels to IP: ${ip}`);
+            
+            if (!ip) {
+                return res.status(400).json({ error: 'IP address is required' });
+            }
+            
+            // Validate IP format
+            const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            if (!ipRegex.test(ip)) {
+                return res.status(400).json({ error: 'Invalid IP address format' });
+            }
+            
+            // Check if IP exists in saved list
+            const savedIP = this.savedIPs.find(savedIP => savedIP.ip === ip);
+            if (!savedIP) {
+                return res.status(400).json({ error: 'IP address not found in saved list' });
+            }
+            
+            // Assign all input and output channels (1-4) to this IP
+            const channels = ['input-1', 'input-2', 'input-3', 'input-4', 'output-1', 'output-2', 'output-3', 'output-4'];
+            
+            channels.forEach(channel => {
+                this.channelIPAssignments[channel] = ip;
+                // Also assign channel numbers 1-4 to corresponding display channels
+                const channelNumber = parseInt(channel.split('-')[1]);
+                this.channelNumberAssignments[channel] = channelNumber;
+            });
+            
+            console.log(`✓ Assigned all channels to IP ${ip}`);
+            console.log('IP assignments:', this.channelIPAssignments);
+            console.log('Channel number assignments:', this.channelNumberAssignments);
+            
+            // Save assignments to file
+            this.saveChannelAssignments();
+            
+            // Update channel monitoring to apply new mappings
+            this.updateChannelMonitoring();
+            
+            res.json({ 
+                success: true, 
+                message: `All channels assigned to ${savedIP.name || ip}`,
+                channelIPAssignments: this.channelIPAssignments,
+                channelNumberAssignments: this.channelNumberAssignments
+            });
+        });
+
         // API endpoint to get all channel assignments
         this.app.get('/api/channel-assignments', (req, res) => {
             res.json({
@@ -289,19 +340,26 @@ class AudioVisualizerServer {
                 return res.status(400).json({ error: 'Channel is required' });
             }
             
-            if (!channelNumber || channelNumber < 1 || channelNumber > 4) {
-                return res.status(400).json({ error: 'Channel number must be between 1 and 4' });
-            }
-            
             // Validate channel format (input-1, input-2, output-1, output-2, etc.)
             const channelRegex = /^(input|output)-[1-4]$/;
             if (!channelRegex.test(channel)) {
                 return res.status(400).json({ error: 'Invalid channel format. Must be input-1 through input-4 or output-1 through output-4' });
             }
             
-            // Assign channel number
-            this.channelNumberAssignments[channel] = parseInt(channelNumber);
-            console.log(`✓ Assigned channel number ${channelNumber} to display channel ${channel}`);
+            if (channelNumber && channelNumber !== '') {
+                // Validate channel number if provided
+                if (channelNumber < 1 || channelNumber > 4) {
+                    return res.status(400).json({ error: 'Channel number must be between 1 and 4' });
+                }
+                
+                // Assign channel number
+                this.channelNumberAssignments[channel] = parseInt(channelNumber);
+                console.log(`✓ Assigned channel number ${channelNumber} to display channel ${channel}`);
+            } else {
+                // Remove channel number assignment
+                delete this.channelNumberAssignments[channel];
+                console.log(`✓ Removed channel number assignment from display channel ${channel}`);
+            }
             
             // Save assignments to file
             this.saveChannelAssignments();
@@ -311,7 +369,7 @@ class AudioVisualizerServer {
             
             res.json({ 
                 success: true, 
-                message: `Channel ${channel} assigned to amplifier channel ${channelNumber}`,
+                message: channelNumber ? `Channel ${channel} assigned to amplifier channel ${channelNumber}` : `Channel ${channel} number assignment removed`,
                 channelNumberAssignments: this.channelNumberAssignments
             });
         });
@@ -462,13 +520,16 @@ class AudioVisualizerServer {
                 this.disconnectFromAmplifier();
             }
 
-            // Create channel mapping for the main client (channels not assigned to specific IPs)
+            // Only create channel mapping for channels that are NOT assigned to specific IPs
+            // and have explicit channel number assignments
             const channelMapping = {};
             for (const [displayChannel, assignedIP] of Object.entries(this.channelIPAssignments)) {
                 if (!assignedIP || assignedIP === '') {
-                    // This display channel uses the default/main IP
-                    const actualChannelId = this.channelNumberAssignments[displayChannel] || parseInt(displayChannel.split('-')[1]);
-                    channelMapping[displayChannel] = actualChannelId;
+                    // This display channel uses the default/main IP AND has a channel number assignment
+                    if (this.channelNumberAssignments[displayChannel]) {
+                        const actualChannelId = this.channelNumberAssignments[displayChannel];
+                        channelMapping[displayChannel] = actualChannelId;
+                    }
                 }
             }
             
@@ -492,10 +553,29 @@ class AudioVisualizerServer {
             this.amplifierClient.on('data', (data) => {
                 const channelKey = `${data.channelType}-${data.channelId}`;
                 
-                // Only broadcast data for channels that are NOT assigned to a specific IP
-                // (i.e., channels that should use the default/current IP monitoring)
-                if (!this.channelIPAssignments[channelKey]) {
-                    console.log(`📡 Main client broadcasting data for unassigned channel: ${channelKey}`);
+                // Check if all channels are assigned to the same IP
+                const assignedIPs = Object.values(this.channelIPAssignments).filter(ip => ip && ip !== '');
+                const uniqueIPs = [...new Set(assignedIPs)];
+                const allChannelsAssignedToSameIP = uniqueIPs.length === 1 && assignedIPs.length === 8;
+                
+                let shouldBroadcast = false;
+                
+                if (allChannelsAssignedToSameIP) {
+                    // All channels assigned to same IP - main client should broadcast if it's monitoring that IP
+                    const mainIP = uniqueIPs[0];
+                    if (mainIP === this.currentIP && this.channelIPAssignments[channelKey] === mainIP) {
+                        shouldBroadcast = true;
+                        console.log(`📡 Main client broadcasting data for bulk-assigned channel: ${channelKey} (IP: ${mainIP})`);
+                    }
+                } else {
+                    // Mixed assignment case - only broadcast for unassigned channels
+                    if (!this.channelIPAssignments[channelKey]) {
+                        shouldBroadcast = true;
+                        console.log(`📡 Main client broadcasting data for unassigned channel: ${channelKey}`);
+                    }
+                }
+                
+                if (shouldBroadcast) {
                     if (data.db !== undefined) {
                         // Audio level data
                         this.broadcast({
@@ -513,7 +593,11 @@ class AudioVisualizerServer {
                         });
                     }
                 } else {
-                    console.log(`🚫 Main client blocking data for assigned channel: ${channelKey} (assigned to ${this.channelIPAssignments[channelKey]})`);
+                    if (allChannelsAssignedToSameIP) {
+                        console.log(`🚫 Main client blocking data for non-main channel: ${channelKey} (assigned to ${this.channelIPAssignments[channelKey]})`);
+                    } else {
+                        console.log(`🚫 Main client blocking data for assigned channel: ${channelKey} (assigned to ${this.channelIPAssignments[channelKey]})`);
+                    }
                 }
             });
 
@@ -543,17 +627,44 @@ class AudioVisualizerServer {
         console.log('Current IP assignments:', this.channelIPAssignments);
         console.log('Current channel number assignments:', this.channelNumberAssignments);
         
+        // Check if all channels are assigned to the same IP
+        const assignedIPs = Object.values(this.channelIPAssignments).filter(ip => ip && ip !== '');
+        const uniqueIPs = [...new Set(assignedIPs)];
+        const allChannelsAssignedToSameIP = uniqueIPs.length === 1 && assignedIPs.length === 8; // 8 channels total
+        
+        console.log('Assigned IPs:', assignedIPs);
+        console.log('Unique IPs:', uniqueIPs);
+        console.log('All channels assigned to same IP:', allChannelsAssignedToSameIP);
+        
         // Update main amplifier client if it exists
         if (this.amplifierClient && this.currentIP) {
             console.log('Updating main amplifier client with new channel mappings...');
             
             // Create new channel mapping for the main client
             const channelMapping = {};
-            for (const [displayChannel, assignedIP] of Object.entries(this.channelIPAssignments)) {
-                if (!assignedIP || assignedIP === '') {
-                    // This display channel uses the default/main IP
-                    const actualChannelId = this.channelNumberAssignments[displayChannel] || parseInt(displayChannel.split('-')[1]);
-                    channelMapping[displayChannel] = actualChannelId;
+            
+            if (allChannelsAssignedToSameIP) {
+                // All channels are assigned to the same IP - this IP should be the main monitoring IP
+                const mainIP = uniqueIPs[0];
+                if (mainIP === this.currentIP) {
+                    // This IP is the main connection, so main client should handle all channels
+                    for (const [displayChannel, assignedIP] of Object.entries(this.channelIPAssignments)) {
+                        if (assignedIP === mainIP && this.channelNumberAssignments[displayChannel]) {
+                            const actualChannelId = this.channelNumberAssignments[displayChannel];
+                            channelMapping[displayChannel] = actualChannelId;
+                        }
+                    }
+                }
+            } else {
+                // Mixed assignment or default case - main client handles unassigned channels
+                for (const [displayChannel, assignedIP] of Object.entries(this.channelIPAssignments)) {
+                    if (!assignedIP || assignedIP === '') {
+                        // This display channel uses the default/main IP AND has a channel number assignment
+                        if (this.channelNumberAssignments[displayChannel]) {
+                            const actualChannelId = this.channelNumberAssignments[displayChannel];
+                            channelMapping[displayChannel] = actualChannelId;
+                        }
+                    }
                 }
             }
             
@@ -566,20 +677,35 @@ class AudioVisualizerServer {
         const requiredIPs = new Set();
         const ipToChannels = new Map(); // IP -> Set of channels
         
-        // Add current IP for default monitoring
-        if (this.currentIP) {
-            requiredIPs.add(this.currentIP);
-            ipToChannels.set(this.currentIP, new Set());
-        }
-        
-        // Add assigned IPs
-        for (const [channel, ip] of Object.entries(this.channelIPAssignments)) {
-            if (ip && ip !== '') {
-                requiredIPs.add(ip);
-                if (!ipToChannels.has(ip)) {
-                    ipToChannels.set(ip, new Set());
+        if (allChannelsAssignedToSameIP) {
+            // All channels assigned to same IP - only need to monitor that one IP
+            const mainIP = uniqueIPs[0];
+            requiredIPs.add(mainIP);
+            ipToChannels.set(mainIP, new Set());
+            
+            // Add all channels to this IP's channel set
+            for (const [channel, ip] of Object.entries(this.channelIPAssignments)) {
+                if (ip === mainIP) {
+                    ipToChannels.get(mainIP).add(channel);
                 }
-                ipToChannels.get(ip).add(channel);
+            }
+        } else {
+            // Mixed assignment case
+            // Add current IP for default monitoring
+            if (this.currentIP) {
+                requiredIPs.add(this.currentIP);
+                ipToChannels.set(this.currentIP, new Set());
+            }
+            
+            // Add assigned IPs
+            for (const [channel, ip] of Object.entries(this.channelIPAssignments)) {
+                if (ip && ip !== '') {
+                    requiredIPs.add(ip);
+                    if (!ipToChannels.has(ip)) {
+                        ipToChannels.set(ip, new Set());
+                    }
+                    ipToChannels.get(ip).add(channel);
+                }
             }
         }
         
@@ -615,9 +741,11 @@ class AudioVisualizerServer {
             const channelMapping = {};
             for (const [displayChannel, assignedIP] of Object.entries(this.channelIPAssignments)) {
                 if (assignedIP === ip) {
-                    // This display channel is assigned to this IP
-                    const actualChannelId = this.channelNumberAssignments[displayChannel] || parseInt(displayChannel.split('-')[1]);
-                    channelMapping[displayChannel] = actualChannelId;
+                    // This display channel is assigned to this IP AND has a channel number assignment
+                    if (this.channelNumberAssignments[displayChannel]) {
+                        const actualChannelId = this.channelNumberAssignments[displayChannel];
+                        channelMapping[displayChannel] = actualChannelId;
+                    }
                 }
             }
             
