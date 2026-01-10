@@ -635,6 +635,7 @@ button:disabled {
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-align: center;
 }
 
 .channel-ip-dropdown:focus {
@@ -680,6 +681,7 @@ button:disabled {
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-align: center;
 }
 
 .channel-number-dropdown:focus {
@@ -733,7 +735,7 @@ main {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(148, 163, 184, 0.2);
     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-    min-height: 90px;
+    min-height: 140px;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -764,15 +766,15 @@ main {
     justify-content: center;
     align-items: baseline;
     gap: clamp(3px, 0.5vw, 5px);
-    margin-bottom: clamp(10px, 2vw, 20px);
+    margin-bottom: clamp(5px, 1.5vw, 15px);
 }
 
 .meter-value {
-    font-size: clamp(1.2rem, 3vw, 2rem);
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
     font-weight: 300;
     font-family: 'Courier New', monospace;
     min-width: clamp(70px, 10vw, 100px);
-    text-align: right;
+    text-align: center;
 }
 
 .meter-unit {
@@ -791,7 +793,7 @@ main {
 .meter-bar {
     width: calc(100% - 25px);
     height: 100%;
-    min-height: 40px;
+    min-height: 80px;
     background: rgba(15, 23, 42, 0.5);
     border-radius: 3px;
     overflow: hidden;
@@ -813,7 +815,7 @@ main {
 .meter-scale {
     position: relative;
     height: 100%;
-    min-height: 40px;
+    min-height: 80px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
