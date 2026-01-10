@@ -4,6 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amplifier Audio Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,7 +46,7 @@
 
     <div class="container">
         <header>
-            <h1>Amplifier Audio Visualizer</h1>
+            <h1>ARK PRO Amplifier Audio Visualizer</h1>
             <div class="connection-panel">
                 <div class="connection-status" id="connectionStatus">
                     <span class="status-indicator" id="statusIndicator"></span>
