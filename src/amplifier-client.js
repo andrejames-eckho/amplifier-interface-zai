@@ -2,7 +2,7 @@ const net = require('net');
 const EventEmitter = require('events');
 
 class NPA43AClient extends EventEmitter {
-    constructor(amplifierIP, port = 8234, channelMapping = null) {
+    constructor(amplifierIP, port = 8234) {
         super();
         this.amplifierIP = amplifierIP;
         this.port = port;
@@ -10,17 +10,12 @@ class NPA43AClient extends EventEmitter {
         this.deviceId = 0xFF;
         this.isConnected = false;
         this.pollingInterval = null;
-        this.currentChannelIndex = 0;
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 10;
         this.reconnectDelay = 2000;
         this.reconnectInterval = null;
         this.lastDataReceived = 0;
         this.connectionTimeout = null;
-        
-        // Channel mapping: maps display channel to actual amplifier channel
-        // e.g., { "input-1": 2, "input-2": 1, "output-1": 3, "output-2": 4 }
-        this.channelMapping = channelMapping;
         
         // Response caching to reduce redundant processing
         this.responseCache = new Map();
@@ -42,24 +37,6 @@ class NPA43AClient extends EventEmitter {
         ];
     }
 
-    getMappedChannel(displayChannelType, displayChannelId) {
-        // If no mapping is defined, return the original channel
-        if (!this.channelMapping) {
-            return { type: displayChannelType, id: displayChannelId };
-        }
-        
-        const displayChannelKey = `${displayChannelType}-${displayChannelId}`;
-        
-        // Check if this display channel has a mapping
-        if (this.channelMapping.hasOwnProperty(displayChannelKey)) {
-            const actualChannelId = this.channelMapping[displayChannelKey];
-            const [mappedType] = displayChannelKey.split('-');
-            return { type: mappedType, id: actualChannelId };
-        }
-        
-        // No mapping found, return original
-        return { type: displayChannelType, id: displayChannelId };
-    }
 
     createCommand(channelType, channelId) {
         const type = channelType === 'input' ? 0x01 : 0x02;
@@ -118,8 +95,8 @@ class NPA43AClient extends EventEmitter {
             // Calculate final dB value
             const dbValue = signedValue / 10;
 
-            // Map the actual amplifier channel back to display channel
-            const displayChannel = this.mapToDisplayChannel(type === 0x01 ? 'input' : 'output', channelId);
+            // Map the actual amplifier channel back to display channel (1-4)
+            const displayChannel = { type: type === 0x01 ? 'input' : 'output', id: channelId };
 
             return {
                 channelType: displayChannel.type,
@@ -135,8 +112,8 @@ class NPA43AClient extends EventEmitter {
             
             const muteStatus = buffer[10];
             
-            // Map the actual amplifier channel back to display channel
-            const displayChannel = this.mapToDisplayChannel(type === 0x01 ? 'input' : 'output', channelId);
+            // Map the actual amplifier channel back to display channel (1-4)
+            const displayChannel = { type: type === 0x01 ? 'input' : 'output', id: channelId };
             
             return {
                 channelType: displayChannel.type,
@@ -149,25 +126,6 @@ class NPA43AClient extends EventEmitter {
         }
     }
 
-    mapToDisplayChannel(actualChannelType, actualChannelId) {
-        // If no mapping is defined, return the original channel
-        if (!this.channelMapping) {
-            return { type: actualChannelType, id: actualChannelId };
-        }
-        
-        // Find which display channel maps to this actual channel
-        for (const [displayChannelKey, mappedChannelId] of Object.entries(this.channelMapping)) {
-            if (mappedChannelId === actualChannelId) {
-                const [displayType, displayId] = displayChannelKey.split('-');
-                if (displayType === actualChannelType) {
-                    return { type: displayType, id: parseInt(displayId) };
-                }
-            }
-        }
-        
-        // No mapping found, return original
-        return { type: actualChannelType, id: actualChannelId };
-    }
 
     async connect() {
         return new Promise((resolve, reject) => {
@@ -358,6 +316,7 @@ class NPA43AClient extends EventEmitter {
         // Process each complete message
         messages.forEach((message, index) => {
             try {
+                console.log(`🔍 Processing message ${index + 1}:`, message.toString('hex').toUpperCase());
                 const result = this.parseResponse(message);
                 
                 // Create cache key that includes actual values to detect real changes
@@ -398,6 +357,7 @@ class NPA43AClient extends EventEmitter {
                 this.emit('data', result);
             } catch (err) {
                 console.error('❌ Parse error:', err.message);
+                console.error('❌ Message that failed to parse:', message.toString('hex').toUpperCase());
                 this.emit('error', err);
             }
         });
@@ -500,34 +460,14 @@ class NPA43AClient extends EventEmitter {
             }
 
             try {
-                // Determine which channels to poll based on channel mapping
-                let channelsToPoll = this.pollingSequence;
-                
-                if (this.channelMapping) {
-                    // Only poll channels that are mapped to this client
-                    channelsToPoll = [];
-                    for (const [displayChannelKey, actualChannelId] of Object.entries(this.channelMapping)) {
-                        const [channelType, channelId] = displayChannelKey.split('-');
-                        channelsToPoll.push({ type: channelType, id: actualChannelId });
-                    }
-                    
-                    // Remove duplicates
-                    const uniqueChannels = new Map();
-                    channelsToPoll.forEach(channel => {
-                        const key = `${channel.type}-${channel.id}`;
-                        uniqueChannels.set(key, channel);
-                    });
-                    channelsToPoll = Array.from(uniqueChannels.values());
-                }
-                
-                // Send commands for channels we should poll
-                channelsToPoll.forEach(channel => {
+                // Send commands for all channels (1-4 inputs and outputs)
+                this.pollingSequence.forEach(channel => {
                     const command = this.createCommand(channel.type, channel.id);
                     this.client.write(command);
                 });
                 
-                // Also poll mute status for the same channels
-                channelsToPoll.forEach(channel => {
+                // Also poll mute status for all channels
+                this.pollingSequence.forEach(channel => {
                     const muteCommand = this.createMuteStatusCommand(channel.type, channel.id);
                     this.client.write(muteCommand);
                 });

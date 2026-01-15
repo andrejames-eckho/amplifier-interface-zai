@@ -151,7 +151,7 @@ body {
     box-sizing: border-box;
     flex: 1;
     min-width: 0;
-    max-height: 100vh;
+    height: 100vh;
     max-width: calc(100vw - 280px);
 }
 
@@ -164,6 +164,11 @@ body {
     .container {
         margin-left: 240px;
         max-width: calc(100vw - 240px);
+        height: 100vh;
+    }
+    
+    main {
+        height: calc(100vh - 120px);
     }
 }
 
@@ -714,6 +719,7 @@ main {
     overflow-y: auto;
     padding: 0 8px;
     align-items: center;
+    height: calc(100vh - 120px);
 }
 
 .meters-section {
@@ -926,6 +932,11 @@ main {
         margin-left: 240px;
         max-width: calc(100vw - 240px);
         padding: 6px;
+        height: 100vh;
+    }
+    
+    main {
+        height: calc(100vh - 120px);
     }
     
     .meters-section {
@@ -1013,6 +1024,11 @@ main {
         margin-left: 200px;
         max-width: calc(100vw - 200px);
         padding: 4px;
+        height: 100vh;
+    }
+    
+    main {
+        height: calc(100vh - 120px);
     }
     
     .meters-section {
@@ -1042,5 +1058,939 @@ main {
     
     .meters-section h2 {
         font-size: 1.2rem;
+    }
+}
+
+/* Vertical VU Meter Styles */
+.meter-container.vertical {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-height: 220px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.meter-container.vertical:hover {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: rgba(148, 163, 184, 0.4);
+    transform: translateY(-1px);
+}
+
+.vu-meter {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    height: 180px;
+}
+
+.vu-scale {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    font-size: 0.5rem;
+    color: #94a3b8;
+    font-family: 'Courier New', monospace;
+    font-weight: 500;
+    min-width: 22px;
+    text-align: right;
+}
+
+.scale-label {
+    line-height: 1;
+    height: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.vu-bar-container {
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+}
+
+.vu-bar {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 1px;
+    height: 100%;
+    width: 20px;
+}
+
+.vu-segment {
+    height: 8px;
+    width: 100%;
+    border-radius: 2px;
+    transition: all 0.1s ease;
+    opacity: 0.2;
+}
+
+.vu-segment.red {
+    background: #8B4513; /* Dark brown when inactive */
+    border: 1px solid #654321;
+}
+
+.vu-segment.yellow {
+    background: #90EE90; /* Light green when inactive */
+    border: 1px solid #7FDD7F;
+}
+
+.vu-segment.green {
+    background: #87CEEB; /* Sky blue when inactive */
+    border: 1px solid #7AB8DD;
+}
+
+/* Active states for segments */
+.vu-segment.red.active {
+    background: #8B4513; /* Dark brown when active */
+    opacity: 1;
+    box-shadow: 0 0 4px rgba(139, 69, 19, 0.6);
+}
+
+.vu-segment.yellow.active {
+    background: #90EE90; /* Bright green when active */
+    opacity: 1;
+    box-shadow: 0 0 4px rgba(144, 238, 144, 0.6);
+}
+
+.vu-segment.green.active {
+    background: #87CEEB; /* Sky blue when active */
+    opacity: 1;
+    box-shadow: 0 0 4px rgba(135, 206, 235, 0.6);
+}
+
+.meter-container.vertical .meter-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    text-align: center;
+    margin-top: 4px;
+}
+
+.meter-container.vertical .channel-mute-btn {
+    background: rgba(71, 85, 105, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: #f8fafc;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 10px;
+    padding: 0;
+    margin-top: 4px;
+}
+
+.meter-container.vertical .channel-mute-btn:hover {
+    background: rgba(100, 116, 139, 0.8);
+}
+
+.meter-container.vertical .channel-mute-btn.muted {
+    background: rgba(239, 68, 68, 0.8);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.meter-container.vertical .channel-mute-btn.muted:hover {
+    background: #dc2626;
+}
+
+.meter-container.vertical .channel-mute-btn .mute-icon {
+    font-size: 10px;
+}
+
+/* Update amplifier panel grid layout for vertical meters */
+.amplifier-panel .channels-grid {
+    gap: 8px;
+}
+
+.amplifier-panel .input-channels,
+.amplifier-panel .output-channels {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Responsive adjustments for vertical meters */
+@media (max-width: 1200px) {
+    .amplifier-panel .input-channels,
+    .amplifier-panel .output-channels {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .meter-container.vertical {
+        min-height: 180px;
+        padding: 6px;
+    }
+    
+    .vu-meter {
+        height: 140px;
+    }
+    
+    .vu-scale {
+        font-size: 0.4rem;
+        min-width: 18px;
+    }
+    
+    .scale-label {
+        height: 6px;
+    }
+    
+    .vu-segment {
+        height: 6px;
+    }
+    
+    .vu-bar {
+        width: 16px;
+        gap: 0;
+    }
+    
+    .meter-container.vertical .meter-label {
+        font-size: 0.6rem;
+    }
+    
+    .meter-container.vertical .channel-mute-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 8px;
+    }
+}
+
+/* Compact VU Meter Styles */
+.meter-container.compact {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-height: 60px;
+    height: 60px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.meter-container.compact:hover {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: rgba(148, 163, 184, 0.4);
+    transform: translateY(-1px);
+}
+
+.compact-meter-value {
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    color: #4CAF50;
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    border-radius: 4px;
+    padding: 2px 6px;
+    min-width: 50px;
+    text-align: center;
+    transition: all 0.1s ease;
+    margin-bottom: 2px;
+}
+
+.compact-meter-label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-align: center;
+    margin-bottom: 2px;
+}
+
+.compact-channel-mute-btn {
+    background: rgba(71, 85, 105, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: #f8fafc;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 8px;
+    padding: 0;
+}
+
+.compact-channel-mute-btn:hover {
+    background: rgba(100, 116, 139, 0.8);
+}
+
+.compact-channel-mute-btn.muted {
+    background: rgba(239, 68, 68, 0.8);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.compact-channel-mute-btn.muted:hover {
+    background: #dc2626;
+}
+
+.compact-channel-mute-btn .mute-icon {
+    font-size: 8px;
+}
+
+/* Update amplifier panel grid layout for compact meters */
+.amplifier-panel .channels-grid {
+    gap: 6px;
+}
+
+.amplifier-panel .input-channels,
+.amplifier-panel .output-channels {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Responsive adjustments for compact meters */
+@media (max-width: 1200px) {
+    .amplifier-panel .input-channels,
+    .amplifier-panel .output-channels {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .meter-container.compact {
+        min-height: 50px;
+        height: 50px;
+        padding: 6px;
+    }
+    
+    .compact-meter-value {
+        font-size: 0.9rem;
+        min-width: 45px;
+    }
+    
+    .compact-meter-label {
+        font-size: 0.5rem;
+    }
+    
+    .compact-channel-mute-btn {
+        width: 18px;
+        height: 18px;
+        font-size: 7px;
+    }
+}
+
+/* Amplifier Panels Layout */
+.amplifiers-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    overflow-x: auto;
+    overflow-y: auto;
+    height: calc(100vh - 200px);
+    align-items: flex-start;
+    max-height: calc(100vh - 200px);
+    justify-content: flex-start;
+}
+
+.no-amplifiers-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 40px;
+    color: #64748b;
+    background: rgba(51, 65, 85, 0.2);
+    border-radius: 16px;
+    border: 2px dashed rgba(148, 163, 184, 0.3);
+    min-width: 400px;
+    margin: 20px auto;
+}
+
+.no-amplifiers-message h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #94a3b8;
+}
+
+.no-amplifiers-message p {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.amplifier-panel {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 16px;
+    padding: 12px;
+    min-width: 500px;
+    max-width: 600px;
+    box-shadow: 0 8px 32px rgba(2, 6, 23, 0.4);
+    backdrop-filter: blur(12px);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: calc(100vh - 250px);
+    max-height: calc(100vh - 250px);
+    overflow: hidden;
+}
+
+.close-panel-btn {
+    background: rgba(239, 68, 68, 0.8);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+    .close-panel-btn:hover {
+        background: #dc2626;
+        transform: scale(1.1);
+    }
+
+.amplifier-header {
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.amplifier-info {
+    flex: 1;
+}
+
+.amplifier-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #f8fafc;
+}
+
+.amplifier-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.amplifier-model,
+.amplifier-preset,
+.amplifier-ip,
+.amplifier-data-ip {
+    display: block;
+}
+
+.amplifier-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.volume-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.volume-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.volume-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #f8fafc;
+    min-width: 30px;
+    text-align: center;
+}
+
+.start-stop-btn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.start-stop-btn:hover {
+    background: #45a049;
+    transform: translateY(-1px);
+}
+
+.volume-controls {
+    display: flex;
+    gap: 6px;
+}
+
+.volume-btn {
+    background: rgba(71, 85, 105, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: #f8fafc;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.volume-btn:hover {
+    background: rgba(100, 116, 139, 0.8);
+    transform: translateY(-1px);
+}
+
+.close-panel-btn {
+    background: rgba(239, 68, 68, 0.8);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.close-panel-btn:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+.amplifier-channels {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: calc(100vh - 400px);
+}
+
+/* Custom scrollbar for amplifier channels */
+.amplifier-channels::-webkit-scrollbar {
+    width: 6px;
+}
+
+.amplifier-channels::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.3);
+    border-radius: 3px;
+}
+
+.amplifier-channels::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.4);
+    border-radius: 3px;
+    transition: background 0.2s ease;
+}
+
+.amplifier-channels::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.6);
+}
+
+.channels-section {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex-shrink: 0;
+    min-height: auto;
+}
+
+.channels-section h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin: 0;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.channels-grid {
+    display: grid;
+    gap: 8px;
+}
+
+.input-channels {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.output-channels {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.amplifier-panel .meter-container {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    padding: 3px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    height: 100%;
+    min-height: 35px;
+    transition: all 0.2s ease;
+}
+
+.amplifier-panel .meter-container:hover {
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(148, 163, 184, 0.4);
+}
+
+.amplifier-panel .meter-label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-align: center;
+    margin-bottom: 2px;
+}
+
+.amplifier-panel .meter-display {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.amplifier-panel .meter-value {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #f8fafc;
+    font-family: 'Courier New', monospace;
+}
+
+.amplifier-panel .meter-unit {
+    font-size: 0.5rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.amplifier-panel .meter-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    flex: 1;
+}
+
+.amplifier-panel .meter-bar {
+    flex: 1;
+    height: 18px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    min-height: 12px;
+}
+
+.amplifier-panel .meter-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 0%;
+    background: linear-gradient(to top, #4CAF50 0%, #8BC34A 50%, #CDDC39 75%, #FF9800 90%, #f44336 100%);
+    transition: height 0.1s ease;
+    border-radius: 2px;
+}
+
+.amplifier-panel .meter-scale {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 15px;
+    font-size: 0.2rem;
+    color: #64748b;
+    font-family: 'Courier New', monospace;
+    width: 8px;
+    text-align: right;
+    min-height: 10px;
+}
+
+.amplifier-panel .channel-mute-btn {
+    background: rgba(71, 85, 105, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: #f8fafc;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 10px;
+}
+
+.amplifier-panel .channel-mute-btn:hover {
+    background: rgba(100, 116, 139, 0.8);
+}
+
+.amplifier-panel .channel-mute-btn.muted {
+    background: rgba(239, 68, 68, 0.8);
+}
+
+.amplifier-panel .channel-mute-btn.muted:hover {
+    background: #dc2626;
+}
+
+/* Responsive Design for Amplifier Panels */
+@media (max-width: 1400px) {
+    .amplifier-panel {
+        min-width: 450px;
+        max-width: 550px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .amplifiers-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .amplifier-panel {
+        min-width: 100%;
+        max-width: 700px;
+        width: 100%;
+        max-height: calc(100vh - 250px);
+    }
+}
+
+@media (max-width: 768px) {
+    .amplifiers-container {
+        flex-direction: column;
+        align-items: center;
+        overflow-x: visible;
+        overflow-y: auto;
+        padding: 10px;
+        gap: 15px;
+        height: calc(100vh - 180px);
+        max-height: calc(100vh - 180px);
+    }
+    
+    .amplifier-panel {
+        min-width: 100%;
+        max-width: 100%;
+        width: 100%;
+        padding: 10px;
+        height: calc(100vh - 220px);
+        max-height: calc(100vh - 220px);
+    }
+    
+    .amplifier-channels {
+        height: calc(100vh - 360px);
+    }
+    
+    .amplifier-panel .input-channels,
+    .amplifier-panel .output-channels {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .meter-container.vertical {
+        min-height: 160px;
+        padding: 6px;
+    }
+    
+    .vu-meter {
+        height: 120px;
+    }
+    
+    .vu-scale {
+        font-size: 0.4rem;
+        min-width: 18px;
+    }
+    
+    .scale-label {
+        height: 6px;
+    }
+    
+    .vu-segment {
+        height: 6px;
+    }
+    
+    .vu-bar {
+        width: 16px;
+        gap: 0;
+    }
+    
+    .meter-container.vertical .meter-label {
+        font-size: 0.6rem;
+    }
+    
+    .meter-container.vertical .channel-mute-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 8px;
+    }
+    
+    .amplifier-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .amplifier-controls {
+        align-items: center;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    
+    .input-channels,
+    .output-channels {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 4px;
+        flex: 1;
+        min-height: 0;
+    }
+    
+    .no-amplifiers-message {
+        min-width: auto;
+        margin: 10px;
+        padding: 40px 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    .amplifiers-container {
+        padding: 8px;
+        gap: 8px;
+        height: calc(100vh - 160px);
+        max-height: calc(100vh - 160px);
+    }
+    
+    .amplifier-panel {
+        padding: 8px;
+        border-radius: 12px;
+        height: calc(100vh - 200px);
+        max-height: calc(100vh - 200px);
+    }
+    
+    .amplifier-channels {
+        height: calc(100vh - 320px);
+    }
+    
+    .amplifier-panel .input-channels,
+    .amplifier-panel .output-channels {
+        grid-template-columns: repeat(1, 1fr);
+        gap: 6px;
+    }
+    
+    .meter-container.vertical {
+        min-height: 140px;
+        padding: 4px;
+    }
+    
+    .vu-meter {
+        height: 100px;
+    }
+    
+    .vu-scale {
+        font-size: 0.35rem;
+        min-width: 16px;
+    }
+    
+    .scale-label {
+        height: 5px;
+    }
+    
+    .vu-segment {
+        height: 5px;
+    }
+    
+    .vu-bar {
+        width: 14px;
+        gap: 0;
+    }
+    
+    .meter-container.vertical .meter-label {
+        font-size: 0.5rem;
+    }
+    
+    .meter-container.vertical .channel-mute-btn {
+        width: 18px;
+        height: 18px;
+        font-size: 7px;
+    }
+}
+
+@media (max-width: 480px) {
+    .amplifiers-container {
+        padding: 5px;
+        gap: 10px;
+        height: calc(100vh - 160px);
+        max-height: calc(100vh - 160px);
+    }
+    
+    .amplifier-panel {
+        padding: 8px;
+        border-radius: 12px;
+    }
+    
+    .amplifier-panel .meter-container {
+        height: 16px;
+        min-height: 14px;
+        width: 16px;
+        min-width: 14px;
+        padding: 1px;
+    }
+    
+    .amplifier-panel .meter-label {
+        font-size: 0.35rem;
+        padding: 0px 1px;
+    }
+    
+    .amplifier-panel .channel-mute-btn {
+        width: 16px;
+        height: 16px;
+        font-size: 6px;
+    }
+    
+    .input-channels,
+    .output-channels {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+    
+    .amplifier-panel .channel-mute-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 10px;
     }
 }

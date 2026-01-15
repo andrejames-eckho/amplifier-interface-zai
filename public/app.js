@@ -8,6 +8,10 @@ class AudioVisualizer {
         this.lastStatusUpdate = 0;
         this.connectionStatusCheckInterval = null;
         
+        // Multi-amplifier support
+        this.activeAmplifiers = new Map(); // Map of IP -> amplifier data
+        this.amplifierPanels = new Map(); // Map of IP -> panel element
+        
         this.initializeElements();
         this.bindEvents();
         this.connectWebSocket();
@@ -34,49 +38,17 @@ class AudioVisualizer {
         this.addIPBtn = document.getElementById('addIPBtn');
         this.savedIPsList = document.getElementById('savedIPsList');
         
-        // Channel mute buttons
-        this.channelMuteBtns = document.querySelectorAll('.channel-mute-btn');
-        
-        // Channel IP dropdowns
-        this.channelIPDropdowns = document.querySelectorAll('.channel-ip-dropdown');
-        
-        // Channel number dropdowns
-        this.channelNumberDropdowns = document.querySelectorAll('.channel-number-dropdown');
+        // Amplifiers container
+        this.amplifiersContainer = document.getElementById('amplifiersContainer');
+        this.noAmplifiersMessage = document.getElementById('noAmplifiersMessage');
         
         // Error toast
         this.errorToast = document.getElementById('errorToast');
         this.errorMessage = document.getElementById('errorMessage');
         
-        // Meter elements
-        this.meters = {};
-        for (let i = 1; i <= 4; i++) {
-            this.meters[`input-${i}`] = {
-                value: document.getElementById(`input-${i}-value`),
-                bar: document.getElementById(`input-${i}-bar`),
-                fill: document.querySelector(`#input-${i}-bar .meter-fill`)
-            };
-            this.meters[`output-${i}`] = {
-                value: document.getElementById(`output-${i}-value`),
-                bar: document.getElementById(`output-${i}-bar`),
-                fill: document.querySelector(`#output-${i}-bar .meter-fill`)
-            };
-        }
-        
-        // Track mute states
-        this.muteStates = {
-            master: false,
-            channels: {}
-        };
-        
         // IP management
         this.savedIPs = [];
         this.currentIP = null;
-        
-        // Channel IP assignments
-        this.channelIPAssignments = {};
-        
-        // Channel number assignments (maps display channel to actual amplifier channel)
-        this.channelNumberAssignments = {};
     }
 
     bindEvents() {
@@ -103,24 +75,6 @@ class AudioVisualizer {
             if (e.key === 'Enter') {
                 this.addNewIP();
             }
-        });
-        
-        // Channel IP dropdown change events
-        this.channelIPDropdowns.forEach(dropdown => {
-            console.log(`🎣 Binding change event to dropdown: ${dropdown.dataset.channel}`);
-            dropdown.addEventListener('change', (e) => {
-                console.log(`🎯 Change event fired on ${e.target.dataset.channel}, value: ${e.target.value}`);
-                this.handleChannelIPChange(e.target.dataset.channel, e.target.value);
-            });
-        });
-        
-        // Channel number dropdown change events
-        this.channelNumberDropdowns.forEach(dropdown => {
-            console.log(`🎣 Binding change event to channel number dropdown: ${dropdown.dataset.channel}`);
-            dropdown.addEventListener('change', (e) => {
-                console.log(`🎯 Channel number change event fired on ${e.target.dataset.channel}, value: ${e.target.value}`);
-                this.handleChannelNumberChange(e.target.dataset.channel, e.target.value);
-            });
         });
     }
 
@@ -189,7 +143,7 @@ class AudioVisualizer {
             } else if (this.isConnected && this.statusIndicator.classList.contains('warning') && timeSinceLastUpdate < 20000) {
                 // Clear warning state if we start receiving updates again
                 this.statusIndicator.classList.remove('warning');
-                this.statusText.textContent = `Connected to ${this.currentIP || 'amplifier'}`;
+                this.statusText.textContent = `Connected to ${this.amplifierPanels.size} amplifier(s)`;
             }
         }, 10000); // Check every 10 seconds instead of 5
     }
@@ -206,13 +160,27 @@ class AudioVisualizer {
         switch (data.type) {
             case 'status':
                 console.log('🔄 Updating connection status to:', data.connected);
-                this.updateConnectionStatus(data.connected, data.amplifierIP);
+                this.connectedIPs = data.connectedIPs || [];
+                this.updateConnectionStatus(data.connected);
+                
+                // Auto-create panels for newly connected amplifiers
+                if (data.connected && this.connectedIPs.length > 0) {
+                    this.connectedIPs.forEach(ip => {
+                        const savedIP = this.savedIPs.find(savedIP => savedIP.ip === ip);
+                        if (savedIP && !this.amplifierPanels.has(ip)) {
+                            this.addAmplifierPanel(ip, savedIP.name || ip);
+                        }
+                    });
+                }
                 break;
             case 'audioData':
-                this.updateMeter(data.channelType, data.channelId, data.db);
+                this.updateMeter(data.amplifierIP, data.channelType, data.channelId, data.db);
                 break;
             case 'muteStatus':
-                this.updateMuteStatus(data.channelType, data.channelId, data.muted);
+                this.updateMuteStatus(data.amplifierIP, data.channelType, data.channelId, data.muted);
+                break;
+            case 'amplifierInfo':
+                this.updateAmplifierInfo(data.amplifierIP, data.info);
                 break;
             case 'error':
                 this.showError(data.message);
@@ -220,20 +188,13 @@ class AudioVisualizer {
         }
     }
 
-    updateConnectionStatus(connected, amplifierIP) {
+    updateConnectionStatus(connected) {
         this.isConnected = connected;
         
         if (connected) {
             this.statusIndicator.classList.remove('disconnected', 'warning');
             this.statusIndicator.classList.add('connected');
-            this.statusText.textContent = `Connected to ${amplifierIP}`;
-            this.channelMuteBtns.forEach(btn => btn.disabled = false);
-            
-            // Enable channel IP dropdowns when connected
-            this.channelIPDropdowns.forEach(dropdown => dropdown.disabled = false);
-            
-            // Enable channel number dropdowns when connected
-            this.channelNumberDropdowns.forEach(dropdown => dropdown.disabled = false);
+            this.statusText.textContent = `Connected to ${this.amplifierPanels.size} amplifier(s)`;
             
             // Clear any warning state when we get a status update
             this.statusIndicator.classList.remove('warning');
@@ -241,115 +202,269 @@ class AudioVisualizer {
             this.statusIndicator.classList.remove('connected', 'warning');
             this.statusIndicator.classList.add('disconnected');
             this.statusText.textContent = 'Disconnected';
-            this.channelMuteBtns.forEach(btn => btn.disabled = true);
-            
-            // Disable channel IP dropdowns when disconnected
-            this.channelIPDropdowns.forEach(dropdown => dropdown.disabled = true);
-            
-            // Disable channel number dropdowns when disconnected
-            this.channelNumberDropdowns.forEach(dropdown => dropdown.disabled = true);
-            
-            // Reset all meters to -60dB
-            this.resetAllMeters();
-            
-            // Reset mute states
-            this.resetMuteStates();
         }
     }
 
-    async toggleMasterMute() {
-        // Disabled - now an indicator only
-        console.log('Master mute is now indicator only - use amplifier to control mute');
-    }
-
-    async toggleChannelMute(channel, button) {
-        // Disabled - now indicator only
-        console.log('Channel mute is now indicator only - use amplifier to control mute');
-    }
-
-
-    updateChannelMuteButton(button, isMuted) {
-        const icon = button.querySelector('.mute-icon');
-        if (isMuted) {
-            button.classList.add('muted');
-            icon.textContent = '🔇';
-        } else {
-            button.classList.remove('muted');
-            icon.textContent = '🔊';
+    createAmplifierPanel(ip, name) {
+        const panelId = `panel-${ip.replace(/\./g, '-')}`;
+        const panel = document.createElement('div');
+        panel.className = 'amplifier-panel';
+        panel.id = panelId;
+        panel.dataset.ip = ip;
+        
+        panel.innerHTML = `
+            <div class="amplifier-header">
+                <div class="amplifier-info">
+                    <h3 class="amplifier-name">${name || ip}</h3>
+                    <div class="amplifier-details">
+                        <span class="amplifier-ip">Control IP: ${ip}</span>
+                    </div>
+                </div>
+                <div class="amplifier-controls">
+                    <button class="close-panel-btn" data-ip="${ip}">×</button>
+                </div>
+            </div>
+            
+            <div class="amplifier-channels">
+                <div class="channels-section">
+                    <h4>Inputs</h4>
+                    <div class="channels-grid input-channels">
+                        ${this.createChannelMeters('input', ip, 4)}
+                    </div>
+                </div>
+                
+                <div class="channels-section">
+                    <h4>Outputs</h4>
+                    <div class="channels-grid output-channels">
+                        ${this.createChannelMeters('output', ip, 4)}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add close button event listener
+        const closeBtn = panel.querySelector('.close-panel-btn');
+        closeBtn.addEventListener('click', () => this.removeAmplifierPanel(ip));
+        
+        // Store panel reference
+        this.amplifierPanels.set(ip, panel);
+        
+        // Store amplifier data
+        this.activeAmplifiers.set(ip, {
+            ip: ip,
+            name: name || ip,
+            meters: {},
+            info: {}
+        });
+        
+        // Initialize meter references
+        const amplifierData = this.activeAmplifiers.get(ip);
+        for (let i = 1; i <= 4; i++) {
+            amplifierData.meters[`input-${i}`] = {
+                bar: panel.querySelector(`#input-${i}-${panelId}-bar`),
+                segments: null // Will be set after DOM is ready
+            };
         }
+        for (let i = 1; i <= 4; i++) {
+            amplifierData.meters[`output-${i}`] = {
+                bar: panel.querySelector(`#output-${i}-${panelId}-bar`),
+                segments: null // Will be set after DOM is ready
+            };
+        }
+        
+        return panel;
     }
 
-    resetMuteStates() {
-        this.muteStates.master = false;
-        this.muteStates.channels = {};
+    createChannelMeters(type, ip, count) {
+        const panelId = `panel-${ip.replace(/\./g, '-')}`;
+        let meters = '';
         
-        // Reset all channel mute buttons and meter containers
-        this.channelMuteBtns.forEach(btn => {
-            btn.classList.remove('muted');
-            btn.querySelector('.mute-icon').textContent = '🔊';
-        });
+        for (let i = 1; i <= count; i++) {
+            meters += `
+                <div class="meter-container vertical" data-channel="${type}-${i}" data-amplifier="${ip}">
+                    <div class="vu-meter">
+                        <div class="vu-scale">
+                            <div class="scale-label">+60</div>
+                            <div class="scale-label">+50</div>
+                            <div class="scale-label">+40</div>
+                            <div class="scale-label">+30</div>
+                            <div class="scale-label">+20</div>
+                            <div class="scale-label">+10</div>
+                            <div class="scale-label">+6</div>
+                            <div class="scale-label">+3</div>
+                            <div class="scale-label">0</div>
+                            <div class="scale-label">-3</div>
+                            <div class="scale-label">-6</div>
+                            <div class="scale-label">-12</div>
+                            <div class="scale-label">-18</div>
+                            <div class="scale-label">-24</div>
+                            <div class="scale-label">-30</div>
+                            <div class="scale-label">-36</div>
+                            <div class="scale-label">-42</div>
+                            <div class="scale-label">-48</div>
+                            <div class="scale-label">-54</div>
+                            <div class="scale-label">-60</div>
+                        </div>
+                        <div class="vu-bar-container">
+                            <div class="vu-bar" id="${type}-${i}-${panelId}-bar">
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment yellow"></div>
+                                <div class="vu-segment yellow"></div>
+                                <div class="vu-segment yellow"></div>
+                                <div class="vu-segment yellow"></div>
+                                <div class="vu-segment red"></div>
+                                <div class="vu-segment red"></div>
+                                <div class="vu-segment red"></div>
+                                <div class="vu-segment red"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="meter-label">${type === 'input' ? 'IN' : 'OUT'} ${i}</div>
+                    <button class="channel-mute-btn" data-channel="${type}-${i}" data-amplifier="${ip}" disabled>
+                        <span class="mute-icon">🔊</span>
+                    </button>
+                </div>
+            `;
+        }
         
-        // Reset all meter container styling
-        document.querySelectorAll('.meter-container.muted').forEach(container => {
-            container.classList.remove('muted');
-        });
+        return meters;
     }
 
-    updateMuteStatus(channelType, channelId, isMuted) {
-        // Only update if we're connected to avoid race conditions
-        if (!this.isConnected) {
+    addAmplifierPanel(ip, name) {
+        // Check if panel already exists
+        if (this.amplifierPanels.has(ip)) {
+            this.showError('Amplifier is already being displayed');
             return;
         }
         
-        // Handle master mute status
-        if (channelType === 'output' && channelId === 0) {
-            this.muteStates.master = isMuted;
-            return;
+        // Hide no amplifiers message
+        if (this.noAmplifiersMessage) {
+            this.noAmplifiersMessage.style.display = 'none';
         }
         
-        const channelKey = `${channelType}-${channelId}`;
+        // Create and add panel
+        const panel = this.createAmplifierPanel(ip, name);
+        this.amplifiersContainer.appendChild(panel);
         
-        // Update local mute state to match amplifier
-        this.muteStates.channels[channelKey] = isMuted;
-        
-        // Find the corresponding button and update it
-        const button = document.querySelector(`[data-channel="${channelKey}"]`);
-        if (button) {
-            this.updateChannelMuteButton(button, isMuted);
-        }
-        
-        // Also update the meter container styling
-        const meterContainer = document.querySelector(`.meter-container[data-channel="${channelKey}"]`);
-        if (meterContainer) {
-            if (isMuted) {
-                meterContainer.classList.add('muted');
-            } else {
-                meterContainer.classList.remove('muted');
+        // Request connection to this amplifier
+        this.connectToAmplifier(ip);
+    }
+
+    removeAmplifierPanel(ip) {
+        const panel = this.amplifierPanels.get(ip);
+        if (panel) {
+            panel.remove();
+            this.amplifierPanels.delete(ip);
+            this.activeAmplifiers.delete(ip);
+            
+            // Show no amplifiers message if no panels left
+            if (this.amplifierPanels.size === 0 && this.noAmplifiersMessage) {
+                this.noAmplifiersMessage.style.display = 'block';
             }
+            
+            // Disconnect from this amplifier
+            this.disconnectFromAmplifier(ip);
         }
     }
 
-    updateMeter(channelType, channelId, dbValue) {
+    async connectToAmplifier(ip) {
+        try {
+            const response = await fetch('/api/connect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ip })
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to connect to amplifier');
+            }
+            
+            console.log(`✅ Connected to amplifier ${ip}`);
+            
+        } catch (err) {
+            console.error('❌ Failed to connect to amplifier:', err);
+            this.showError(err.message);
+        }
+    }
+
+    async disconnectFromAmplifier(ip) {
+        try {
+            const response = await fetch('/api/disconnect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ip })
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to disconnect from amplifier');
+            }
+            
+            console.log(`✅ Disconnected from amplifier ${ip}`);
+            
+        } catch (err) {
+            console.error('❌ Failed to disconnect from amplifier:', err);
+        }
+    }
+
+    updateMeter(amplifierIP, channelType, channelId, dbValue) {
+        const amplifierData = this.activeAmplifiers.get(amplifierIP);
+        if (!amplifierData) {
+            return;
+        }
+        
         const channelKey = `${channelType}-${channelId}`;
-        const meter = this.meters[channelKey];
+        const meter = amplifierData.meters[channelKey];
         
         if (!meter) {
-            console.error(`Unknown channel: ${channelKey}`);
+            console.error(`Unknown channel: ${channelKey} for amplifier ${amplifierIP}`);
             return;
         }
         
         // Clamp value to range -60 to +60
         const clampedDb = Math.max(-60, Math.min(60, dbValue));
         
-        // Update numeric display
-        meter.value.textContent = clampedDb.toFixed(1);
-        
-        // Calculate bar height (0% at -60dB, 100% at +60dB)
-        const percentage = ((clampedDb + 60) / 120) * 100;
-        meter.fill.style.height = `${Math.max(0, Math.min(100, percentage))}%`;
-        
-        // Update color based on level
-        this.updateMeterColor(meter.fill, clampedDb);
+        // Update vertical VU meter segments
+        if (meter.bar) {
+            const segments = meter.bar.querySelectorAll('.vu-segment');
+            if (segments.length === 0) {
+                // Initialize segments if not already done
+                meter.segments = meter.bar.querySelectorAll('.vu-segment');
+            }
+            
+            const segmentArray = meter.segments || segments;
+            
+            // Calculate how many segments should be lit based on dB value
+            // Segment mapping (from bottom to top): -60, -54, -48, -42, -36, -30, -24, -18, -12, -6, -3, 0, +3, +6, +10, +20, +30, +40, +50, +60
+            const segmentThresholds = [-60, -54, -48, -42, -36, -30, -24, -18, -12, -6, -3, 0, 3, 6, 10, 20, 30, 40, 50, 60];
+            
+            segmentArray.forEach((segment, index) => {
+                const threshold = segmentThresholds[index];
+                if (clampedDb >= threshold) {
+                    segment.classList.add('active');
+                } else {
+                    segment.classList.remove('active');
+                }
+            });
+        }
     }
 
     updateMeterColor(fillElement, dbValue) {
@@ -369,13 +484,73 @@ class AudioVisualizer {
         fillElement.style.background = `linear-gradient(to top, ${color} 0%, ${color} 100%)`;
     }
 
-    resetAllMeters() {
-        Object.keys(this.meters).forEach(channelKey => {
-            const meter = this.meters[channelKey];
-            meter.value.textContent = '-60.0';
-            meter.fill.style.height = '0%';
-            meter.fill.style.background = 'linear-gradient(to top, #4CAF50 0%, #8BC34A 50%, #CDDC39 75%, #FF9800 90%, #f44336 100%)';
-        });
+    updateCompactMeterColor(valueElement, dbValue) {
+        let color;
+        let bgColor;
+        
+        if (dbValue > 0) {
+            // Red for clipping (> 0dB)
+            color = '#f44336';
+            bgColor = 'rgba(244, 67, 54, 0.1)';
+        } else if (dbValue > -6) {
+            // Yellow for warning (-6dB to 0dB)
+            color = '#FF9800';
+            bgColor = 'rgba(255, 152, 0, 0.1)';
+        } else {
+            // Green for normal (< -6dB)
+            color = '#4CAF50';
+            bgColor = 'rgba(76, 175, 80, 0.1)';
+        }
+        
+        valueElement.style.color = color;
+        valueElement.style.background = bgColor;
+        valueElement.style.border = `1px solid ${color}40`;
+    }
+
+    updateMuteStatus(amplifierIP, channelType, channelId, isMuted) {
+        const panel = this.amplifierPanels.get(amplifierIP);
+        if (!panel) {
+            return;
+        }
+        
+        const channelKey = `${channelType}-${channelId}`;
+        const button = panel.querySelector(`[data-channel="${channelKey}"][data-amplifier="${amplifierIP}"]`);
+        
+        if (button) {
+            const icon = button.querySelector('.mute-icon');
+            if (isMuted) {
+                button.classList.add('muted');
+                icon.textContent = '🔇';
+            } else {
+                button.classList.remove('muted');
+                icon.textContent = '🔊';
+            }
+        }
+    }
+
+    updateAmplifierInfo(amplifierIP, info) {
+        const amplifierData = this.activeAmplifiers.get(amplifierIP);
+        const panel = this.amplifierPanels.get(amplifierIP);
+        
+        if (!amplifierData || !panel) {
+            return;
+        }
+        
+        // Update stored info
+        amplifierData.info = info;
+        
+        // Update display
+        const modelElement = panel.querySelector('.amplifier-model');
+        const presetElement = panel.querySelector('.amplifier-preset');
+        const dataIPElement = panel.querySelector('.amplifier-data-ip');
+        const volumeElement = panel.querySelector('.volume-value');
+        const startStopBtn = panel.querySelector('.start-stop-btn');
+        
+        if (modelElement) modelElement.textContent = `Model: ${info.model || '--'}`;
+        if (presetElement) presetElement.textContent = `Default Preset: ${info.preset || '--'}`;
+        if (dataIPElement) dataIPElement.textContent = `IP: ${info.dataIP || '--'}`;
+        if (volumeElement) volumeElement.textContent = info.volume || '0';
+        if (startStopBtn) startStopBtn.textContent = info.isStarted ? 'OFF' : 'START';
     }
 
     async loadIPs() {
@@ -385,32 +560,22 @@ class AudioVisualizer {
             
             if (response.ok) {
                 this.savedIPs = result.ips || [];
-                this.currentIP = result.currentIP;
-                this.updateConnectionStatus(this.isConnected, this.currentIP);
-                this.renderIPCards(); // Render cards in hamburger menu
-                this.populateChannelIPDropdowns(); // Populate channel dropdowns
-                this.loadChannelNumberAssignments(); // Load channel number assignments
+                this.connectedIPs = result.connectedIPs || [];
+                this.updateConnectionStatus(this.connectedIPs.length > 0);
+                this.renderIPCards();
+                
+                // Automatically create panels for connected amplifiers
+                this.connectedIPs.forEach(ip => {
+                    const savedIP = this.savedIPs.find(savedIP => savedIP.ip === ip);
+                    if (savedIP && !this.amplifierPanels.has(ip)) {
+                        this.addAmplifierPanel(ip, savedIP.name || ip);
+                    }
+                });
             }
         } catch (err) {
             console.error('Failed to load IPs:', err);
         }
     }
-
-    async loadChannelNumberAssignments() {
-        try {
-            const response = await fetch('/api/channel-assignments');
-            const result = await response.json();
-            
-            if (response.ok) {
-                this.channelNumberAssignments = result.channelNumberAssignments || {};
-                this.populateChannelNumberDropdowns(); // Populate channel number dropdowns
-            }
-        } catch (err) {
-            console.error('Failed to load channel number assignments:', err);
-        }
-    }
-
-
 
     openIPModal() {
         this.ipModal.style.display = 'block';
@@ -458,7 +623,7 @@ class AudioVisualizer {
             this.newIPInput.value = '';
             this.newIPNameInput.value = '';
             this.loadSavedIPs();
-            this.loadIPs(); // Refresh the main dropdown and cards
+            this.loadIPs();
             
         } catch (err) {
             this.showError(err.message);
@@ -536,7 +701,7 @@ class AudioVisualizer {
             }
             
             this.loadSavedIPs();
-            this.loadIPs(); // Refresh the main dropdown and cards
+            this.loadIPs();
             
         } catch (err) {
             this.showError(err.message);
@@ -547,7 +712,6 @@ class AudioVisualizer {
         const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
         return ipRegex.test(ip);
     }
-
 
     renderIPCards() {
         this.ipCardsList.innerHTML = '';
@@ -560,87 +724,26 @@ class AudioVisualizer {
         this.savedIPs.forEach(ip => {
             const ipCard = document.createElement('div');
             ipCard.className = 'ip-card';
-            if (ip.ip === this.currentIP) {
+            if (this.amplifierPanels.has(ip.ip)) {
                 ipCard.classList.add('active');
+            }
+            
+            const isConnected = this.connectedIPs && this.connectedIPs.includes(ip.ip);
+            if (isConnected) {
+                ipCard.classList.add('connected');
             }
             
             ipCard.innerHTML = `
                 <div class="ip-card-header">
                     <div class="ip-card-name">${ip.name || ip.ip}</div>
-                    <div class="ip-card-status">${ip.ip === this.currentIP ? 'Current' : 'Available'}</div>
+                    <div class="ip-card-status">${this.amplifierPanels.has(ip.ip) ? 'Displayed' : (isConnected ? 'Connected' : 'Available')}</div>
                 </div>
                 <div class="ip-card-ip">${ip.ip}</div>
             `;
             
-            ipCard.addEventListener('click', () => this.switchToIP(ip.ip));
+            ipCard.addEventListener('click', () => this.addAmplifierPanel(ip.ip, ip.name || ip.ip));
             this.ipCardsList.appendChild(ipCard);
         });
-    }
-
-    async switchToIP(ip) {
-        if (ip === this.currentIP) {
-            return; // Already connected to this IP
-        }
-        
-        try {
-            // Show loading state
-            const cards = this.ipCardsList.querySelectorAll('.ip-card');
-            cards.forEach(card => {
-                if (card.querySelector('.ip-card-ip').textContent === ip) {
-                    card.style.opacity = '0.6';
-                    card.style.pointerEvents = 'none';
-                }
-            });
-            
-            // First, bulk assign all channels to this IP
-            console.log(`🔄 Bulk assigning all channels to IP: ${ip}`);
-            const bulkResponse = await fetch('/api/bulk-assign', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ ip })
-            });
-            
-            const bulkResult = await bulkResponse.json();
-            
-            if (!bulkResponse.ok) {
-                throw new Error(bulkResult.error || 'Failed to bulk assign channels');
-            }
-            
-            console.log(`✅ Bulk assignment successful:`, bulkResult);
-            
-            // Update local assignments with server response
-            this.channelIPAssignments = bulkResult.channelIPAssignments;
-            this.channelNumberAssignments = bulkResult.channelNumberAssignments;
-            
-            // Update dropdowns to reflect new assignments
-            this.populateChannelIPDropdowns();
-            this.populateChannelNumberDropdowns();
-            
-            // Then switch the main connection to this IP
-            const response = await fetch('/api/switch', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ ip })
-            });
-            
-            const result = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(result.error || 'Switch failed');
-            }
-            
-            this.currentIP = ip;
-            this.renderIPCards();
-            
-        } catch (err) {
-            this.showError(err.message);
-            // Reset card states on error
-            this.renderIPCards();
-        }
     }
 
     showError(message) {
@@ -656,190 +759,9 @@ class AudioVisualizer {
     hideError() {
         this.errorToast.classList.remove('show');
     }
-
-    populateChannelIPDropdowns() {
-        console.log(`🔄 Populating channel IP dropdowns...`);
-        console.log(`📋 Available IPs:`, this.savedIPs);
-        console.log(`🎛️ Found ${this.channelIPDropdowns.length} dropdowns`);
-        
-        this.channelIPDropdowns.forEach(dropdown => {
-            const channel = dropdown.dataset.channel;
-            console.log(`📍 Processing dropdown for channel: ${channel}`);
-            
-            // Clear existing options except the default
-            dropdown.innerHTML = '<option value="">Default</option>';
-            
-            // Add saved IPs
-            this.savedIPs.forEach(ip => {
-                const option = document.createElement('option');
-                option.value = ip.ip;
-                option.textContent = `${ip.name || ip.ip} (${ip.ip})`;
-                
-                // Set as selected if this channel is assigned to this IP
-                if (this.channelIPAssignments[channel] === ip.ip) {
-                    option.selected = true;
-                    console.log(`✅ Pre-selecting IP ${ip.ip} for channel ${channel}`);
-                }
-                
-                dropdown.appendChild(option);
-            });
-            
-            // Enable/disable based on connection status
-            dropdown.disabled = !this.isConnected;
-            console.log(`🔌 Dropdown ${channel} enabled: ${!dropdown.disabled}`);
-        });
-        
-        console.log(`✅ Channel IP dropdowns populated`);
-    }
-
-    populateChannelNumberDropdowns() {
-        console.log(`🔄 Populating channel number dropdowns...`);
-        console.log(`📋 Channel number assignments:`, this.channelNumberAssignments);
-        console.log(`🎛️ Found ${this.channelNumberDropdowns.length} channel number dropdowns`);
-        
-        this.channelNumberDropdowns.forEach(dropdown => {
-            const channel = dropdown.dataset.channel;
-            console.log(`📍 Processing channel number dropdown for channel: ${channel}`);
-            
-            // Only set the selected value if this channel has an explicit assignment
-            const assignedChannelNumber = this.channelNumberAssignments[channel];
-            if (assignedChannelNumber) {
-                dropdown.value = assignedChannelNumber.toString();
-                console.log(`✅ Set channel number for ${channel}: ${assignedChannelNumber}`);
-            } else {
-                // No assignment - leave dropdown unselected (first option will be empty)
-                dropdown.selectedIndex = 0;
-                console.log(`⚪ No channel number assignment for ${channel} - leaving unselected`);
-            }
-            
-            // Enable/disable based on connection status
-            dropdown.disabled = !this.isConnected;
-            console.log(`🔌 Channel number dropdown ${channel} enabled: ${!dropdown.disabled}`);
-        });
-        
-        console.log(`✅ Channel number dropdowns populated`);
-    }
-
-    handleChannelIPChange(channel, selectedIP) {
-        console.log(`🔄 Channel IP Change triggered: ${channel} -> ${selectedIP}`);
-        console.log(`🔗 Connection status: ${this.isConnected}`);
-        
-        // Temporarily allow changes even when not connected for testing
-        if (!this.isConnected) {
-            console.log('⚠️ Not connected, but allowing change for testing');
-            // return; // Commented out for testing
-        }
-        
-        // Update the channel IP assignment
-        if (selectedIP === '') {
-            delete this.channelIPAssignments[channel];
-            console.log(`Channel ${channel} reverted to default IP monitoring`);
-        } else {
-            this.channelIPAssignments[channel] = selectedIP;
-            console.log(`Channel ${channel} assigned to monitor IP: ${selectedIP}`);
-        }
-        
-        console.log(`📤 Sending assignment to server...`);
-        // Send assignment to server
-        this.sendChannelIPAssignment(channel, selectedIP);
-    }
-
-    async sendChannelIPAssignment(channel, ip) {
-        try {
-            console.log(`📡 Sending request: POST /api/channel-ip with body:`, { channel, ip });
-            
-            const response = await fetch('/api/channel-ip', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ channel, ip })
-            });
-            
-            console.log(`📥 Response status: ${response.status} ${response.statusText}`);
-            
-            const result = await response.json();
-            console.log(`📥 Response data:`, result);
-            
-            if (!response.ok) {
-                throw new Error(result.error || 'Failed to assign IP to channel');
-            }
-            
-            console.log(`✅ Channel ${channel} IP assignment updated successfully`);
-            
-        } catch (err) {
-            console.error('❌ Failed to update channel IP assignment:', err);
-            this.showError(err.message);
-            
-            // Revert dropdown to previous state on error
-            const dropdown = document.querySelector(`[data-channel="${channel}"]`);
-            if (dropdown) {
-                dropdown.value = this.channelIPAssignments[channel] || '';
-            }
-        }
-    }
-
-    handleChannelNumberChange(channel, selectedChannelNumber) {
-        console.log(`🔄 Channel Number Change triggered: ${channel} -> ${selectedChannelNumber}`);
-        console.log(`🔗 Connection status: ${this.isConnected}`);
-        
-        // Temporarily allow changes even when not connected for testing
-        if (!this.isConnected) {
-            console.log('⚠️ Not connected, but allowing channel number change for testing');
-        }
-        
-        // Update the channel number assignment
-        this.channelNumberAssignments[channel] = parseInt(selectedChannelNumber);
-        console.log(`Channel ${channel} assigned to amplifier channel: ${selectedChannelNumber}`);
-        
-        console.log(`📤 Sending channel number assignment to server...`);
-        // Send assignment to server
-        this.sendChannelNumberAssignment(channel, selectedChannelNumber);
-    }
-
-    async sendChannelNumberAssignment(channel, channelNumber) {
-        try {
-            console.log(`📡 Sending request: POST /api/channel-number with body:`, { channel, channelNumber });
-            
-            const response = await fetch('/api/channel-number', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ channel, channelNumber })
-            });
-            
-            console.log(`📥 Response status: ${response.status} ${response.statusText}`);
-            
-            const result = await response.json();
-            console.log(`📥 Response data:`, result);
-            
-            if (!response.ok) {
-                throw new Error(result.error || 'Failed to assign channel number');
-            }
-            
-            console.log(`✅ Channel ${channel} number assignment updated successfully`);
-            
-        } catch (err) {
-            console.error('❌ Failed to update channel number assignment:', err);
-            this.showError(err.message);
-            
-            // Revert dropdown to previous state on error
-            const dropdown = document.querySelector(`.channel-number-dropdown[data-channel="${channel}"]`);
-            if (dropdown) {
-                const previousValue = this.channelNumberAssignments[channel];
-                if (previousValue) {
-                    dropdown.value = previousValue.toString();
-                } else {
-                    dropdown.selectedIndex = 0;
-                }
-            }
-        }
-    }
 }
 
 // Initialize the application when DOM is loaded
-
 document.addEventListener('DOMContentLoaded', () => {
     new AudioVisualizer();
 });
