@@ -1592,6 +1592,27 @@ main {
     transform: scale(1.1);
 }
 
+.auto-script-btn {
+    background: rgba(76, 175, 80, 0.8);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-right: 8px;
+}
+
+.auto-script-btn:hover {
+    background: #4CAF50;
+    transform: scale(1.1);
+}
+
 .amplifier-channels {
     display: flex;
     flex-direction: column;

@@ -224,6 +224,7 @@ class AudioVisualizer {
                     </div>
                 </div>
                 <div class="amplifier-controls">
+                    <button class="auto-script-btn" data-ip="${ip}" title="Open Auto Script">🚀</button>
                     <button class="close-panel-btn" data-ip="${ip}">×</button>
                 </div>
             </div>
@@ -248,6 +249,13 @@ class AudioVisualizer {
         // Add close button event listener
         const closeBtn = panel.querySelector('.close-panel-btn');
         closeBtn.addEventListener('click', () => this.removeAmplifierPanel(ip));
+        
+        // Add auto script button event listener
+        const autoScriptBtn = panel.querySelector('.auto-script-btn');
+        autoScriptBtn.addEventListener('click', () => this.openAutoScript(ip));
+        
+        // Update button state
+        this.updateAutoScriptButton(autoScriptBtn);
         
         // Store panel reference
         this.amplifierPanels.set(ip, panel);
@@ -351,11 +359,6 @@ class AudioVisualizer {
             return;
         }
         
-        // Open external app if this is the first amplifier and no app has been opened yet
-        if (this.amplifierPanels.size === 0 && !this.externalAppOpened) {
-            this.openExternalApp(ip);
-        }
-        
         // Hide no amplifiers message
         if (this.noAmplifiersMessage) {
             this.noAmplifiersMessage.style.display = 'none';
@@ -376,7 +379,7 @@ class AudioVisualizer {
             this.amplifierPanels.delete(ip);
             this.activeAmplifiers.delete(ip);
             
-            // Reset external app flag if no amplifiers are active
+            // Reset external app flag if no amplifiers are active (user likely closed external app too)
             if (this.amplifierPanels.size === 0) {
                 this.externalAppOpened = false;
             }
@@ -438,12 +441,18 @@ class AudioVisualizer {
         }
     }
 
-    async openExternalApp(ip) {
+    async openAutoScript(ip) {
         try {
+            // Check if external app has already been opened
+            if (this.externalAppOpened) {
+                this.showError('External app is already open. Close all amplifier panels to reset.');
+                return;
+            }
+            
             // Mark that the external app has been opened
             this.externalAppOpened = true;
             
-            // Call the backend to open the external app
+            // Call the backend to open the external app (using existing endpoint)
             const response = await fetch('/api/open-external-app', {
                 method: 'POST',
                 headers: {
@@ -455,17 +464,44 @@ class AudioVisualizer {
             const result = await response.json();
             
             if (!response.ok) {
-                throw new Error(result.error || 'Failed to open external app');
+                throw new Error(result.error || 'Failed to open auto script');
             }
             
-            console.log(`✅ External app opened for amplifier ${ip}`);
+            console.log(`✅ Auto script opened for amplifier ${ip}`);
+            
+            // Update all auto script buttons to show opened state
+            this.updateAutoScriptButtons();
             
         } catch (err) {
-            console.error('❌ Failed to open external app:', err);
+            console.error('❌ Failed to open auto script:', err);
             this.showError(err.message);
             // Reset the flag if opening failed
             this.externalAppOpened = false;
         }
+    }
+
+    updateAutoScriptButton(button) {
+        if (this.externalAppOpened) {
+            button.textContent = '📱';
+            button.title = 'External app already open';
+            button.style.opacity = '0.5';
+            button.style.cursor = 'not-allowed';
+        } else {
+            button.textContent = '🚀';
+            button.title = 'Open Auto Script';
+            button.style.opacity = '1';
+            button.style.cursor = 'pointer';
+        }
+    }
+
+    updateAutoScriptButtons() {
+        // Update all auto script buttons in all panels
+        this.amplifierPanels.forEach((panel, ip) => {
+            const autoScriptBtn = panel.querySelector('.auto-script-btn');
+            if (autoScriptBtn) {
+                this.updateAutoScriptButton(autoScriptBtn);
+            }
+        });
     }
 
     updateMeter(amplifierIP, channelType, channelId, dbValue) {
@@ -787,6 +823,9 @@ class AudioVisualizer {
             ipCard.addEventListener('click', () => this.addAmplifierPanel(ip.ip, ip.name || ip.ip));
             this.ipCardsList.appendChild(ipCard);
         });
+        
+        // Update auto script button states
+        this.updateAutoScriptButtons();
     }
 
     showError(message) {
