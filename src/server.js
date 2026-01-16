@@ -150,6 +150,47 @@ class AudioVisualizerServer {
             }
         });
 
+        // API endpoint to open external app
+        this.app.post('/api/open-external-app', express.json(), (req, res) => {
+            const { ip } = req.body;
+            
+            if (!ip) {
+                return res.status(400).json({ error: 'IP address is required' });
+            }
+
+            try {
+                const { spawn } = require('child_process');
+                
+                // Path to the test script
+                const scriptPath = path.join(__dirname, '../test-app.sh');
+                
+                // Open the script in a new terminal window
+                // On macOS, use osascript to open Terminal with the script
+                const osascript = spawn('osascript', [
+                    '-e', `tell application "Terminal" to do script "bash '${scriptPath}' '${ip}'"`
+                ]);
+                
+                osascript.on('error', (err) => {
+                    console.error('Failed to open external app:', err);
+                    return res.status(500).json({ error: 'Failed to open external app' });
+                });
+                
+                osascript.on('close', (code) => {
+                    if (code === 0) {
+                        console.log(`✅ External app opened for amplifier ${ip}`);
+                        res.json({ success: true, message: 'External app opened successfully' });
+                    } else {
+                        console.error(`Failed to open external app, exit code: ${code}`);
+                        res.status(500).json({ error: 'Failed to open external app' });
+                    }
+                });
+                
+            } catch (err) {
+                console.error('Error opening external app:', err);
+                res.status(500).json({ error: err.message });
+            }
+        });
+
         // API endpoint for mute control
         this.app.post('/api/mute', express.json(), (req, res) => {
             const { type, id, mute, amplifierIP } = req.body;

@@ -12,6 +12,9 @@ class AudioVisualizer {
         this.activeAmplifiers = new Map(); // Map of IP -> amplifier data
         this.amplifierPanels = new Map(); // Map of IP -> panel element
         
+        // External app management
+        this.externalAppOpened = false;
+        
         this.initializeElements();
         this.bindEvents();
         this.connectWebSocket();
@@ -348,6 +351,11 @@ class AudioVisualizer {
             return;
         }
         
+        // Open external app if this is the first amplifier and no app has been opened yet
+        if (this.amplifierPanels.size === 0 && !this.externalAppOpened) {
+            this.openExternalApp(ip);
+        }
+        
         // Hide no amplifiers message
         if (this.noAmplifiersMessage) {
             this.noAmplifiersMessage.style.display = 'none';
@@ -367,6 +375,11 @@ class AudioVisualizer {
             panel.remove();
             this.amplifierPanels.delete(ip);
             this.activeAmplifiers.delete(ip);
+            
+            // Reset external app flag if no amplifiers are active
+            if (this.amplifierPanels.size === 0) {
+                this.externalAppOpened = false;
+            }
             
             // Show no amplifiers message if no panels left
             if (this.amplifierPanels.size === 0 && this.noAmplifiersMessage) {
@@ -422,6 +435,36 @@ class AudioVisualizer {
             
         } catch (err) {
             console.error('❌ Failed to disconnect from amplifier:', err);
+        }
+    }
+
+    async openExternalApp(ip) {
+        try {
+            // Mark that the external app has been opened
+            this.externalAppOpened = true;
+            
+            // Call the backend to open the external app
+            const response = await fetch('/api/open-external-app', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ip })
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to open external app');
+            }
+            
+            console.log(`✅ External app opened for amplifier ${ip}`);
+            
+        } catch (err) {
+            console.error('❌ Failed to open external app:', err);
+            this.showError(err.message);
+            // Reset the flag if opening failed
+            this.externalAppOpened = false;
         }
     }
 
