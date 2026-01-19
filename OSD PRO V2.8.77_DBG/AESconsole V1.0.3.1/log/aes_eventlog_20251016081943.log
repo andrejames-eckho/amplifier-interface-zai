@@ -1,0 +1,4 @@
+{"time":"2025-10-16 08:20:22", "level":"Error", "devname":"NPA43A_A4", "event":"时钟未同步"}
+{"time":"2025-10-16 08:20:22", "level":"Error", "devname":"NPA43A_A4", "event":"时钟已同步"}
+{"time":"2025-10-16 08:22:00", "level":"Error", "devname":"MAP08E_A16", "event":"时钟未同步"}
+{"time":"2025-10-16 08:22:00", "level":"Error", "devname":"MAP08E_A16", "event":"时钟已同步"}

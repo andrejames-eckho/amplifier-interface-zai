@@ -1,0 +1,2129 @@
+{
+	"version": "0.1",
+	"commands": [
+		{
+			"topic": 16,
+			"cmd": 1,
+			"desc": "设备发现查询"
+		},
+		{
+			"topic": 16,
+			"cmd": 2,
+			"desc": "设备发现响应",
+			"message": [
+				{
+					"identifier": "deviceName",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"length": 32
+						},
+						"type": "char"
+					},
+					"name": "设备名",
+					"required": true
+				},
+				{
+					"identifier": "deviceGroup",
+					"index": 2,
+					"dataType": {
+						"specs": {
+							"length": 32
+						},
+						"type": "char"
+					},
+					"name": "设备组名",
+					"required": true
+				},
+				{
+					"identifier": "nicConfig",
+					"index": 3,
+					"dataType": {
+						"specs": {
+							"name": [
+								"NIC_CONFIG"
+							]
+						},
+						"type": "struct"
+					},
+					"name": "网卡配置信息",
+					"required": true
+				},
+				{
+					"identifier": "vendorName",
+					"index": 4,
+					"dataType": {
+						"specs": {
+							"length": 32
+						},
+						"type": "char"
+					},
+					"name": "合作厂商名字",
+					"required": true
+				},
+				{
+					"identifier": "vendorProductType",
+					"index": 5,
+					"dataType": {
+						"specs": {
+							"length": 16
+						},
+						"type": "char"
+					},
+					"name": "厂商信息-型号名称",
+					"required": true
+				},
+				{
+					"identifier": "vendorProductVersion",
+					"index": 6,
+					"dataType": {
+						"specs": {
+							"length": 16
+						},
+						"type": "char"
+					},
+					"name": "厂商信息-产品版本",
+					"required": true
+				},
+				{
+					"identifier": "modelType",
+					"index": 7,
+					"dataType": {
+						"specs": {
+							"length": 16
+						},
+						"type": "char"
+					},
+					"name": "模块信息-模块型号",
+					"required": true
+				},
+				{
+					"identifier": "modelFwVersion",
+					"index": 8,
+					"dataType": {
+						"specs": {
+							"length": 16
+						},
+						"type": "char"
+					},
+					"name": "模块信息-固件版本",
+					"required": true
+				},
+				{
+					"identifier": "modelHwVersion",
+					"index": 9,
+					"dataType": {
+						"specs": {
+							"length": 16
+						},
+						"type": "char"
+					},
+					"name": "模块信息-硬件版本",
+					"required": true
+				},
+				{
+					"identifier": "modelCPVersion",
+					"index": 10,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "模块信息-通信协议版本",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 16,
+			"cmd": 3,
+			"desc": "设备信息设置",
+			"message": [
+				{
+					"identifier": "deviceName",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"length": 32
+						},
+						"type": "char"
+					},
+					"name": "设备名",
+					"required": false
+				},
+				{
+					"identifier": "deviceGroup",
+					"index": 2,
+					"dataType": {
+						"specs": {
+							"length": 32
+						},
+						"type": "char"
+					},
+					"name": "设备组名",
+					"required": false
+				},
+				{
+					"identifier": "nicConfig",
+					"index": 3,
+					"dataType": {
+						"specs": {
+							"name": [
+								"NIC_CONFIG"
+							]
+						},
+						"type": "struct"
+					},
+					"name": "网卡配置信息",
+					"required": false
+				},
+				{
+					"identifier": "vendorName",
+					"index": 4,
+					"dataType": {
+						"specs": {
+							"length": 32
+						},
+						"type": "char"
+					},
+					"name": "合作厂商信息",
+					"required": false
+				}
+			]
+		},
+		{
+			"topic": 16,
+			"cmd": 5,
+			"desc": "设备IP查询",
+			"message": [
+				{
+					"identifier": "deviceName",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"length": 32
+						},
+						"type": "char"
+					},
+					"name": "设备名",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 16,
+			"cmd": 6,
+			"desc": "设备IP查询响应",
+			"message": [
+				{
+					"identifier": "deviceName",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"length": 32
+						},
+						"type": "char"
+					},
+					"name": "设备名",
+					"required": true
+				},
+				{
+					"identifier": "ipAddr",
+					"index": 2,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "设备ip地址",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 16,
+			"cmd": 7,
+			"desc": "设备网络状态查询"
+		},
+		{
+			"topic": 16,
+			"cmd": 8,
+			"desc": "设备网络状态查询应答",
+			"message": [
+				{
+					"identifier": "netStatusInfo",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"name": ["NET_STATUS_INFO"]
+						},
+						"type": "struct"
+					},
+					"name": "网络状态信息",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 16,
+			"cmd": 9,
+			"desc": "设备状态/事件信息发送设置",
+			"message": [
+				{
+					"identifier": "dataRecvAddr",
+					"index" : 1,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "发送目的IP地址",
+					"required": true
+				},
+				{
+					"identifier": "dataRecvPort",
+					"index" : 2,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "发送目的端口",
+					"required": true
+				},
+				{
+					"identifier": "subsStatus",
+					"index" : 3,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "订阅数据和状态信息发送控制",
+					"required": true
+				},
+				{
+					"identifier": "playStatus",
+					"index" : 4,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "播放状态信息发送控制",
+					"required": true
+				},
+				{
+					"identifier": "sendChStatus",
+					"index" : 5,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "采集状态信息发送控制",
+					"required": true
+				},
+				{
+					"identifier": "netStatus",
+					"index" : 6,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "设备网络状态信息发送控制",
+					"required": true
+				},
+				{
+					"identifier": "ptpStatus",
+					"index" : 7,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "PTP状态信息发送控制",
+					"required": true
+				},
+				{
+					"identifier": "devEvent",
+					"index" : 8,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "设备事件信息发送控制",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 16,
+			"cmd": 11,
+			"desc": "设备事件信息通知",
+			"message": [
+				{
+					"identifier": "eventNo",
+					"index": 1,
+					"dataType": {
+						"specs":{},
+						"type": "uint32"
+					},
+					"name": "事件编码",
+					"required": true
+				},
+				{
+					"identifier": "eventMsg",
+					"index": 2,
+					"dataType": {
+						"specs": {
+							"length": 512
+						},
+						"type": "char"
+					},
+					"name": "事件描述",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 16,
+			"cmd": 25,
+			"desc": "订阅请求",
+			"message": [
+				{
+					"identifier": "subDesp",
+					"index": 2,
+					"dataType": {
+						"specs": {
+							"name": ["AU_SUBS_MS_DESC"]
+						},
+						"type": "struct"
+					},
+					"name": "组播流描述",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 16,
+			"cmd": 255,
+			"desc": "状态字查询响应",
+			"message": [
+				{
+					"identifier": "statusCode",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"name": ["STATUS_CODE_DESC"]
+						},
+						"type": "struct"
+					},
+					"name": "状态字",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 17,
+			"cmd": 1,
+			"desc": "音频参数查询"
+		},
+		{
+			"topic": 17,
+			"cmd": 2,
+			"desc": "音频参数查询响应",
+			"message": [
+				{
+					"identifier": "sampleRate",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "采样率",
+					"required": true
+				},
+				{
+					"identifier": "encodeMode",
+					"index": 2,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "编码方式",
+					"required": true
+				},
+				{
+					"identifier": "delay",
+					"index": 3,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "设定播放延迟",
+					"required": true
+				},
+				{
+					"identifier": "frameSamples",
+					"index": 4,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "帧长",
+					"required": true
+				},
+				{
+					"identifier": "sampleRateSupport",
+					"index": 5,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "支持的采样率",
+					"required": true
+				},
+				{
+					"identifier": "encodeModeSupport",
+					"index": 6,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "支持的编码方式",
+					"required": true
+				},
+				{
+					"identifier": "minDelay",
+					"index": 7,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "最小延迟",
+					"required": true
+				},
+				{
+					"identifier": "maxDelay",
+					"index": 8,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "最大延迟",
+					"required": true
+				},
+				{
+					"identifier": "txChannelLmt",
+					"index": 9,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "发送通道限额",
+					"required": true
+				},
+				{
+					"identifier": "rxChannelLmt",
+					"index": 10,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "接收通道限额",
+					"required": true
+				},
+				{
+					"identifier": "maxTxStream",
+					"index": 11,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "发送流限额",
+					"required": true
+				},
+				{
+					"identifier": "maxRxStream",
+					"index": 12,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "接收流限额",
+					"required": true
+				},
+				{
+					"identifier": "frameType",
+					"index": 13,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "音频帧格式",
+					"required": true
+				},
+				{
+					"identifier": "maxTxChannel",
+					"index": 14,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "设备发送通道限制",
+					"required": true
+				},
+				{
+					"identifier": "maxRxChannel",
+					"index": 15,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "设备接收通道限制",
+					"required": true
+				},
+				{
+					"identifier": "mclk",
+					"index": 16,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "mclk频率",
+					"required": false
+				},
+				{
+					"identifier": "mclkSupport",
+					"index": 17,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "支持的mclk频率",
+					"required": false
+				},
+				{
+					"identifier": "txChannelOpLmt",
+					"index": 18,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "发送通道操作限制",
+					"required": false
+				},
+				{
+					"identifier": "rxChannelOpLmt",
+					"index": 19,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "接收通道操作限制",
+					"required": false
+				},
+				{
+					"identifier": "chCntPerTdm",
+					"index": 20,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "当前每TDM通道数",
+					"required": false
+				},
+				{
+					"identifier": "chCntPerTdmSpt",
+					"index": 21,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "支持的每TDM通道数",
+					"required": false
+				},
+				{
+					"identifier": "auStartEdge",
+					"index": 22,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "当前音频数据有效边沿设置",
+					"required": false
+				},
+				{
+					"identifier": "auStartEdgeSpt",
+					"index": 23,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "支持的音频数据有效边沿设置",
+					"required": false
+				},
+				{
+					"identifier": "auOutStartDelay",
+					"index": 24,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "当前播放音频数据输出延迟设置",
+					"required": false
+				},
+				{
+					"identifier": "auOutStartDelaySpt",
+					"index": 25,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "当前播放音频数据输出延迟设",
+					"required": false
+				},
+				{
+					"identifier": "auInStartDelay",
+					"index": 26,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "当前采集音频数据输入延迟方式",
+					"required": false
+				},
+				{
+					"identifier": "auInStartDelaySpt",
+					"index": 27,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "支持的采集音频数据输入延迟方式",
+					"required": false
+				},
+				{
+					"identifier": "lrck",
+					"index": 28,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "当前LRCK设置",
+					"required": false
+				},
+				{
+					"identifier": "lrckSpt",
+					"index": 29,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "支持的LRCK设置",
+					"required": false
+				}
+			]
+		},
+		{
+			"topic": 17,
+			"cmd": 3,
+			"desc": "音频参数设置",
+			"message": [
+				{
+					"identifier": "sampleRate",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "采样率",
+					"required": false
+				},
+				{
+					"identifier": "encodeMode",
+					"index": 2,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "编码方式",
+					"required": false
+				},
+				{
+					"identifier": "delay",
+					"index": 3,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "设定播放延迟",
+					"required": false
+				},
+				{
+					"identifier": "frameSamples",
+					"index": 4,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "帧长",
+					"required": false
+				},
+				{
+					"identifier": "frameType",
+					"index": 5,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "音频帧格式",
+					"required": false
+				},
+				{
+					"identifier": "txChannelLmt",
+					"index": 9,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "发送通道限额",
+					"required": false
+				},
+				{
+					"identifier": "rxChannelLmt",
+					"index": 10,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "接收通道限额",
+					"required": false
+				},
+				{
+					"identifier": "mclk",
+					"index": 16,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "mclk频率",
+					"required": false
+				},
+				{
+					"identifier": "chCntPerTdm",
+					"index": 20,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "设置每TDM通道数",
+					"required": false
+				},
+				{
+					"identifier": "auStartEdge",
+					"index": 22,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "设置音频数据有效边沿",
+					"required": false
+				},
+				{
+					"identifier": "auOutStartDelay",
+					"index": 24,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "设置播放音频数据输出延迟方式",
+					"required": false
+				},
+				{
+					"identifier": "auInStartDelay",
+					"index": 26,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "设置采集音频数据输入延迟方式",
+					"required": false
+				},
+				{
+					"identifier": "lrck",
+					"index": 28,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "设置LRCK",
+					"required": false
+				}
+			]
+		},
+		{
+			"topic": 17,
+			"cmd": 5,
+			"desc": "通道名称查询"
+		},
+		{
+			"topic": 17,
+			"cmd": 33,
+			"desc": "发送流信息查询"
+		},
+		{
+			"topic": 17,
+			"cmd": 35,
+			"desc": "订阅信息查询"
+		},
+		{
+			"topic": 17,
+			"cmd": 36,
+			"desc": "订阅数据和状态查询",
+			"message": [
+				{
+					"identifier": "msgGroupInfo",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"name": ["MSG_GP_DESP"]
+						},
+						"type": "struct"
+					},
+					"name": "分组信息",
+					"required": true
+				},
+				{
+					"identifier": "subMsStsDesp",
+					"index": 2,
+					"dataType": {
+						"specs": {
+							"name": ["AU_SUBS_MS_STS_DESC"]
+						},
+						"type": "struct"
+					},
+					"name": "组播流订阅及状态描述",
+					"required": false
+				},
+				{
+					"identifier": "SubMdlStsDesc",
+					"index": 3,
+					"dataType": {
+						"specs": {
+							"name": ["AU_SUBS_MDL_STS_DESC"]
+						},
+						"type": "struct"
+					},
+					"name": "模块订阅及状态描述",
+					"required": false
+				}
+			]
+		},
+		{
+			"topic": 17,
+			"cmd": 41,
+			"desc": "播放状态查询"
+		},
+		{
+			"topic": 17,
+			"cmd": 42,
+			"desc": "播放状态信息应答",
+			"message": [
+				{
+					"identifier": "channelState",
+					"index": 4,
+					"dataType": {
+						"specs": {
+							"name": ["CH_STS_DESP"]
+						},
+						"type": "struct"
+					},
+					"name": "通道状态",
+					"required": true	
+				}
+			]
+		},
+		{
+			"topic": 17,
+			"cmd": 43,
+			"desc": "采集状态查询"
+		},
+		{
+			"topic": 17,
+			"cmd": 44,
+			"desc": "采集状态信息",
+			"message": [
+				{
+					"identifier": "channelState",
+					"index": 4,
+					"dataType": {
+						"specs": {
+							"name": ["CH_STS_DESP"]
+						},
+						"type": "struct"
+					},
+					"name": "通道状态",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 18,
+			"cmd": 1,
+			"desc": "PTP状态查询"
+		},
+		{
+			"topic": 18,
+			"cmd": 2,
+			"desc": "播放状态查询响应",
+			"message": [
+				{
+					"identifier": "preferMaster",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "首选主时钟",
+					"required": true
+				},
+				{
+					"identifier": "delayReqUc",
+					"index": 2,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "DelayReq使用单播",
+					"required": true
+				},
+				{
+					"identifier": "portState",
+					"index": 3,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "PTP端口状态",
+					"required": true
+				},
+				{
+					"identifier": "clkOffste",
+					"index": 4,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "时钟频率偏差",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 18,
+			"cmd": 3,
+			"desc": "PTP设置",
+			"message": [
+				{
+					"identifier": "preferMaster",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "首选主时钟",
+					"required": true
+				},
+				{
+					"identifier": "delayReqUc",
+					"index": 2,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "DelayReq使用单播",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 19,
+			"cmd": 1,
+			"desc": "设备重启"
+		},
+		{
+			"topic": 19,
+			"cmd": 3,
+			"desc": "设备配置锁定查询"
+		},
+		{
+			"topic": 19,
+			"cmd": 4,
+			"desc": "设备配置锁定查询响应",
+			"message": [
+				{
+					"identifier": "cfgProtectStatus",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "配置锁定状态",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 19,
+			"cmd": 5,
+			"desc": "设备配置锁定与解锁",
+			"message": [
+				{
+					"identifier": "cfgProtect",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "配置锁定",
+					"required": false
+				},
+				{
+					"identifier": "cfgPIN",
+					"index": 2,
+					"dataType": {
+						"specs": {
+							"arrayType": {
+								"specs": {},
+								"type": "uint8"
+							},
+							"size": 4
+						},
+						"type": "array"
+					},
+					"name": "pin码",
+					"required": false
+				}
+			]
+		},
+		{
+			"topic": 19,
+			"cmd": 6,
+			"desc": "设备配置锁定与解锁响应",
+			"message": [
+				{
+					"identifier": "optRes",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "操作结果",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 19,
+			"cmd": 7,
+			"desc": "清除配置",
+			"message": [
+				{
+					"identifier": "clearConfigType",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "清除配置类型",
+					"required": true
+				}
+			]
+		},
+		{
+			"topic": 19,
+			"cmd": 8,
+			"desc": "模块动作",
+			"message": [
+				{
+					"identifier": "HcpuCmd",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"unit": "",
+							"min": 1,
+							"max": 4294967295,
+							"step": 1
+						},
+						"type": "uint32"
+					},
+					"name": "发送HostCPU命令",
+					"required": true
+				}
+			]
+		}
+
+
+	],
+	"structs": [
+		{
+			"name": "NIC_CONFIG",
+			"struct": [
+				{
+					"identifier": "ip",
+					"index": 1,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "ip地址"
+				},
+				{
+					"identifier": "gw",
+					"index": 2,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "网关"
+				},
+				{
+					"identifier": "sm",
+					"index": 3,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "子网掩码"
+				},
+				{
+					"identifier": "dns",
+					"index": 4,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "dns"
+				},
+				{
+					"identifier": "dns1",
+					"index": 5,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "dns1"
+				},
+				{
+					"identifier": "dhcpF",
+					"index": 6,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "dhcp使能"
+				},
+				{
+					"identifier": "nicWorkMode",
+					"index": 7,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "网卡工作模式"
+				},
+				{
+					"identifier": "nicSupportMode",
+					"index": 8,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "网卡支持的模式"
+				},
+				{
+					"identifier": "nicNo",
+					"index": 9,
+					"dataType": {
+						"specs":{
+							"0": "主",
+							"1": "备"
+						},
+						"type": "enum"
+					},
+					"name": "网卡序号"
+				},
+				{
+					"identifier": "mac",
+					"index": 10,
+					"dataType": {
+						"specs":{
+							"length": 6,
+							"codec": "hexstring"
+						},
+						"type": "bytes"
+					},
+					"name": "mac地址"
+				},
+				{
+					"identifier": "res",
+					"index": 11,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "对齐保留"
+				}
+			]
+		},
+		{
+			"name": "NET_STATUS_INFO",
+			"struct": [
+				{
+					"identifier": "nicNo",
+					"index": 1,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "网络接口",
+					"required": true
+				},
+				{
+					"identifier": "linkSts",
+					"index": 2,
+					"dataType": {
+						"specs":{},
+						"type": "uint8"
+					},
+					"name": "连接状态",
+					"required": true
+				},
+				{
+					"identifier": "res",
+					"index": 3,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "保留",
+					"required": true
+				},
+				{
+					"identifier": "txBandwidth",
+					"index": 4,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "发送带宽占用",
+					"required": true
+				},
+				{
+					"identifier": "rxBandwidth",
+					"index": 5,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "接收带宽占用",
+					"required": true
+				},
+				{
+					"identifier": "errPacketCntTx",
+					"index": 6,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "发送包错误计数",
+					"required": true
+				},
+				{
+					"identifier": "errPacketCntRx",
+					"index": 7,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "接收包错误计数",
+					"required": true
+				}
+			]
+		},
+		{
+			"name": "AU_SUBS_MS_DESC",
+			"struct": [
+				{
+					"identifier": "despType",
+					"index": 1,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "描述类型",
+					"required": true
+				},
+				{
+					"identifier": "chCnt",
+					"index": 2,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "包含通道数量",
+					"required": true
+				},
+				{
+					"identifier": "port",
+					"index": 3,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "端口",
+					"required": true
+				},
+				{
+					"identifier": "port",
+					"index": 4,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "IP地址",
+					"required": true
+				},
+				{
+					"identifier": "ssrc",
+					"index": 5,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "ssrc",
+					"required": true
+				},
+				{
+					"identifier": "sChNo",
+					"index": 6,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "流中通道序号",
+					"required": true
+				},
+				{
+					"identifier": "lChNo",
+					"index": 7,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "对应本地通道序号",
+					"required": true
+				},
+				{
+					"identifier": "mediaClk0",
+					"index": 8,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "媒体时钟初始随机值",
+					"required": true
+				}
+			]
+		},
+		{
+			"name": "AU_SUBS_MS_STS_DESC",
+			"struct": [
+				{
+					"identifier": "despType",
+					"index": 1,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "描述类型",
+					"required": true
+				},
+				{
+					"identifier": "chCnt",
+					"index": 2,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "包含通道数量",
+					"required": true
+				},
+				{
+					"identifier": "port",
+					"index": 3,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "端口",
+					"required": true
+				},
+				{
+					"identifier": "ip",
+					"index": 4,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "IP地址",
+					"required": true
+				},
+				{
+					"identifier": "ssrc",
+					"index": 5,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "ssrc",
+					"required": true
+				},
+				{
+					"identifier": "sChNo",
+					"index": 6,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "流中通道序号",
+					"required": true
+				},
+				{
+					"identifier": "lChNo",
+					"index": 7,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "对应本地通道序号",
+					"required": true
+				},
+				{
+					"identifier": "mediaClk0",
+					"index": 8,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "媒体时钟初始随机值",
+					"required": true
+				},
+				{
+					"identifier": "latencyUsAvg",
+					"index": 9,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "接收流传输延迟平均值(1s内) us",
+					"required": true
+				},
+				{
+					"identifier": "latencyUsPeak",
+					"index": 10,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "接收流传输延迟最大值(1s内) us",
+					"required": true
+				},
+				{
+					"identifier": "lateCnt",
+					"index": 11,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "迟到帧计数",
+					"required": true
+				}
+			]
+		},
+		{
+			"name": "AU_SUBS_MDL_STS_DESC",
+			"struct": [
+				{
+					"identifier": "sDevName",
+					"index": 1,
+					"dataType": {
+						"specs": {
+							"length": 32
+						},
+						"type": "char"
+					},
+					"name": "源模块名称",
+					"required": true
+				},
+				{
+					"identifier": "sChNo",
+					"index": 2,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "被订阅的通道序号",
+					"required": true
+				},
+				{
+					"identifier": "lChNo",
+					"index": 3,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "本模块通道序号",
+					"required": true
+				},
+				{
+					"identifier": "strmID",
+					"index": 4,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "源模块单播流标识",
+					"required": true
+				},
+				{
+					"identifier": "latencyUsAvg",
+					"index": 5,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "接收模块传输延迟平均值",
+					"required": true
+				},
+				{
+					"identifier": "latencyUsPeak",
+					"index": 6,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "接收模块输延迟最大值",
+					"required": true
+				},
+				{
+					"identifier": "lateCnt",
+					"index": 7,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "迟到帧计数",
+					"required": true
+				}
+			]
+		},
+		{
+			"name": "CH_STS_DESP",
+			"struct": [
+				{
+					"identifier": "cnt",
+					"index": 1,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "发送通道包含实际通道数",
+					"required": true
+				},
+				{
+					"identifier": "sts",
+					"index": 2,
+					"dataType": {
+						"specs": {
+							"item": {
+								"dataType": {
+									"specs": {},
+									"type": "uint16"
+								}
+							} 
+						},
+						"type": "array"
+					},
+					"name": "通道的采集状态数组, 有cnt个元素",
+					"required": true
+				}
+			]
+		},
+		{
+			"name": "MSG_GP_DESP",
+			"struct": [
+				{
+					"identifier": "mCnt",
+					"index": 1,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "消息分组总数"
+				},
+				{
+					"identifier": "mNo",
+					"index": 2,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "当前分组序号"
+				}
+			]
+		},
+		{
+			"name": "CH_NAME_DESC",
+			"struct": [
+				{
+					"identifier": "chNo",
+					"index": 1,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "通道序号"
+				},
+				{
+					"identifier": "fNOrig",
+					"index": 2,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "配置工具无需解析"
+				},
+				{
+					"identifier": "res",
+					"index": 3,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "保留"
+				},
+				{
+					"identifier": "str",
+					"index": 4,
+					"dataType": {
+						"specs": {
+							"length": 32
+						},
+						"type": "char"
+					},
+					"name": "通道名"
+				}
+			]
+		},
+		{
+			"name": "IP_PORT_DESP",
+			"struct": [
+				{
+					"identifier": "ip",
+					"index": 1,
+					"dataType": {
+						"specs": {},
+						"type": "uint32"
+					},
+					"name": "网络序IP地址"
+				},
+				{
+					"identifier": "ip",
+					"index": 2,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "网络序端口"
+				},
+				{
+					"identifier": "res0",
+					"index": 3,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "保留"
+				}
+			]
+		},
+		{
+			"name": "CH_STS_DESP",
+			"struct": [
+				{
+					"identifier": "cnt",
+					"index": 1,
+					"dataType": {
+						"specs": {},
+						"type": "uint16"
+					},
+					"name": "包含的实际通道数"
+				},
+				{
+					"identifier": "ip",
+					"index": 2,
+					"dataType": {
+						"specs": {
+							"arrayType": {
+								"specs": {},
+								"type": "uint8"
+							}
+						},
+						"type": "array"
+					},
+					"name": "状态"
+				}
+			]
+		},
+		{
+			"name": "STATUS_CODE_DESC",
+			"struct": [
+				{
+					"identifier": "verBaseInfo",
+					"index": 1,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "模块基本信息状态版本",
+					"required": true
+				},
+				{
+					"identifier": "verAuPara",
+					"index": 2,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "音频参数状态版本",
+					"required": true
+				},
+				{
+					"identifier": "verChName",
+					"index": 3,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "通道名称状态版本",
+					"required": true
+				},
+				{
+					"identifier": "verSendStrm",
+					"index": 4,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "发送流状态版本",
+					"required": true
+				},
+				{
+					"identifier": "verRcvStrm",
+					"index": 5,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "接收流状态版本",
+					"required": true
+				},
+				{
+					"identifier": "verPtpSet",
+					"index": 6,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "ptp设置状态版本",
+					"required": true
+				},
+				{
+					"identifier": "verDevLock",
+					"index": 7,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "模块锁定状态版本",
+					"required": true
+				},
+				{
+					"identifier": "poweronFlag",
+					"index": 8,
+					"dataType": {
+						"specs": {},
+						"type": "uint8"
+					},
+					"name": "模块上电标志",
+					"required": true
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,33 @@
+﻿{
+   "event": 
+   [
+        {"eventType":1, "eventId":0, "msg":"无效的链路本地地址", "enMsg":"Invalid link local address"},
+	{"eventType":1, "eventId":1, "msg":"接口上的子网不匹配", "enMsg":"Subnet mismatch on dante interface"},
+	{"eventType":1, "eventId":2, "msg":"子网匹配非dante接口", "enMsg":"Subnet match with non dante interface"},
+	{"eventType":1, "eventId":3, "msg":"多个地址匹配子网", "enMsg":"Multiple addresses with matching subnets"},
+	{"eventType":1, "eventId":4, "msg":"主接口子网冲突", "enMsg":"Subnet conflict of dante interface on primary"},
+	{"eventType":1, "eventId":5, "msg":"从接口子网冲突", "enMsg":"Subnet conflict of dante interface on secondary"},
+	{"eventType":1, "eventId":6, "msg":"未知地址错误", "enMsg":"Unknown address error"},
+	{"eventType":1, "eventId":7, "msg":"故障安全模式", "enMsg":"Fail Safe Mode"},
+	{"eventType":1, "eventId":8, "msg":"位置设备问题", "enMsg":"Unknown device issue"},
+	{"eventType":1, "eventId":9, "msg":"晋升为主时钟", "enMsg":"Elevation to Clock Master"},
+	{"eventType":1, "eventId":10, "msg":"检测到扇区配置", "enMsg":"Fanout Configuration detected"},
+	{"eventType":1, "eventId":11, "msg":"时钟上拉子域不匹配", "enMsg":"Mismatched clock pullup subdomain"},
+	{"eventType":1, "eventId":12, "msg":"上拉子域错误", "enMsg":"Wrong subdomain for pullup"},
+	{"eventType":1, "eventId":13, "msg":"未知子域", "enMsg":"Unknown subdomain"},
+	{"eventType":1, "eventId":14, "msg":"音频静音", "enMsg":"Audio mute"},
+	{"eventType":1, "eventId":15, "msg":"音频取消静音", "enMsg":"Audio unmute"},
+	{"eventType":1, "eventId":16, "msg":"时钟已同步", "enMsg":"Clock sync lock"},
+	{"eventType":1, "eventId":17, "msg":"时钟未同步", "enMsg":"Clock sync unlock"},
+	{"eventType":2, "eventId":0, "msg":"解析失败", "enMsg":"Resolution Failed"},
+	{"eventType":2, "eventId":1, "msg":"晋升为全局主时钟", "enMsg":"Elevation to Grand Master"},
+	{"eventType":2, "eventId":2, "msg":"多个外部时钟源", "enMsg":"Multiple external clock sources"},
+	{"eventType":2, "eventId":3, "msg":"不能晋升为主时钟", "enMsg":"Cannot Elevate to Clock Master"},
+	{"eventType":2, "eventId":4, "msg":"时钟同步警告", "enMsg":"Clock Sync Warning"},
+        {"eventType":3, "eventId":0, "msg":"请求超时", "enMsg":"Request Timeout Error"},
+	{"eventType":3, "eventId":1, "msg":"应答超时", "enMsg":"Response Timeout Error"},
+	{"eventType":3, "eventId":2, "msg":"从主时钟降级", "enMsg":"Demotion from Clock Master"},
+	{"eventType":3, "eventId":3, "msg":"从主时钟降级", "enMsg":"Demotion from Grand Master"},
+	{"eventType":3, "eventId":4, "msg":"需要重启", "enMsg":"Reboot required"}
+   ]
+}

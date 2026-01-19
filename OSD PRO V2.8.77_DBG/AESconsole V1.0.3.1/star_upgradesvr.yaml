@@ -1,0 +1,25 @@
+# 日志配置
+LogPath: star_upgradesvr.log
+LogLevel: info, warn, error, critical, trace
+LogFileSize: 51200000
+LogFileRolls: 10
+
+# 服务绑定IP/端口
+ServiceBindIP: 0.0.0.0
+ServiceBindPort: 6380
+
+# 配置中心绑定IP/端口
+SvrRegCenterIP: 127.0.0.1
+SvrRegCenterPort: 8500
+
+# 升级任务状态回调URL
+TaskStatusCallbackURL: http://127.0.0.1:13863/aes/service/callback
+
+# 升级文件存储目录
+UpgFilePath: temp
+
+# tftp服务IP地址，若未配置则程序自动获取本机物理网卡IP
+TFTPServerAddr:
+
+#tftp服务PORT
+TFTPPort: 21569

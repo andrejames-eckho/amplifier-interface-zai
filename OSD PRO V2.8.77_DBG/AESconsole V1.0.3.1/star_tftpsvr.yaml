@@ -1,0 +1,25 @@
+# 日志配置
+LogPath: star_tftpsvr.log
+LogLevel: info, warn, error, critical, trace
+LogFileSize: 51200000
+LogFileRolls: 10
+
+# 授权目录
+AuthPath: temp
+
+# 媒体文件目录
+MediaPath: temp/media
+
+#媒体文件保存时间  天/时/分
+SaveTimeD: 1
+SaveTimeH: 0
+SaveTimeM: 0
+
+# 服务端口
+Port: 21569
+
+# ACK超时时长, 单位秒
+RetryInterval: 3
+
+# 重发次数
+RetryCount: 10

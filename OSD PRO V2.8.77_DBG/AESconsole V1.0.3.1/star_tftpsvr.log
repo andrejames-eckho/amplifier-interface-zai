@@ -1,0 +1,770 @@
+2025-07-21 16:27:50.33 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-07-21 16:27:50.33 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-07-21 16:27:50.33 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-07-21 16:27:50.33 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-07-21 16:27:50.351 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-07-21 16:27:50.351 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-07-21 16:27:50.351 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-07-21 16:27:50.351 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-07-21 16:27:50.351 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-07-21 16:27:50.351 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-07-21 16:34:49.823 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-07-21 16:34:49.823 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-07-21 16:34:49.823 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-07-21 16:34:49.844 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-07-21 16:34:49.844 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-07-21 16:34:49.844 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-07-21 16:34:49.844 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-07-21 16:34:49.844 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-07-21 16:34:49.844 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-07-21 16:34:49.844 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-07-21 16:36:49.851 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-07-21 16:39:31.768 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-07-21 16:39:31.768 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-07-21 16:39:31.768 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-07-21 16:39:31.789 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-07-21 16:39:31.789 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-07-21 16:39:31.789 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-07-21 16:39:31.789 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-07-21 16:39:31.789 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-07-21 16:39:31.789 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-07-21 16:39:31.789 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-07-21 16:40:53.226 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-07-21 16:40:53.226 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-07-21 16:40:53.226 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-07-21 16:40:53.226 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-07-21 16:40:53.243 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-07-21 16:40:53.243 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-07-21 16:40:53.243 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-07-21 16:40:53.243 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-07-21 16:40:53.243 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-07-21 16:40:53.243 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-07-21 16:42:53.252 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-07-22 15:22:11.477 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-07-22 15:22:11.477 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-07-22 15:22:11.477 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-07-22 15:22:11.504 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-07-22 15:22:11.504 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-07-22 15:22:11.504 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-07-22 15:22:11.504 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-07-22 15:22:11.504 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-07-22 15:22:11.504 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-07-22 15:22:11.504 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-07-22 15:22:27.777 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-07-22 15:22:27.777 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-07-22 15:22:27.777 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-07-22 15:22:27.777 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-07-22 15:22:27.777 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-07-22 15:22:27.8 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-07-22 15:22:27.801 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-07-22 15:22:27.801 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-07-22 15:22:27.801 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-07-22 15:22:27.801 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-07-22 15:26:46.97 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-07-22 15:26:46.97 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-07-22 15:26:46.97 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-07-22 15:26:46.97 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-07-22 15:26:46.97 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-07-22 15:26:46.987 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-07-22 15:26:46.987 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-07-22 15:26:46.987 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-07-22 15:26:46.987 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-07-22 15:26:46.988 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-07-31 14:46:31.502 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-07-31 14:46:31.502 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-07-31 14:46:31.502 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-07-31 14:46:31.502 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-07-31 14:46:31.503 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-07-31 14:46:31.531 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-07-31 14:46:31.531 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-07-31 14:46:31.531 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-07-31 14:46:31.531 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-07-31 14:46:31.531 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-07-31 14:46:53.509 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-07-31 14:46:53.509 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-07-31 14:46:53.534 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-07-31 14:46:53.534 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-07-31 14:46:53.534 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-07-31 14:46:53.534 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-07-31 14:46:53.534 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-07-31 14:46:53.534 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-07-31 14:46:53.534 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-07-31 14:46:53.534 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-07-31 14:48:53.548 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-14 16:32:42.184 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-14 16:32:42.184 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-14 16:32:42.184 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-14 16:32:42.184 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-14 16:32:42.184 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-14 16:32:42.214 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-14 16:32:42.215 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-14 16:32:42.215 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-14 16:32:42.215 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-14 16:32:42.215 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-14 16:34:42.221 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-15 11:27:42.452 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-15 11:27:42.452 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-15 11:27:42.452 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-15 11:27:42.452 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-15 11:27:42.494 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-15 11:27:42.494 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-15 11:27:42.494 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-15 11:27:42.494 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-15 11:27:42.495 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-15 11:27:42.495 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-15 11:29:09.046 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-15 11:29:09.046 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-15 11:29:09.046 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-15 11:29:09.046 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-15 11:29:09.046 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-15 11:29:09.069 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-15 11:29:09.07 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-15 11:29:09.07 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-15 11:29:09.07 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-15 11:29:09.07 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-15 11:31:09.085 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-15 11:33:09.083 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-15 11:35:09.072 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-15 11:35:52.231 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-15 11:35:52.231 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-15 11:35:52.231 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-15 11:35:52.231 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-15 11:35:52.231 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-15 11:35:52.251 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-15 11:35:52.251 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-15 11:35:52.251 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-15 11:35:52.251 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-15 11:35:52.251 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-15 11:37:52.26 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-15 11:39:52.255 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 14:42:14.202 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-25 14:42:14.203 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-25 14:42:14.203 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-25 14:42:14.203 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-25 14:42:14.203 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-25 14:42:14.224 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-25 14:42:14.225 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-25 14:42:14.225 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-25 14:42:14.225 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-25 14:42:14.225 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-25 14:44:14.231 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 14:46:14.232 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 14:48:14.228 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 14:50:14.225 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 14:52:14.234 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 14:54:14.233 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 14:56:14.23 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 14:58:14.232 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 15:00:14.229 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 15:02:14.228 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 15:04:14.227 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 15:06:14.237 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 15:08:14.23 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 15:10:14.224 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 15:12:14.229 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 15:14:14.228 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 15:46:58.714 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-25 15:46:58.714 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-25 15:46:58.714 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-25 15:46:58.714 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-25 15:46:58.714 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-25 15:46:58.741 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-25 15:46:58.741 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-25 15:46:58.741 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-25 15:46:58.741 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-25 15:46:58.741 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-25 15:48:58.746 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 15:50:58.753 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 15:52:58.756 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 15:54:58.744 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:08:34.587 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-25 16:08:34.587 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-25 16:08:34.587 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-25 16:08:34.587 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-25 16:08:34.587 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-25 16:08:34.616 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-25 16:08:34.616 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-25 16:08:34.616 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-25 16:08:34.616 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-25 16:08:34.616 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-25 16:10:34.629 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:12:34.628 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:14:34.629 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:16:34.63 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:18:34.62 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:20:34.618 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:22:34.617 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:24:34.618 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:26:34.62 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:28:34.619 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:30:34.624 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:32:34.624 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:34:34.628 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:36:34.625 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:38:34.616 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-25 16:40:34.616 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 17:50:47.194 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-27 17:50:47.194 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-27 17:50:47.194 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-27 17:50:47.212 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-27 17:50:47.212 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-27 17:50:47.212 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-27 17:50:47.212 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-27 17:50:47.212 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-27 17:50:47.212 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-27 17:50:47.212 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-27 17:52:47.226 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 17:54:47.213 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 17:56:47.221 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 17:58:47.213 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 18:00:47.218 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 18:03:46.161 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-27 18:03:46.161 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-27 18:03:46.161 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-27 18:03:46.175 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-27 18:03:46.175 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-27 18:03:46.176 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-27 18:03:46.176 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-27 18:03:46.176 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-27 18:03:46.176 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-27 18:03:46.176 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-27 18:08:40.258 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-27 18:08:40.258 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-27 18:08:40.258 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-27 18:08:40.258 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-27 18:08:40.258 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-27 18:08:40.282 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-27 18:08:40.282 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-27 18:08:40.282 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-27 18:08:40.282 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-27 18:08:40.282 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-27 18:10:44.93 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-27 18:10:44.93 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-27 18:10:44.93 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-27 18:10:44.93 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-27 18:10:44.93 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-27 18:10:44.956 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-27 18:10:44.956 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-27 18:10:44.956 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-27 18:10:44.957 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-27 18:10:44.957 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-27 18:12:44.969 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 18:14:44.967 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 18:16:44.959 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 18:18:44.968 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 18:20:44.964 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 18:26:08.947 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-27 18:26:08.947 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-27 18:26:08.947 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-27 18:26:08.947 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-27 18:26:08.973 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-27 18:26:08.973 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-27 18:26:08.973 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-27 18:26:08.973 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-27 18:26:08.973 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-27 18:26:08.973 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-27 18:28:08.979 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 19:15:32.26 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-27 19:15:32.26 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-27 19:15:32.26 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-27 19:15:32.26 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-27 19:15:32.286 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-27 19:15:32.286 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-27 19:15:32.286 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-27 19:15:32.286 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-27 19:15:32.286 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-27 19:15:32.286 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-27 20:05:48.765 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-08-27 20:05:48.765 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-08-27 20:05:48.765 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-08-27 20:05:48.765 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-08-27 20:05:48.815 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-08-27 20:05:48.815 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-08-27 20:05:48.815 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-08-27 20:05:48.815 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-08-27 20:05:48.815 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-08-27 20:05:48.815 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-08-27 20:07:48.816 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 20:09:48.825 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 20:11:48.822 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 20:13:00.228 [goroutine] [INFO] [strings.go:59] [strings.Contains] [169.254.57.208%以太网:10002]Recv download request, filename: fe1f787770776505bd1b5a133b1d830a.upg
+2025-08-27 20:13:00.228 [goroutine] [INFO] [main.go:72] [main.readHandler] Read fe1f787770776505bd1b5a133b1d830a.upg request from 169.254.57.208%以太网:10002
+2025-08-27 20:13:48.817 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 20:14:12.84 [goroutine] [INFO] [main.go:83] [main.readHandler] Send fe1f787770776505bd1b5a133b1d830a.upg ok, 1892528 bytes sent, from 169.254.57.208%以太网:10002
+2025-08-27 20:15:48.819 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-08-27 20:17:48.82 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 09:58:47.446 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-09-13 09:58:47.446 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-09-13 09:58:47.446 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-09-13 09:58:47.446 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-09-13 09:58:47.446 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-09-13 09:58:47.47 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-09-13 09:58:47.47 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-09-13 09:58:47.47 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-09-13 09:58:47.471 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-09-13 09:58:47.471 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-09-13 10:00:47.483 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:02:47.486 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:04:47.472 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:06:47.479 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:08:47.482 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:10:47.485 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:12:47.479 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:14:47.478 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:16:47.484 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:18:47.483 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:20:47.482 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:22:47.474 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:24:47.484 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:26:47.471 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:28:47.471 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:30:47.484 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:32:47.475 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:34:47.456 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:36:47.447 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:38:47.435 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:40:47.423 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:42:47.413 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:44:47.394 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:46:47.396 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:48:47.378 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:50:47.366 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:52:47.364 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:54:47.355 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:56:47.351 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 10:58:47.34 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:00:47.331 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:02:47.315 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:04:47.316 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:06:47.312 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:08:47.295 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:10:47.295 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:12:47.283 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:14:47.282 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:16:47.278 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:18:47.266 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:20:47.259 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:22:47.255 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:24:47.256 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:26:47.252 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:28:47.245 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:30:47.24 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:32:47.239 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:34:47.241 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:36:47.236 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:38:47.226 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:40:47.223 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:42:47.217 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:44:47.218 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:46:47.21 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:48:47.216 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:50:47.209 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:52:47.205 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:54:47.203 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:56:47.197 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 11:58:47.201 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:00:47.194 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:02:47.189 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:04:47.186 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:06:47.183 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:08:47.191 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:10:47.182 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:12:47.177 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:14:47.182 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:16:47.175 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:18:47.183 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:20:47.176 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:22:47.169 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:24:47.169 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:26:47.176 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:28:47.165 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:30:47.17 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:32:47.171 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:34:47.172 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:36:47.17 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:38:47.164 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:40:47.163 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:42:47.168 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:44:47.169 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:46:47.156 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:48:47.165 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:50:47.166 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:52:47.155 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:54:47.163 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:56:47.153 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 12:58:47.153 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:00:47.162 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:02:47.162 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:04:47.155 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:06:47.161 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:08:47.15 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:10:47.146 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:12:47.144 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:14:47.151 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:16:47.156 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:18:47.147 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:20:47.151 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:22:47.149 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:24:47.152 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:26:47.15 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:28:47.144 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:30:47.143 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:32:47.15 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:34:47.153 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:36:47.149 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:38:47.147 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:40:47.14 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:42:47.141 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:44:47.15 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:46:47.141 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:48:47.137 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:50:47.146 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:52:47.143 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:54:47.142 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:56:47.143 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 13:58:47.141 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:00:47.137 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:02:47.148 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:04:47.136 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:06:47.149 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:08:47.149 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:10:47.139 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:12:47.136 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:14:47.141 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:16:47.147 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:18:47.136 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:20:47.14 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:22:47.139 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:24:47.147 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:26:47.139 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:28:47.142 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:30:47.139 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:32:47.145 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:34:47.141 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:36:47.145 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:38:47.132 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:40:47.139 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:42:47.135 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:44:47.138 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:47:14.636 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-09-13 14:47:14.636 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-09-13 14:47:14.636 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-09-13 14:47:14.636 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-09-13 14:47:14.636 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-09-13 14:47:14.66 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-09-13 14:47:14.66 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-09-13 14:47:14.66 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-09-13 14:47:14.66 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-09-13 14:47:14.66 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-09-13 14:49:14.672 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:51:14.661 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 14:53:14.674 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:19:02.647 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-09-13 15:19:02.647 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-09-13 15:19:02.647 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-09-13 15:19:02.647 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-09-13 15:19:02.647 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-09-13 15:19:02.647 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-09-13 15:19:02.647 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-09-13 15:19:02.681 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-09-13 15:19:02.682 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-09-13 15:19:02.682 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-09-13 15:21:02.692 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:23:02.688 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:25:02.69 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:27:02.693 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:29:02.683 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:31:02.694 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:33:02.685 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:35:02.687 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:37:02.683 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:39:02.695 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:41:02.684 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:43:02.686 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:45:02.691 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:47:02.693 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:49:02.694 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:51:02.693 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:53:02.684 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:55:02.687 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:57:02.694 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 15:59:02.684 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:01:02.683 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:03:02.685 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:05:02.694 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:07:02.685 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:09:02.684 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:11:02.692 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:13:02.683 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:15:02.683 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:17:02.693 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:19:02.685 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:21:02.682 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:23:02.687 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:25:02.683 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:27:02.683 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:29:02.685 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:31:02.689 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:33:02.694 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:35:02.695 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:37:02.694 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:39:02.685 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:41:02.691 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:43:02.682 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-13 16:45:02.691 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:22:48.83 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-09-15 09:22:48.83 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-09-15 09:22:48.83 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-09-15 09:22:48.83 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-09-15 09:22:48.83 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-09-15 09:22:48.872 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-09-15 09:22:48.873 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-09-15 09:22:48.873 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-09-15 09:22:48.873 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-09-15 09:22:48.873 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-09-15 09:25:19.958 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-09-15 09:25:19.958 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-09-15 09:25:19.958 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-09-15 09:25:19.992 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-09-15 09:25:19.992 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-09-15 09:25:19.993 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-09-15 09:25:19.993 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-09-15 09:25:19.993 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-09-15 09:25:19.993 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-09-15 09:25:19.993 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-09-15 09:27:20.004 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:29:20.002 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:31:20.007 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:33:20.002 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:35:19.998 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:37:19.998 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:39:19.998 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:41:20.007 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:43:20.006 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:45:20.001 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:47:19.997 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:49:19.993 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:51:20.002 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:53:19.997 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:55:20.001 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:57:19.995 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 09:59:19.995 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:01:20.005 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:03:19.995 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:05:20.002 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:07:19.993 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:09:19.999 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:11:20.005 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:13:20.006 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:15:20 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:17:20.006 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:19:19.994 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:21:20.003 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:23:19.999 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:25:20.008 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:27:19.996 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:29:19.999 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:31:20.005 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:33:19.998 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:35:20.007 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:37:20.002 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:39:19.997 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:41:20.005 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:43:19.995 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:45:20.005 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:47:20.004 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:49:19.999 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-09-15 10:51:19.994 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-10-16 08:19:46.605 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-10-16 08:19:46.605 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-10-16 08:19:46.605 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-10-16 08:19:46.605 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-10-16 08:19:46.605 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-10-16 08:19:46.62 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-10-16 08:19:46.62 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-10-16 08:19:46.62 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-10-16 08:19:46.62 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-10-16 08:19:46.62 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-10-16 08:21:46.62 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-10-16 08:23:46.627 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-10-27 16:03:48.098 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-10-27 16:03:48.098 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-10-27 16:03:48.098 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-10-27 16:03:48.125 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-10-27 16:03:48.125 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-10-27 16:03:48.125 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-10-27 16:03:48.125 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-10-27 16:03:48.125 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-10-27 16:03:48.126 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-10-27 16:03:48.126 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-10-27 16:05:48.131 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 14:41:51.569 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-11-07 14:41:51.569 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-11-07 14:41:51.569 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-11-07 14:41:51.569 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-11-07 14:41:51.569 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-11-07 14:41:51.601 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-11-07 14:41:51.601 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-11-07 14:41:51.601 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-11-07 14:41:51.601 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-11-07 14:41:51.601 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-11-07 14:42:06.173 [goroutine] [INFO] [strings.go:59] [strings.Contains] [169.254.33.204%以太网 2:10002]Recv download request, filename: a6d6d57e1bd04dacc2231ff62ac8ea1b.upg
+2025-11-07 14:42:06.173 [goroutine] [INFO] [main.go:72] [main.readHandler] Read a6d6d57e1bd04dacc2231ff62ac8ea1b.upg request from 169.254.33.204%以太网 2:10002
+2025-11-07 14:42:08.013 [goroutine] [INFO] [sender.go:248] [github.com/PYW1/tftp/v3.(*sender).sendDatagram]  ack time out: remaining = 3000000000
+
+2025-11-07 14:42:25.878 [goroutine] [INFO] [main.go:83] [main.readHandler] Send a6d6d57e1bd04dacc2231ff62ac8ea1b.upg ok, 436240 bytes sent, from 169.254.33.204%以太网 2:10002
+2025-11-07 14:43:51.609 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 14:44:45.882 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-11-07 14:44:45.882 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-11-07 14:44:45.882 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-11-07 14:44:45.882 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-11-07 14:44:45.882 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-11-07 14:44:45.919 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-11-07 14:44:45.919 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-11-07 14:44:45.919 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-11-07 14:44:45.92 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-11-07 14:44:45.92 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-11-07 14:46:45.928 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 14:48:45.923 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 14:50:45.934 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 14:52:45.933 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 14:54:45.925 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 14:56:45.925 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 14:58:45.932 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:00:45.952 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:02:45.922 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:04:45.923 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:06:45.921 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:08:45.926 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:10:45.923 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:12:45.92 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:20:27.394 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-11-07 15:20:27.394 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-11-07 15:20:27.394 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-11-07 15:20:27.394 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-11-07 15:20:27.394 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-11-07 15:20:27.432 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-11-07 15:20:27.432 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-11-07 15:20:27.432 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-11-07 15:20:27.432 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-11-07 15:20:27.432 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-11-07 15:20:41.379 [goroutine] [INFO] [strings.go:59] [strings.Contains] [169.254.33.204%以太网 2:10002]Recv download request, filename: fd6b11fd4684e900fe1493a204be07a9.upg
+2025-11-07 15:20:41.379 [goroutine] [INFO] [main.go:72] [main.readHandler] Read fd6b11fd4684e900fe1493a204be07a9.upg request from 169.254.33.204%以太网 2:10002
+2025-11-07 15:20:43.204 [goroutine] [INFO] [sender.go:248] [github.com/PYW1/tftp/v3.(*sender).sendDatagram]  ack time out: remaining = 3000000000
+
+2025-11-07 15:20:58.922 [goroutine] [INFO] [main.go:83] [main.readHandler] Send fd6b11fd4684e900fe1493a204be07a9.upg ok, 381328 bytes sent, from 169.254.33.204%以太网 2:10002
+2025-11-07 15:21:30.43 [goroutine] [INFO] [strings.go:59] [strings.Contains] [169.254.33.204%以太网 2:10002]Recv download request, filename: fd6b11fd4684e900fe1493a204be07a9.upg
+2025-11-07 15:21:30.43 [goroutine] [INFO] [main.go:72] [main.readHandler] Read fd6b11fd4684e900fe1493a204be07a9.upg request from 169.254.33.204%以太网 2:10002
+2025-11-07 15:21:32.296 [goroutine] [INFO] [sender.go:248] [github.com/PYW1/tftp/v3.(*sender).sendDatagram]  ack time out: remaining = 3000000000
+
+2025-11-07 15:21:48.638 [goroutine] [INFO] [main.go:83] [main.readHandler] Send fd6b11fd4684e900fe1493a204be07a9.upg ok, 381328 bytes sent, from 169.254.33.204%以太网 2:10002
+2025-11-07 15:22:27.441 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:24:27.447 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:26:27.438 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:28:27.447 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:30:27.447 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:32:27.448 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:34:27.44 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:36:27.438 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:38:27.441 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:40:27.436 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:42:27.444 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:44:27.434 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:46:27.439 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:48:27.448 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:50:27.436 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:52:27.437 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:54:27.445 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:56:27.441 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 15:58:27.436 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:00:27.436 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:02:27.441 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:04:27.446 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:06:27.441 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:08:27.446 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:10:27.447 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:12:27.439 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:14:27.433 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:16:27.438 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:18:27.444 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:20:27.44 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:22:27.441 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:24:27.437 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:26:27.437 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:28:27.434 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:30:27.441 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:32:27.434 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:34:27.436 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:36:27.438 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:38:27.447 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:40:27.448 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-07 16:42:27.436 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-12 14:35:02.845 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-11-12 14:35:02.845 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-11-12 14:35:02.845 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-11-12 14:35:02.845 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-11-12 14:35:02.845 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-11-12 14:35:02.863 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-11-12 14:35:02.863 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-11-12 14:35:02.863 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-11-12 14:35:02.863 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-11-12 14:35:02.863 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-11-14 11:31:12.943 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-11-14 11:31:12.943 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-11-14 11:31:12.943 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-11-14 11:31:12.943 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-11-14 11:31:12.943 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-11-14 11:31:12.963 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-11-14 11:31:12.964 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-11-14 11:31:12.964 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-11-14 11:31:12.964 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-11-14 11:31:12.964 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-11-14 11:33:12.968 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-14 11:35:12.97 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-14 11:37:12.966 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-14 11:39:12.966 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-14 11:41:12.972 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-14 11:43:12.975 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-14 11:47:57.116 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-18 16:45:51.363 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-11-18 16:45:51.363 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-11-18 16:45:51.363 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-11-18 16:45:51.363 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-11-18 16:45:51.363 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-11-18 16:45:51.395 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-11-18 16:45:51.396 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-11-18 16:45:51.396 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-11-18 16:45:51.396 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-11-18 16:45:51.396 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-11-18 16:54:49.865 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-11-18 16:54:49.865 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-11-18 16:54:49.865 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-11-18 16:54:49.865 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-11-18 16:54:49.865 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-11-18 16:54:49.896 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-11-18 16:54:49.897 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-11-18 16:54:49.897 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-11-18 16:54:49.897 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-11-18 16:54:49.897 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-11-20 11:15:25.139 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-11-20 11:15:25.139 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-11-20 11:15:25.139 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-11-20 11:15:25.139 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-11-20 11:15:25.139 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-11-20 11:15:25.154 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-11-20 11:15:25.154 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-11-20 11:15:25.154 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-11-20 11:15:25.155 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-11-20 11:15:25.155 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-11-20 11:17:25.166 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440
+2025-11-21 13:42:25.736 [goroutine] [INFO] [main.go:128] [main.main] star_tftpsvr v0.0.3 begin running.
+2025-11-21 13:42:25.737 [goroutine] [INFO] [main.go:130] [main.main] ========================
+2025-11-21 13:42:25.737 [goroutine] [INFO] [main.go:131] [main.main] tftp server start
+2025-11-21 13:42:25.737 [goroutine] [INFO] [main.go:133] [main.main] ========================
+2025-11-21 13:42:25.737 [goroutine] [INFO] [filemng.go:32] [server/file.Init] File manager init
+2025-11-21 13:42:25.757 [goroutine] [INFO] [filemng.go:202] [server/file.(*FileManager).myTicker] Clean ticker has been started
+2025-11-21 13:42:25.757 [goroutine] [ERROR] [filemng.go:40] [server/file.Init] temp/media/list doesn't exist
+2025-11-21 13:42:25.757 [goroutine] [INFO] [filemng.go:98] [server/file.CleanMediaPath] Clear media path
+2025-11-21 13:42:25.758 [goroutine] [INFO] [main.go:139] [main.main] file path: temp
+2025-11-21 13:42:25.758 [goroutine] [INFO] [main.go:142] [main.main] service : :21569
+2025-11-21 13:44:25.76 [goroutine] [INFO] [filemng.go:229] [server/file.(*FileManager).CleanDir] Start clean temp file, delete intetval time:1440

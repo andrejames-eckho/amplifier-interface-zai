@@ -1,0 +1,12 @@
+{"time":"2025-09-13 16:12:48", "level":"Error", "devname":"CWA2420E", "event":"时钟未同步"}
+{"time":"2025-09-13 16:12:48", "level":"Error", "devname":"CWA2420E", "event":"时钟已同步"}
+{"time":"2025-09-13 16:46:21", "level":"Error", "devname":"POE80B-99EA3E", "event":"晋升为主时钟"}
+{"time":"2025-09-13 16:46:21", "level":"Error", "devname":"POE80B-502F", "event":"晋升为主时钟"}
+{"time":"2025-09-13 16:46:21", "level":"Error", "devname":"08EA16", "event":"晋升为主时钟"}
+{"time":"2025-09-13 16:46:21", "level":"Error", "devname":"CWA2420E", "event":"晋升为主时钟"}
+{"time":"2025-09-13 16:46:23", "level":"Error", "devname":"POE80B-502F", "event":"时钟未同步"}
+{"time":"2025-09-13 16:46:23", "level":"Error", "devname":"08EA16", "event":"时钟未同步"}
+{"time":"2025-09-13 16:46:23", "level":"Error", "devname":"CWA2420E", "event":"时钟未同步"}
+{"time":"2025-09-13 16:46:24", "level":"Error", "devname":"08EA16", "event":"时钟已同步"}
+{"time":"2025-09-13 16:46:24", "level":"Error", "devname":"POE80B-502F", "event":"时钟已同步"}
+{"time":"2025-09-13 16:46:25", "level":"Error", "devname":"CWA2420E", "event":"时钟已同步"}

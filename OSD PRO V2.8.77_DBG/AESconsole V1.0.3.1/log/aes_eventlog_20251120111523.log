@@ -1,0 +1,9 @@
+{"time":"2025-11-20 11:15:26", "level":"Error", "devname":"NPA43A_A4", "event":"时钟未同步"}
+{"time":"2025-11-20 11:15:26", "level":"Error", "devname":"NPA43A_A4", "event":"晋升为主时钟"}
+{"time":"2025-11-20 11:15:27", "level":"Error", "devname":"MAP08E_A16", "event":"时钟未同步"}
+{"time":"2025-11-20 11:15:27", "level":"Error", "devname":"MAP08E_A16", "event":"时钟已同步"}
+{"time":"2025-11-20 11:15:27", "level":"Error", "devname":"MCT71-44C", "event":"时钟未同步"}
+{"time":"2025-11-20 11:15:27", "level":"Error", "devname":"MCT71-44C", "event":"时钟已同步"}
+{"time":"2025-11-20 11:15:27", "level":"Error", "devname":"MCT71-44C", "event":"晋升为主时钟"}
+{"time":"2025-11-20 11:15:27", "level":"Error", "devname":"MCT71-44C", "event":"时钟未同步"}
+{"time":"2025-11-20 11:15:27", "level":"Error", "devname":"MCT71-44C", "event":"时钟已同步"}
