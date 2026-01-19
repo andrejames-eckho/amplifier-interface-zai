@@ -238,3 +238,6 @@
 [2026-01-16T07:09:20.913Z] [WARN] Port 8080 is in use, using port 8081 instead
 [2026-01-16T07:09:20.913Z] [INFO] Starting Amplifier Audio Visualizer on port 8081...
 [2026-01-16T07:09:21.213Z] [ERROR] Server exited with code 1
+[2026-01-19T05:51:38.657Z] [INFO] Checking system prerequisites...
+[2026-01-19T05:51:38.680Z] [ERROR] Startup failed: Node.js is not installed. Please install Node.js 14.0.0 or higher.
+Visit: https://nodejs.org/

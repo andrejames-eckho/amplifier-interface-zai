@@ -161,29 +161,33 @@ class AudioVisualizerServer {
             try {
                 const { spawn } = require('child_process');
                 
-                // Path to the test script
-                const scriptPath = path.join(__dirname, '../test-app.sh');
+                // Path to OSD PRO.exe
+                const exePath = path.join(__dirname, '../OSD PRO V2.8.77_DBG/OSD PRO.exe');
                 
-                // Open the script in a new terminal window
-                // On macOS, use osascript to open Terminal with the script
-                const osascript = spawn('osascript', [
-                    '-e', `tell application "Terminal" to do script "bash '${scriptPath}' '${ip}'"`
-                ]);
+                // Check if the executable exists
+                if (!fs.existsSync(exePath)) {
+                    console.error(`OSD PRO.exe not found at: ${exePath}`);
+                    return res.status(500).json({ error: 'OSD PRO.exe not found. Please ensure the OSD PRO V2.8.77_DBG folder contains OSD PRO.exe' });
+                }
+                console.log(`Attempting to open: ${exePath}`);
+                // Open the executable on Windows
+                const process = spawn(exePath, [], { 
+                    detached: true,
+                    stdio: 'ignore'
+                });
                 
-                osascript.on('error', (err) => {
+                process.on('error', (err) => {
                     console.error('Failed to open external app:', err);
-                    return res.status(500).json({ error: 'Failed to open external app' });
+                    return res.status(500).json({ error: 'Failed to open external app: ' + err.message });
                 });
                 
-                osascript.on('close', (code) => {
-                    if (code === 0) {
-                        console.log(`✅ External app opened for amplifier ${ip}`);
-                        res.json({ success: true, message: 'External app opened successfully' });
-                    } else {
-                        console.error(`Failed to open external app, exit code: ${code}`);
-                        res.status(500).json({ error: 'Failed to open external app' });
-                    }
+                process.on('spawn', () => {
+                    console.log(`✅ OSD PRO.exe opened for amplifier ${ip}`);
+                    res.json({ success: true, message: 'OSD PRO.exe opened successfully' });
                 });
+                
+                // Don't wait for the process to exit since it's detached
+                process.unref();
                 
             } catch (err) {
                 console.error('Error opening external app:', err);

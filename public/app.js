@@ -224,7 +224,7 @@ class AudioVisualizer {
                     </div>
                 </div>
                 <div class="amplifier-controls">
-                    <button class="auto-script-btn" data-ip="${ip}" title="Open Auto Script">🚀</button>
+                    <button class="auto-script-btn" data-ip="${ip}" title="Open OSD PRO">🖥️</button>
                     <button class="close-panel-btn" data-ip="${ip}">×</button>
                 </div>
             </div>
@@ -250,12 +250,12 @@ class AudioVisualizer {
         const closeBtn = panel.querySelector('.close-panel-btn');
         closeBtn.addEventListener('click', () => this.removeAmplifierPanel(ip));
         
-        // Add auto script button event listener
+        // Add OSD PRO button event listener
         const autoScriptBtn = panel.querySelector('.auto-script-btn');
-        autoScriptBtn.addEventListener('click', () => this.openAutoScript(ip));
+        autoScriptBtn.addEventListener('click', () => this.openOSDPRO(ip));
         
         // Update button state
-        this.updateAutoScriptButton(autoScriptBtn);
+        this.updateOSDPROButton(autoScriptBtn);
         
         // Store panel reference
         this.amplifierPanels.set(ip, panel);
@@ -441,18 +441,18 @@ class AudioVisualizer {
         }
     }
 
-    async openAutoScript(ip) {
+    async openOSDPRO(ip) {
         try {
             // Check if external app has already been opened
             if (this.externalAppOpened) {
-                this.showError('External app is already open. Close all amplifier panels to reset.');
+                this.showError('OSD PRO is already open. Close all amplifier panels to reset.');
                 return;
             }
             
             // Mark that the external app has been opened
             this.externalAppOpened = true;
             
-            // Call the backend to open the external app (using existing endpoint)
+            // Call the backend to open the external app
             const response = await fetch('/api/open-external-app', {
                 method: 'POST',
                 headers: {
@@ -464,42 +464,42 @@ class AudioVisualizer {
             const result = await response.json();
             
             if (!response.ok) {
-                throw new Error(result.error || 'Failed to open auto script');
+                throw new Error(result.error || 'Failed to open OSD PRO');
             }
             
-            console.log(`✅ Auto script opened for amplifier ${ip}`);
+            console.log(`✅ OSD PRO opened for amplifier ${ip}`);
             
-            // Update all auto script buttons to show opened state
-            this.updateAutoScriptButtons();
+            // Update all OSD PRO buttons to show opened state
+            this.updateOSDPROButtons();
             
         } catch (err) {
-            console.error('❌ Failed to open auto script:', err);
+            console.error('❌ Failed to open OSD PRO:', err);
             this.showError(err.message);
             // Reset the flag if opening failed
             this.externalAppOpened = false;
         }
     }
 
-    updateAutoScriptButton(button) {
+    updateOSDPROButton(button) {
         if (this.externalAppOpened) {
             button.textContent = '📱';
-            button.title = 'External app already open';
+            button.title = 'OSD PRO already open';
             button.style.opacity = '0.5';
             button.style.cursor = 'not-allowed';
         } else {
-            button.textContent = '🚀';
-            button.title = 'Open Auto Script';
+            button.textContent = '🖥️';
+            button.title = 'Open OSD PRO';
             button.style.opacity = '1';
             button.style.cursor = 'pointer';
         }
     }
 
-    updateAutoScriptButtons() {
-        // Update all auto script buttons in all panels
+    updateOSDPROButtons() {
+        // Update all OSD PRO buttons in all panels
         this.amplifierPanels.forEach((panel, ip) => {
             const autoScriptBtn = panel.querySelector('.auto-script-btn');
             if (autoScriptBtn) {
-                this.updateAutoScriptButton(autoScriptBtn);
+                this.updateOSDPROButton(autoScriptBtn);
             }
         });
     }
@@ -824,8 +824,8 @@ class AudioVisualizer {
             this.ipCardsList.appendChild(ipCard);
         });
         
-        // Update auto script button states
-        this.updateAutoScriptButtons();
+        // Update OSD PRO button states
+        this.updateOSDPROButtons();
     }
 
     showError(message) {
