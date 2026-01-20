@@ -22,6 +22,304 @@ body {
     justify-content: center;
 }
 
+/* Screen Capture Styles */
+.screen-capture-container {
+    margin: 20px 0;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    background: rgba(30, 41, 59, 0.5);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+}
+
+.screen-capture-header {
+    padding: 15px;
+    background: rgba(15, 23, 42, 0.8);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.screen-capture-header h4 {
+    color: #f8fafc;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.screen-capture-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.screen-capture-controls button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.capture-start-btn {
+    background: #4CAF50;
+    color: white;
+}
+
+.capture-start-btn:hover:not(:disabled) {
+    background: #45a049;
+}
+
+.capture-stop-btn {
+    background: #f44336;
+    color: white;
+}
+
+.capture-stop-btn:hover:not(:disabled) {
+    background: #da190b;
+}
+
+.capture-single-btn {
+    background: #2196F3;
+    color: white;
+}
+
+.capture-single-btn:hover {
+    background: #0b7dda;
+}
+
+.screen-capture-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.screen-capture-image-container {
+    position: relative;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.screen-capture-image {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    display: none;
+}
+
+.screen-capture-status {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.screen-capture-status.success {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.screen-capture-status.error {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.screen-capture-status.info {
+    background: rgba(33, 150, 243, 0.2);
+    color: #2196F3;
+    border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.screen-capture-btn {
+    background: rgba(33, 150, 243, 0.2);
+    border: 1px solid rgba(33, 150, 243, 0.3);
+    color: #2196F3;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 12px;
+}
+
+.screen-capture-btn:hover {
+    background: rgba(33, 150, 243, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Auto-Click Styles */
+.auto-click-container {
+    margin: 20px 0;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    background: rgba(30, 41, 59, 0.5);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+}
+
+.auto-click-header {
+    padding: 15px;
+    background: rgba(15, 23, 42, 0.8);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.auto-click-header h4 {
+    color: #f8fafc;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.auto-click-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.auto-click-controls button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.click-single-btn {
+    background: #FF9800;
+    color: white;
+}
+
+.click-single-btn:hover {
+    background: #F57C00;
+}
+
+.auto-click-start-btn {
+    background: #4CAF50;
+    color: white;
+}
+
+.auto-click-start-btn:hover:not(:disabled) {
+    background: #45a049;
+}
+
+.auto-click-stop-btn {
+    background: #f44336;
+    color: white;
+}
+
+.auto-click-stop-btn:hover:not(:disabled) {
+    background: #da190b;
+}
+
+.auto-click-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.auto-click-status {
+    padding: 12px 15px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.auto-click-status.success {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.auto-click-status.error {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.auto-click-status.info {
+    background: rgba(33, 150, 243, 0.2);
+    color: #2196F3;
+    border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+/* Click Feedback Styles */
+.click-feedback {
+    pointer-events: none;
+    animation: fadeInOut 2s ease-in-out;
+}
+
+.click-ripple {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #4CAF50;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: ripple 1s ease-out;
+}
+
+.click-info {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes ripple {
+    0% {
+        width: 10px;
+        height: 10px;
+        opacity: 1;
+    }
+    100% {
+        width: 60px;
+        height: 60px;
+        opacity: 0;
+    }
+}
+
+/* Success Notification Styles */
+.success-notification {
+    pointer-events: none;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
 /* Sidebar Styles */
 .sidebar {
     position: fixed;

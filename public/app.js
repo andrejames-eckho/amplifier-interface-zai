@@ -12,14 +12,48 @@ class AudioVisualizer {
         this.activeAmplifiers = new Map(); // Map of IP -> amplifier data
         this.amplifierPanels = new Map(); // Map of IP -> panel element
         
+        // Screen capture state
+        this.captureStates = new Map(); // Map of IP -> capture state
+        
+        // Auto-click state
+        this.autoClickStates = new Map(); // Map of IP -> auto-click state
+        
         // External app management
         this.externalAppOpened = false;
+        
+        // Initialize debug logging
+        this.initDebugLog();
         
         this.initializeElements();
         this.bindEvents();
         this.connectWebSocket();
         this.loadIPs();
         this.startConnectionStatusMonitoring();
+    }
+
+    initDebugLog() {
+        // Override console.log to also display in debug log
+        const originalLog = console.log;
+        const originalError = console.error;
+        const debugLogContent = document.getElementById('debugLogContent');
+        
+        if (debugLogContent) {
+            console.log = (...args) => {
+                originalLog.apply(console, args);
+                const message = args.join(' ');
+                const timestamp = new Date().toLocaleTimeString();
+                debugLogContent.innerHTML += `<div style="color: #00ff00;">[${timestamp}] ${message}</div>`;
+                debugLogContent.scrollTop = debugLogContent.scrollHeight;
+            };
+            
+            console.error = (...args) => {
+                originalError.apply(console, args);
+                const message = args.join(' ');
+                const timestamp = new Date().toLocaleTimeString();
+                debugLogContent.innerHTML += `<div style="color: #ff0000;">[${timestamp}] ERROR: ${message}</div>`;
+                debugLogContent.scrollTop = debugLogContent.scrollHeight;
+            };
+        }
     }
 
     initializeElements() {
@@ -185,6 +219,27 @@ class AudioVisualizer {
             case 'amplifierInfo':
                 this.updateAmplifierInfo(data.amplifierIP, data.info);
                 break;
+            case 'screenCapture':
+                this.handleScreenCapture(data);
+                break;
+            case 'amplifierClicked':
+                this.handleAmplifierClicked(data);
+                break;
+            case 'autoClickStarted':
+                this.handleAutoClickStarted(data);
+                break;
+            case 'autoClickStopped':
+                this.handleAutoClickStopped(data);
+                break;
+            case 'autoClickResult':
+                this.handleAutoClickResult(data);
+                break;
+            case 'osdProStep':
+                this.handleOsdProStep(data);
+                break;
+            case 'osdProCompleted':
+                this.handleOsdProCompleted(data);
+                break;
             case 'error':
                 this.showError(data.message);
                 break;
@@ -256,6 +311,19 @@ class AudioVisualizer {
         
         // Update button state
         this.updateOSDPROButton(autoScriptBtn);
+        
+        // Initialize capture state
+        this.captureStates.set(ip, {
+            isCapturing: false,
+            isVisible: false, // Panels are now hidden
+            lastCapture: null
+        });
+        
+        // Initialize auto-click state
+        this.autoClickStates.set(ip, {
+            isAutoClicking: false,
+            lastClick: null
+        });
         
         // Store panel reference
         this.amplifierPanels.set(ip, panel);
@@ -375,6 +443,18 @@ class AudioVisualizer {
     removeAmplifierPanel(ip) {
         const panel = this.amplifierPanels.get(ip);
         if (panel) {
+            // Stop screen capture if it's running
+            const captureState = this.captureStates.get(ip);
+            if (captureState && captureState.isCapturing) {
+                this.stopLiveCapture(ip);
+            }
+            
+            // Stop auto-clicking if it's running
+            const autoClickState = this.autoClickStates.get(ip);
+            if (autoClickState && autoClickState.isAutoClicking) {
+                this.stopAutoClick(ip);
+            }
+            
             panel.remove();
             this.amplifierPanels.delete(ip);
             this.activeAmplifiers.delete(ip);
@@ -443,16 +523,22 @@ class AudioVisualizer {
 
     async openOSDPRO(ip) {
         try {
+            console.log(`🖥️ === OSD PRO BUTTON CLICKED ===`);
+            console.log(`🖥️ Target IP: ${ip}`);
+            
             // Check if external app has already been opened
             if (this.externalAppOpened) {
+                console.log(`❌ OSD PRO already opened, blocking duplicate request`);
                 this.showError('OSD PRO is already open. Close all amplifier panels to reset.');
                 return;
             }
             
             // Mark that the external app has been opened
             this.externalAppOpened = true;
+            console.log(`✅ External app flag set to true`);
             
             // Call the backend to open the external app
+            console.log(`🌐 Calling backend to open OSD PRO...`);
             const response = await fetch('/api/open-external-app', {
                 method: 'POST',
                 headers: {
@@ -461,7 +547,9 @@ class AudioVisualizer {
                 body: JSON.stringify({ ip })
             });
             
+            console.log(`🌐 Backend response status: ${response.status}`);
             const result = await response.json();
+            console.log(`🌐 Backend response: ${JSON.stringify(result)}`);
             
             if (!response.ok) {
                 throw new Error(result.error || 'Failed to open OSD PRO');
@@ -471,6 +559,67 @@ class AudioVisualizer {
             
             // Update all OSD PRO buttons to show opened state
             this.updateOSDPROButtons();
+            
+            // Start the OSD PRO initiation sequence
+            console.log(`🚀 Starting OSD PRO initiation sequence for ${ip}`);
+            console.log('Starting OSD PRO initiation...');
+            
+            const initiateResponse = await fetch('/api/osd-pro-initiate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    ip: ip,
+                    windowTitle: 'OSD PRO'
+                })
+            });
+            
+            console.log(`🌐 Initiate response status: ${initiateResponse.status}`);
+            const initiateResult = await initiateResponse.json();
+            console.log(`🌐 Initiate response: ${JSON.stringify(initiateResult)}`);
+            
+            if (!initiateResponse.ok) {
+                throw new Error(initiateResult.error || 'Failed to initiate OSD PRO sequence');
+            }
+            
+            console.log(`✅ OSD PRO initiation sequence started for ${ip}`);
+            
+            // Automatically start screen capture after OSD PRO opens
+            console.log(`⏰ Setting up screen capture timer (2 seconds)...`);
+            setTimeout(async () => {
+                try {
+                    console.log(`📸 === SCREEN CAPTURE TRIGGERED ===`);
+                    console.log(`📸 Automatically starting screen capture for ${ip}`);
+                    await this.startLiveCapture(ip);
+                } catch (err) {
+                    console.error('Failed to auto-start screen capture:', err);
+                }
+            }, 2000); // Wait 2 seconds for OSD PRO to fully load
+            
+            // Automatically start auto-clicking after screen capture starts
+            console.log(`⏰ Setting up auto-click timer (5 seconds)...`);
+            setTimeout(async () => {
+                try {
+                    console.log(`🔄 === AUTO-CLICK TRIGGERED ===`);
+                    console.log(`🔄 Starting auto-click after 5 seconds delay for testing`);
+                    await this.startAutoClick(ip);
+                } catch (err) {
+                    console.error('❌ Failed to start auto-click:', err);
+                    this.showError(err.message);
+                }
+            }, 5000); // Reduced to 5 seconds for testing
+            
+            // Also test auto-click immediately for debugging
+            console.log(`🧪 === IMMEDIATE AUTO-CLICK TEST ===`);
+            setTimeout(async () => {
+                try {
+                    console.log(`🧪 Testing auto-click immediately after 1 second`);
+                    await this.startAutoClick(ip);
+                } catch (err) {
+                    console.error('❌ Failed immediate auto-click test:', err);
+                }
+            }, 1000); // Test after 1 second
             
         } catch (err) {
             console.error('❌ Failed to open OSD PRO:', err);
@@ -502,6 +651,437 @@ class AudioVisualizer {
                 this.updateOSDPROButton(autoScriptBtn);
             }
         });
+    }
+
+    // Screen capture methods
+
+    async startLiveCapture(ip) {
+        try {
+            const response = await fetch('/api/capture/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    ip: ip, 
+                    interval: 3000, // Capture every 3 seconds
+                    windowTitle: 'OSD PRO'
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to start live capture');
+            }
+            
+            console.log(`✅ Started live capture for ${ip}`);
+            
+            // Update UI state
+            const captureState = this.captureStates.get(ip);
+            if (captureState) {
+                captureState.isCapturing = true;
+            }
+            
+            console.log('Live capture started');
+            
+        } catch (err) {
+            console.error('❌ Failed to start live capture:', err);
+            this.showError(err.message);
+            console.log('Failed to start capture');
+        }
+    }
+
+    async stopLiveCapture(ip) {
+        try {
+            const response = await fetch('/api/capture/stop', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ip: ip })
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to stop live capture');
+            }
+            
+            console.log(`✅ Stopped live capture for ${ip}`);
+            
+            // Update UI state
+            const captureState = this.captureStates.get(ip);
+            if (captureState) {
+                captureState.isCapturing = false;
+            }
+            
+            console.log('Live capture stopped');
+            
+        } catch (err) {
+            console.error('❌ Failed to stop live capture:', err);
+            this.showError(err.message);
+            console.log('Failed to stop capture');
+        }
+    }
+
+    async captureSingle(ip) {
+        try {
+            console.log('Capturing...');
+            
+            const response = await fetch('/api/capture', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    windowTitle: 'OSD PRO',
+                    resize: true,
+                    maxWidth: 800,
+                    maxHeight: 600
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to capture screen');
+            }
+            
+            // Update capture state
+            const captureState = this.captureStates.get(ip);
+            if (captureState) {
+                captureState.lastCapture = result.timestamp;
+            }
+            
+            console.log(`Captured at ${new Date(result.timestamp).toLocaleTimeString()}`);
+            
+        } catch (err) {
+            console.error('❌ Failed to capture screen:', err);
+            this.showError(err.message);
+            console.log('Capture failed');
+        }
+    }
+
+    
+    
+    // Auto-click methods
+    async clickAmplifierOnce(ip) {
+        try {
+            console.log(`👆 Attempting to click amplifier ${ip} - will try multiple coordinates to find '1.DP-43' device`);
+            
+            // Try multiple coordinates for the "1.DP-43" device
+            const coordinates = [
+                { x: 60, y: 160, description: "Initial guess" },
+                { x: 80, y: 180, description: "Slightly right and down" },
+                { x: 40, y: 140, description: "Slightly left and up" },
+                { x: 100, y: 200, description: "Further right and down" },
+                { x: 50, y: 120, description: "More left and up" }
+            ];
+            
+            let success = false;
+            let lastError = null;
+            let successfulCoords = null;
+            
+            for (const coords of coordinates) {
+                try {
+                    console.log(`🎯 Trying single click at coordinates ${coords.x}, ${coords.y} (${coords.description})`);
+                    
+                    const response = await fetch('/api/click-amplifier', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            ip: ip,
+                            windowTitle: 'OSD PRO',
+                            x: coords.x, // Try specific X coordinate
+                            y: coords.y  // Try specific Y coordinate
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok && result.success) {
+                        console.log(`✅ Successfully clicked at coordinates (${coords.x}, ${coords.y})`);
+                        success = true;
+                        successfulCoords = coords;
+                        
+                        // Update auto-click state
+                        const autoClickState = this.autoClickStates.get(ip);
+                        if (autoClickState) {
+                            autoClickState.lastClick = new Date().toISOString();
+                        }
+                        
+                        console.log(`✅ Clicked on '1.DP-43' device at ${new Date(result.timestamp).toLocaleTimeString()}`);
+                        
+                        // Show visual feedback
+                        this.showClickFeedback(ip, result);
+                        break;
+                    } else {
+                        lastError = result.error || 'Unknown error';
+                        console.log(`❌ Coordinates (${coords.x}, ${coords.y}) failed: ${lastError}`);
+                    }
+                } catch (err) {
+                    lastError = err.message;
+                    console.log(`❌ Coordinates (${coords.x}, ${coords.y}) error: ${lastError}`);
+                }
+            }
+            
+            if (!success) {
+                throw new Error(`Failed to click at all coordinates. Last error: ${lastError}`);
+            }
+            
+        } catch (err) {
+            console.error('❌ Failed to click amplifier:', err);
+            this.showError(err.message);
+            console.log('Click failed');
+        }
+    }
+
+    async startAutoClick(ip) {
+        console.log(`🎯 === AUTO-CLICK START ===`);
+        console.log(`🎯 Target IP: ${ip}`);
+        try {
+            console.log(`🔄 Starting auto-click for ${ip} - will try multiple coordinates to find '1.DP-43' device`);
+            
+            // Try multiple coordinates for the "1.DP-43" device
+            const coordinates = [
+                { x: 60, y: 160, description: "Initial guess" },
+                { x: 80, y: 180, description: "Slightly right and down" },
+                { x: 40, y: 140, description: "Slightly left and up" },
+                { x: 100, y: 200, description: "Further right and down" },
+                { x: 50, y: 120, description: "More left and up" }
+            ];
+            
+            let success = false;
+            let lastError = null;
+            
+            for (const coords of coordinates) {
+                try {
+                    console.log(`🎯 Trying coordinates ${coords.x}, ${coords.y} (${coords.description})`);
+                    console.log(`🌐 Calling fetch to start auto-click...`);
+                    
+                    const requestBody = { 
+                        ip: ip, 
+                        interval: 15000, // Auto-click every 15 seconds
+                        windowTitle: 'OSD PRO',
+                        x: coords.x, // Try specific X coordinate
+                        y: coords.y  // Try specific Y coordinate
+                    };
+                    
+                    console.log(`🌐 Request body: ${JSON.stringify(requestBody)}`);
+                    console.log(`🌐 IP value being sent: "${ip}" (type: ${typeof ip})`);
+                    
+                    const response = await fetch('/api/auto-click/start', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+                    
+                    console.log(`🌐 Fetch response status: ${response.status}`);
+                    const result = await response.json();
+                    console.log(`🌐 Fetch response result: ${JSON.stringify(result)}`);
+                    
+                    if (response.ok && result.success) {
+                        console.log(`✅ Successfully started auto-click at coordinates (${coords.x}, ${coords.y})`);
+                        success = true;
+                        
+                        // Update UI state
+                        const autoClickState = this.autoClickStates.get(ip);
+                        if (autoClickState) {
+                            autoClickState.isAutoClicking = true;
+                        }
+                        
+                        console.log(`Auto-click started (${result.interval}ms interval) - Target: 1.DP-43 device at (${coords.x}, ${coords.y})`);
+                        break;
+                    } else {
+                        lastError = result.error || 'Unknown error';
+                        console.log(`❌ Coordinates (${coords.x}, ${coords.y}) failed: ${lastError}`);
+                    }
+                } catch (err) {
+                    lastError = err.message;
+                    console.log(`❌ Coordinates (${coords.x}, ${coords.y}) error: ${lastError}`);
+                }
+            }
+            
+            if (!success) {
+                throw new Error(`Failed to start auto-click at all coordinates. Last error: ${lastError}`);
+            }
+            
+        } catch (err) {
+            console.error('❌ Failed to start auto-click:', err);
+            this.showError(err.message);
+            console.log('Failed to start auto-click');
+        }
+    }
+
+    async stopAutoClick(ip) {
+        try {
+            const response = await fetch('/api/auto-click/stop', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ip: ip })
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to stop auto-click');
+            }
+            
+            console.log(`✅ Stopped auto-click for ${ip}`);
+            
+            // Update UI state
+            const autoClickState = this.autoClickStates.get(ip);
+            if (autoClickState) {
+                autoClickState.isAutoClicking = false;
+            }
+            
+            console.log('Auto-click stopped');
+            
+        } catch (err) {
+            console.error('❌ Failed to stop auto-click:', err);
+            this.showError(err.message);
+            console.log('Failed to stop auto-click');
+        }
+    }
+
+    
+    
+    showClickFeedback(ip, result) {
+        // Create a temporary visual indicator showing where the click occurred
+        const panel = this.amplifierPanels.get(ip);
+        if (!panel) return;
+        
+        const feedback = document.createElement('div');
+        feedback.className = 'click-feedback';
+        feedback.innerHTML = `
+            <div class="click-ripple"></div>
+            <div class="click-info">Clicked at (${result.ClickX}, ${result.ClickY})</div>
+        `;
+        
+        // Position the feedback at the click location (relative to the panel)
+        feedback.style.position = 'absolute';
+        feedback.style.left = '50%';
+        feedback.style.top = '50%';
+        feedback.style.transform = 'translate(-50%, -50%)';
+        feedback.style.zIndex = '1000';
+        
+        panel.appendChild(feedback);
+        
+        // Remove the feedback after 2 seconds
+        setTimeout(() => {
+            if (feedback.parentNode) {
+                feedback.parentNode.removeChild(feedback);
+            }
+        }, 2000);
+    }
+
+    
+    handleAmplifierClicked(data) {
+        const { amplifierIP, result } = data;
+        
+        // Update auto-click state
+        const autoClickState = this.autoClickStates.get(amplifierIP);
+        if (autoClickState) {
+            autoClickState.lastClick = new Date().toISOString();
+        }
+        
+        console.log(`Clicked at ${new Date(result.timestamp).toLocaleTimeString()}`);
+        this.showClickFeedback(amplifierIP, result);
+    }
+
+    handleAutoClickStarted(data) {
+        const { amplifierIP, interval } = data;
+        
+        // Update UI state
+        const autoClickState = this.autoClickStates.get(amplifierIP);
+        if (autoClickState) {
+            autoClickState.isAutoClicking = true;
+        }
+        
+        console.log(`Auto-click started (${interval}ms interval)`);
+    }
+
+    handleAutoClickStopped(data) {
+        const { amplifierIP } = data;
+        
+        // Update UI state
+        const autoClickState = this.autoClickStates.get(amplifierIP);
+        if (autoClickState) {
+            autoClickState.isAutoClicking = false;
+        }
+        
+        console.log('Auto-click stopped');
+    }
+
+    handleAutoClickResult(data) {
+        const { amplifierIP, result } = data;
+        
+        if (result.success) {
+            console.log(`Auto-clicked at ${new Date(result.timestamp).toLocaleTimeString()}`);
+            this.showClickFeedback(amplifierIP, result);
+        } else {
+            console.log(`Auto-click failed: ${result.error}`);
+        }
+    }
+
+    handleOsdProStep(data) {
+        const { amplifierIP, step, message, error, amplifiers } = data;
+        
+        console.log(`📍 OSD PRO Step ${step} for ${amplifierIP}: ${message}`);
+        
+        if (error) {
+            console.log(`Step ${step} failed: ${error}`);
+        } else if (amplifiers) {
+            console.log(`Step ${step}: Found ${amplifiers.length} amplifiers`);
+        } else {
+            console.log(`Step ${step}: ${message}`);
+        }
+    }
+
+    handleOsdProCompleted(data) {
+        const { amplifierIP, message, clickResult, amplifierReadResult, connectResult } = data;
+        
+        console.log(`✅ OSD PRO sequence completed for ${amplifierIP}: ${message}`);
+        console.log('OSD PRO sequence completed successfully!');
+        
+        // Show success notification
+        this.showSuccessNotification(`Successfully connected to amplifier ${amplifierIP} in OSD PRO`);
+    }
+
+    showSuccessNotification(message) {
+        // Create a temporary success notification
+        const notification = document.createElement('div');
+        notification.className = 'success-notification';
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            font-weight: 500;
+            animation: slideIn 0.3s ease-out;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remove notification after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
     }
 
     updateMeter(amplifierIP, channelType, channelId, dbValue) {

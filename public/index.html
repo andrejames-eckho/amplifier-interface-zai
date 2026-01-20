@@ -94,6 +94,12 @@
             </div>
         </main>
 
+        <!-- Debug Log Display -->
+        <div class="debug-log" id="debugLog" style="position: fixed; bottom: 20px; right: 20px; width: 400px; height: 200px; background: rgba(0,0,0,0.9); color: #00ff00; font-family: monospace; font-size: 12px; padding: 10px; border-radius: 5px; overflow-y: auto; z-index: 9999; display: block;">
+            <div style="color: #ffff00; margin-bottom: 5px;">🔍 Debug Log (Auto-Click Status)</div>
+            <div id="debugLogContent"></div>
+        </div>
+
         <div class="error-toast" id="errorToast">
             <span class="error-message" id="errorMessage"></span>
             <button class="error-close" onclick="hideError()">×</button>

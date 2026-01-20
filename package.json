@@ -9,13 +9,21 @@
     "test": "node src/protocol-test.js"
   },
   "dependencies": {
-    "ws": "^8.14.2",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "jimp": "^1.6.0",
+    "sharp": "^0.34.5",
+    "ws": "^8.14.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["audio", "visualizer", "amplifier", "npa43a", "websocket"],
+  "keywords": [
+    "audio",
+    "visualizer",
+    "amplifier",
+    "npa43a",
+    "websocket"
+  ],
   "author": "",
   "license": "MIT"
 }

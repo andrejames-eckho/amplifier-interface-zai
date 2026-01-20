@@ -4,6 +4,8 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const NPA43AClient = require('./amplifier-client');
+const ScreenCapture = require('./screen-capture');
+const AutoClicker = require('./auto-clicker');
 
 class AudioVisualizerServer {
     constructor(port = 8080) {
@@ -20,6 +22,16 @@ class AudioVisualizerServer {
         // Amplifier storage - map of IP -> client
         this.amplifierClients = new Map();
         this.amplifierData = new Map(); // Map of IP -> amplifier data
+        
+        // Screen capture functionality
+        this.screenCapture = new ScreenCapture();
+        this.captureIntervals = new Map(); // Map of IP -> capture interval
+        
+        // Auto-click functionality
+        this.autoClicker = new AutoClicker();
+        
+        // Set global broadcast reference for auto-clicker
+        global.broadcast = this.broadcast.bind(this);
         
         this.setupExpress();
         this.setupWebSocket();
@@ -269,6 +281,512 @@ class AudioVisualizerServer {
             });
         });
 
+        // API endpoint to capture screen
+        this.app.post('/api/capture', express.json(), async (req, res) => {
+            const { windowTitle, resize = true, maxWidth = 800, maxHeight = 600 } = req.body;
+            
+            try {
+                // Check if window is open
+                const isOpen = await this.screenCapture.isWindowOpen(windowTitle || 'OSD PRO');
+                if (!isOpen) {
+                    return res.status(404).json({ 
+                        error: 'Window not found',
+                        message: `Window with title containing "${windowTitle || 'OSD PRO'}" is not open`
+                    });
+                }
+
+                // Capture the window
+                let imageBuffer = await this.screenCapture.captureWindow(windowTitle || 'OSD PRO');
+                
+                // Resize for web if requested
+                if (resize) {
+                    imageBuffer = await this.screenCapture.resizeForWeb(imageBuffer, maxWidth, maxHeight);
+                }
+                
+                // Convert to base64 for JSON response
+                const base64Image = imageBuffer.toString('base64');
+                
+                res.json({
+                    success: true,
+                    image: `data:image/png;base64,${base64Image}`,
+                    timestamp: new Date().toISOString(),
+                    windowTitle: windowTitle || 'OSD PRO'
+                });
+                
+            } catch (err) {
+                console.error('Screen capture failed:', err);
+                res.status(500).json({ 
+                    error: 'Screen capture failed',
+                    message: err.message 
+                });
+            }
+        });
+
+        // API endpoint to start periodic capture
+        this.app.post('/api/capture/start', express.json(), async (req, res) => {
+            const { ip, interval = 5000, windowTitle } = req.body;
+            
+            if (!ip) {
+                return res.status(400).json({ error: 'IP address is required' });
+            }
+
+            // Stop existing capture for this IP if any
+            if (this.captureIntervals.has(ip)) {
+                clearInterval(this.captureIntervals.get(ip));
+            }
+
+            try {
+                // Start periodic capture
+                const captureInterval = setInterval(async () => {
+                    try {
+                        const isOpen = await this.screenCapture.isWindowOpen(windowTitle || 'OSD PRO');
+                        if (!isOpen) {
+                            console.log(`Window not found for ${ip}, stopping capture`);
+                            this.stopCapture(ip);
+                            return;
+                        }
+
+                        let imageBuffer = await this.screenCapture.captureWindow(windowTitle || 'OSD PRO');
+                        imageBuffer = await this.screenCapture.resizeForWeb(imageBuffer, 800, 600);
+                        const base64Image = imageBuffer.toString('base64');
+                        
+                        // Broadcast captured image to all clients
+                        this.broadcast({
+                            type: 'screenCapture',
+                            amplifierIP: ip,
+                            image: `data:image/png;base64,${base64Image}`,
+                            timestamp: new Date().toISOString(),
+                            windowTitle: windowTitle || 'OSD PRO'
+                        });
+                        
+                    } catch (err) {
+                        console.error(`Periodic capture failed for ${ip}:`, err);
+                        // Don't stop the interval on individual failures
+                    }
+                }, interval);
+
+                this.captureIntervals.set(ip, captureInterval);
+                
+                res.json({
+                    success: true,
+                    message: `Started periodic capture for ${ip} every ${interval}ms`,
+                    interval: interval
+                });
+                
+            } catch (err) {
+                console.error('Failed to start periodic capture:', err);
+                res.status(500).json({ 
+                    error: 'Failed to start periodic capture',
+                    message: err.message 
+                });
+            }
+        });
+
+        // API endpoint to stop periodic capture
+        this.app.post('/api/capture/stop', express.json(), (req, res) => {
+            const { ip } = req.body;
+            
+            if (!ip) {
+                return res.status(400).json({ error: 'IP address is required' });
+            }
+
+            const stopped = this.stopCapture(ip);
+            
+            res.json({
+                success: true,
+                message: stopped ? `Stopped periodic capture for ${ip}` : `No active capture for ${ip}`,
+                ip: ip
+            });
+        });
+
+        // API endpoint to check if window is open
+        this.app.get('/api/window-check', async (req, res) => {
+            const windowTitle = req.query.title || 'OSD PRO';
+            
+            try {
+                const isOpen = await this.screenCapture.isWindowOpen(windowTitle);
+                res.json({
+                    isOpen: isOpen,
+                    windowTitle: windowTitle,
+                    timestamp: new Date().toISOString()
+                });
+            } catch (err) {
+                console.error('Window check failed:', err);
+                res.status(500).json({ 
+                    error: 'Window check failed',
+                    message: err.message 
+                });
+            }
+        });
+
+        // API endpoint to get process list
+        this.app.get('/api/processes', async (req, res) => {
+            try {
+                const processes = await this.screenCapture.getProcessList();
+                res.json({
+                    processes: processes,
+                    count: processes.length,
+                    timestamp: new Date().toISOString()
+                });
+            } catch (err) {
+                console.error('Failed to get process list:', err);
+                res.status(500).json({ 
+                    error: 'Failed to get process list',
+                    message: err.message 
+                });
+            }
+        });
+
+        // Serve captured images statically
+        this.app.use('/captures', express.static(path.join(__dirname, '../captures')));
+
+        // API endpoint to click on amplifier
+        this.app.post('/api/click-amplifier', express.json(), async (req, res) => {
+            const { ip, windowTitle, x, y } = req.body;
+            
+            if (!ip) {
+                return res.status(400).json({ error: 'IP address is required' });
+            }
+
+            try {
+                const result = await this.autoClicker.clickAmplifier(ip, windowTitle || 'OSD PRO', x, y);
+                
+                if (result.success) {
+                    // Broadcast click result to all clients
+                    this.broadcast({
+                        type: 'amplifierClicked',
+                        amplifierIP: ip,
+                        result: result,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                res.json(result);
+                
+            } catch (err) {
+                console.error('Click amplifier failed:', err);
+                res.status(500).json({ 
+                    error: 'Click amplifier failed',
+                    message: err.message 
+                });
+            }
+        });
+
+        // API endpoint to get window position and size
+        this.app.post('/api/get-window-info', async (req, res) => {
+            const { windowTitle } = req.body;
+
+            if (!windowTitle) {
+                return res.status(400).json({ success: false, error: 'Window title is required' });
+            }
+
+            try {
+                const command = `
+                    $window = Get-Process | Where-Object { $_.MainWindowTitle -like "*${windowTitle}*" }
+                    if ($window) {
+                        $bounds = $window.MainWindowHandle | Get-WinEvent | Select-Object -ExpandProperty Bounds
+                        $info = @{
+                            x = $bounds.Left;
+                            y = $bounds.Top;
+                            width = $bounds.Width;
+                            height = $bounds.Height;
+                        }
+                        $info | ConvertTo-Json
+                    } else {
+                        Write-Output "{}"
+                    }
+                `;
+                const result = await this.executePowerShell(command);
+                const windowInfo = JSON.parse(result.trim());
+
+                if (Object.keys(windowInfo).length > 0) {
+                    res.json({ success: true, windowInfo });
+                } else {
+                    res.status(404).json({ success: false, error: `Window with title containing '${windowTitle}' not found.` });
+                }
+            } catch (error) {
+                console.error('Error getting window info:', error);
+                res.status(500).json({ success: false, error: error.message });
+            }
+        });
+
+        // API endpoint to start auto-click
+        this.app.post('/api/auto-click/start', express.json(), async (req, res) => {
+            console.log(`🎯 === AUTO-CLICK API CALLED ===`);
+            console.log(`🎯 Request body: ${JSON.stringify(req.body)}`);
+            console.log(`🎯 IP received: "${req.body.ip}" (type: ${typeof req.body.ip})`);
+            
+            const { ip, interval = 10000, windowTitle, x, y } = req.body;
+            
+            if (!ip) {
+                console.log(`❌ IP validation failed - IP is null/undefined/empty`);
+                return res.status(400).json({ error: 'IP address is required' });
+            }
+            
+            console.log(`✅ IP validation passed - proceeding with auto-click for ${ip}`);
+
+            try {
+                const result = await this.autoClicker.startAutoClick(ip, interval, windowTitle || 'OSD PRO', x, y);
+                
+                if (result.success) {
+                    // Broadcast auto-click start to all clients
+                    this.broadcast({
+                        type: 'autoClickStarted',
+                        amplifierIP: ip,
+                        interval: interval,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                res.json(result);
+                
+            } catch (err) {
+                console.error('Start auto-click failed:', err);
+                res.status(500).json({ 
+                    error: 'Start auto-click failed',
+                    message: err.message 
+                });
+            }
+        });
+
+        // API endpoint to stop auto-click
+        this.app.post('/api/auto-click/stop', express.json(), (req, res) => {
+            const { ip } = req.body;
+            
+            if (!ip) {
+                return res.status(400).json({ error: 'IP address is required' });
+            }
+
+            try {
+                const stopped = this.autoClicker.stopAutoClick(ip);
+                
+                if (stopped) {
+                    // Broadcast auto-click stop to all clients
+                    this.broadcast({
+                        type: 'autoClickStopped',
+                        amplifierIP: ip,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                res.json({
+                    success: true,
+                    message: stopped ? `Stopped auto-click for ${ip}` : `No active auto-click for ${ip}`,
+                    ip: ip,
+                    stopped: stopped
+                });
+                
+            } catch (err) {
+                console.error('Stop auto-click failed:', err);
+                res.status(500).json({ 
+                    error: 'Stop auto-click failed',
+                    message: err.message 
+                });
+            }
+        });
+
+        // API endpoint to get auto-click status
+        this.app.get('/api/auto-click/status', (req, res) => {
+            try {
+                const status = this.autoClicker.getAutoClickStatus();
+                res.json({
+                    status: status,
+                    timestamp: new Date().toISOString()
+                });
+            } catch (err) {
+                console.error('Get auto-click status failed:', err);
+                res.status(500).json({ 
+                    error: 'Get auto-click status failed',
+                    message: err.message 
+                });
+            }
+        });
+
+        // API endpoint to detect amplifier position
+        this.app.post('/api/detect-amplifier', express.json(), async (req, res) => {
+            const { ip, windowTitle } = req.body;
+            
+            if (!ip) {
+                return res.status(400).json({ error: 'IP address is required' });
+            }
+
+            try {
+                const result = await this.autoClicker.detectAmplifierPosition(ip, windowTitle || 'OSD PRO');
+                res.json(result);
+            } catch (err) {
+                console.error('Detect amplifier failed:', err);
+                res.status(500).json({ 
+                    error: 'Detect amplifier failed',
+                    message: err.message 
+                });
+            }
+        });
+
+        // API endpoint to initiate OSD PRO connection sequence
+        this.app.post('/api/osd-pro-initiate', express.json(), async (req, res) => {
+            const { amplifierIP, windowTitle } = req.body;
+            
+            if (!amplifierIP) {
+                return res.status(400).json({ error: 'Amplifier IP address is required' });
+            }
+
+            try {
+                console.log(`🚀 Starting OSD PRO initiation sequence for ${amplifierIP}`);
+                
+                // Step 1: Click OSD PRO software once
+                console.log('Step 1: Clicking OSD PRO software...');
+                const clickResult = await this.autoClicker.clickOsdPro(windowTitle || 'OSD PRO');
+                
+                if (!clickResult.success) {
+                    return res.status(500).json({
+                        success: false,
+                        error: 'Failed to click OSD PRO',
+                        message: clickResult.error || clickResult.message
+                    });
+                }
+                
+                // Broadcast step completion
+                this.broadcast({
+                    type: 'osdProStep',
+                    amplifierIP: amplifierIP,
+                    step: 1,
+                    message: 'OSD PRO software clicked',
+                    result: clickResult,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Step 2: Wait 10 seconds
+                console.log('Step 2: Waiting 10 seconds for OSD PRO to load...');
+                this.broadcast({
+                    type: 'osdProStep',
+                    amplifierIP: amplifierIP,
+                    step: 2,
+                    message: 'Waiting 10 seconds for OSD PRO to load amplifiers...',
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Wait asynchronously
+                setTimeout(async () => {
+                    try {
+                        // Step 3: Read connected amplifiers from OSD PRO software
+                        console.log('Step 3: Reading connected amplifiers from OSD PRO...');
+                        this.broadcast({
+                            type: 'osdProStep',
+                            amplifierIP: amplifierIP,
+                            step: 3,
+                            message: 'Reading connected amplifiers from OSD PRO...',
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        const amplifierReadResult = await this.autoClicker.readAmplifiersFromOsdPro(windowTitle || 'OSD PRO');
+                        
+                        if (!amplifierReadResult.success) {
+                            this.broadcast({
+                                type: 'osdProStep',
+                                amplifierIP: amplifierIP,
+                                step: 3,
+                                message: 'Failed to read amplifiers from OSD PRO',
+                                error: amplifierReadResult.error,
+                                timestamp: new Date().toISOString()
+                            });
+                            
+                            return res.status(500).json({
+                                success: false,
+                                error: 'Failed to read amplifiers from OSD PRO',
+                                message: amplifierReadResult.error || amplifierReadResult.message
+                            });
+                        }
+                        
+                        this.broadcast({
+                            type: 'osdProStep',
+                            amplifierIP: amplifierIP,
+                            step: 3,
+                            message: `Detected amplifiers: ${amplifierReadResult.amplifiers.join(', ')}`,
+                            amplifiers: amplifierReadResult.amplifiers,
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        // Step 4: Connect to the amplifier used to open OSD PRO
+                        console.log(`Step 4: Connecting to amplifier ${amplifierIP} in OSD PRO...`);
+                        this.broadcast({
+                            type: 'osdProStep',
+                            amplifierIP: amplifierIP,
+                            step: 4,
+                            message: `Connecting to amplifier ${amplifierIP} in OSD PRO...`,
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        const connectResult = await this.autoClicker.connectToAmplifierInOsdPro(amplifierIP, windowTitle || 'OSD PRO');
+                        
+                        if (!connectResult.success) {
+                            this.broadcast({
+                                type: 'osdProStep',
+                                amplifierIP: amplifierIP,
+                                step: 4,
+                                message: 'Failed to connect to amplifier in OSD PRO',
+                                error: connectResult.error,
+                                timestamp: new Date().toISOString()
+                            });
+                            
+                            return res.status(500).json({
+                                success: false,
+                                error: 'Failed to connect to amplifier in OSD PRO',
+                                message: connectResult.error || connectResult.message
+                            });
+                        }
+                        
+                        // Success!
+                        this.broadcast({
+                            type: 'osdProCompleted',
+                            amplifierIP: amplifierIP,
+                            message: `Successfully connected to amplifier ${amplifierIP} in OSD PRO`,
+                            clickResult: clickResult,
+                            amplifierReadResult: amplifierReadResult,
+                            connectResult: connectResult,
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        console.log(`✅ Successfully completed OSD PRO initiation sequence for ${amplifierIP}`);
+                        
+                        res.json({
+                            success: true,
+                            message: `OSD PRO initiation sequence completed for ${amplifierIP}`,
+                            steps: {
+                                click: clickResult,
+                                read: amplifierReadResult,
+                                connect: connectResult
+                            }
+                        });
+                        
+                    } catch (err) {
+                        console.error('OSD PRO initiation sequence failed:', err);
+                        
+                        this.broadcast({
+                            type: 'osdProStep',
+                            amplifierIP: amplifierIP,
+                            step: 'error',
+                            message: 'OSD PRO initiation sequence failed',
+                            error: err.message,
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        res.status(500).json({
+                            success: false,
+                            error: 'OSD PRO initiation sequence failed',
+                            message: err.message
+                        });
+                    }
+                }, 10000); // 10 second wait
+                
+            } catch (err) {
+                console.error('OSD PRO initiation failed:', err);
+                res.status(500).json({ 
+                    error: 'OSD PRO initiation failed',
+                    message: err.message 
+                });
+            }
+        });
+
         // API endpoint for mute control
         this.app.post('/api/mute', express.json(), (req, res) => {
             const { type, id, mute, amplifierIP } = req.body;
@@ -474,6 +992,8 @@ class AudioVisualizerServer {
                 client.disconnect();
                 this.amplifierClients.delete(amplifierIP);
             }
+            // Stop capture for this amplifier
+            this.stopCapture(amplifierIP);
         } else {
             // Disconnect all amplifiers
             for (const [ip, client] of this.amplifierClients.entries()) {
@@ -481,9 +1001,29 @@ class AudioVisualizerServer {
                 client.disconnect();
             }
             this.amplifierClients.clear();
+            // Stop all captures
+            this.stopAllCaptures();
         }
         
         this.broadcastCurrentStatus();
+    }
+
+    stopCapture(ip) {
+        if (this.captureIntervals.has(ip)) {
+            clearInterval(this.captureIntervals.get(ip));
+            this.captureIntervals.delete(ip);
+            console.log(`Stopped screen capture for ${ip}`);
+            return true;
+        }
+        return false;
+    }
+
+    stopAllCaptures() {
+        for (const [ip, interval] of this.captureIntervals.entries()) {
+            clearInterval(interval);
+            console.log(`Stopped screen capture for ${ip}`);
+        }
+        this.captureIntervals.clear();
     }
 
     start() {
@@ -496,6 +1036,8 @@ class AudioVisualizerServer {
     stop() {
         this.disconnectFromAmplifier();
         this.stopPeriodicUpdates();
+        this.stopAllCaptures();
+        this.autoClicker.stopAllAutoClicks();
         
         // Ensure all amplifier clients are disconnected
         for (const [ip, client] of this.amplifierClients.entries()) {
