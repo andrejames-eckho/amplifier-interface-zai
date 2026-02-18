@@ -53,7 +53,11 @@ class NPA43AClient extends EventEmitter {
     }
 
     parseResponse(buffer) {
-        if (buffer.length < 12) {
+        // Check minimum length based on function code
+        const fc = buffer[6];
+        const minLength = (fc === 0x12) ? 11 : 12;
+        
+        if (buffer.length < minLength) {
             throw new Error(`Response too short: ${buffer.length} bytes`);
         }
 
@@ -67,8 +71,8 @@ class NPA43AClient extends EventEmitter {
             throw new Error('Invalid end header');
         }
 
-        // Validate function code - accept both gain level (0x0E) and mute (0x03)
-        if (buffer[6] !== 0x0E && buffer[6] !== 0x03) {
+        // Validate function code - accept both gain level (0x0E), mute (0x03), and temperature (0x12)
+        if (buffer[6] !== 0x0E && buffer[6] !== 0x03 && buffer[6] !== 0x12) {
             throw new Error(`Invalid function code: 0x${buffer[6].toString(16)}`);
         }
 
@@ -119,6 +123,31 @@ class NPA43AClient extends EventEmitter {
                 channelType: displayChannel.type,
                 channelId: displayChannel.id,
                 muted: muteStatus === 0x01,
+                timestamp: Date.now()
+            };
+        } else if (functionCode === 0x12) {
+            // Temperature response - parse temperature data
+            if (buffer.length < 11) {
+                throw new Error(`Insufficient data for temperature: need 11 bytes, got ${buffer.length}`);
+            }
+            
+            const dataLength = buffer[7];
+            if (dataLength !== 0x02) {
+                throw new Error(`Invalid temperature data length: expected 2 bytes, got ${dataLength}`);
+            }
+            
+            const tempLow = buffer[8];
+            const tempHigh = buffer[9];
+            
+            // Combine bytes into signed 16-bit integer (little-endian)
+            const rawTemp = tempLow | (tempHigh << 8);
+            const signedTemp = rawTemp >= 0x8000 ? rawTemp - 0x10000 : rawTemp;
+            
+            // Calculate final temperature in Celsius (0.1°C per unit)
+            const temperature = signedTemp * 0.1;
+            
+            return {
+                temperature: temperature,
                 timestamp: Date.now()
             };
         } else {
@@ -320,8 +349,20 @@ class NPA43AClient extends EventEmitter {
                 const result = this.parseResponse(message);
                 
                 // Create cache key that includes actual values to detect real changes
-                const valueKey = result.db !== undefined ? result.db.toFixed(1) : (result.muted ? '1' : '0');
-                const cacheKey = `${result.channelType}-${result.channelId}-${valueKey}`;
+                let valueKey;
+                if (result.db !== undefined) {
+                    valueKey = result.db.toFixed(1);
+                } else if (result.muted !== undefined) {
+                    valueKey = result.muted ? '1' : '0';
+                } else if (result.temperature !== undefined) {
+                    valueKey = result.temperature.toFixed(1);
+                } else {
+                    valueKey = 'unknown';
+                }
+                
+                const cacheKey = result.temperature !== undefined ? 
+                    `temperature-${valueKey}` : 
+                    `${result.channelType}-${result.channelId}-${valueKey}`;
                 const now = Date.now();
                 
                 // Check cache to avoid duplicate processing of identical values
@@ -345,7 +386,7 @@ class NPA43AClient extends EventEmitter {
                     }
                 }
                 
-                console.log(`✅ Received: ${result.channelType} ${result.channelId} = ${result.db !== undefined ? result.db.toFixed(1) + ' dB' : (result.muted ? 'MUTED' : 'UNMUTED')}`);
+                console.log(`✅ Received: ${result.channelType ? result.channelType + ' ' + result.channelId + ' = ' + (result.db !== undefined ? result.db.toFixed(1) + ' dB' : (result.muted ? 'MUTED' : 'UNMUTED')) : (result.temperature !== undefined ? 'Temperature = ' + result.temperature.toFixed(1) + '°C' : 'Unknown data')}`);
                 
                 // Update connection status - if we're receiving data, we're connected
                 if (!this.isConnected) {
@@ -476,6 +517,10 @@ class NPA43AClient extends EventEmitter {
                 const masterMuteCommand = this.createMuteStatusCommand('all-output', null);
                 this.client.write(masterMuteCommand);
                 
+                // Poll temperature
+                const temperatureCommand = this.createTemperatureCommand();
+                this.client.write(temperatureCommand);
+                
             } catch (err) {
                 console.error('Polling error:', err.message);
                 this.emit('error', err);
@@ -551,6 +596,17 @@ class NPA43AClient extends EventEmitter {
             0x02,                   // Data Length
             type,                   // Type (Input/Output)
             id,                     // Channel ID
+            0xEE                    // End Header
+        ]);
+    }
+
+    createTemperatureCommand() {
+        return Buffer.from([
+            0xA5, 0xC3, 0x3C, 0x5A, // Start Header
+            this.deviceId,           // Device ID
+            0x63,                   // Read Command
+            0x12,                   // Function Code (Temperature)
+            0x00,                   // Data Length
             0xEE                    // End Header
         ]);
     }

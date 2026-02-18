@@ -438,6 +438,14 @@ class AudioVisualizerServer {
                         muted: data.muted,
                         timestamp: data.timestamp
                     });
+                } else if (data.temperature !== undefined) {
+                    // Temperature data
+                    this.broadcast({
+                        type: 'temperature',
+                        amplifierIP: amplifierIP,
+                        temperature: data.temperature,
+                        timestamp: data.timestamp
+                    });
                 }
             });
 

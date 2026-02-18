@@ -182,6 +182,9 @@ class AudioVisualizer {
             case 'muteStatus':
                 this.updateMuteStatus(data.amplifierIP, data.channelType, data.channelId, data.muted);
                 break;
+            case 'temperature':
+                this.updateTemperature(data.amplifierIP, data.temperature);
+                break;
             case 'amplifierInfo':
                 this.updateAmplifierInfo(data.amplifierIP, data.info);
                 break;
@@ -221,6 +224,7 @@ class AudioVisualizer {
                     <h3 class="amplifier-name">${name || ip}</h3>
                     <div class="amplifier-details">
                         <span class="amplifier-ip">Control IP: ${ip}</span>
+                        <span class="amplifier-temperature" id="temperature-${panelId}">--°C</span>
                     </div>
                 </div>
                 <div class="amplifier-controls">
@@ -603,6 +607,33 @@ class AudioVisualizer {
             } else {
                 button.classList.remove('muted');
                 icon.textContent = '🔊';
+            }
+        }
+    }
+
+    updateTemperature(amplifierIP, temperature) {
+        const panel = this.amplifierPanels.get(amplifierIP);
+        if (!panel) {
+            return;
+        }
+        
+        const panelId = `panel-${amplifierIP.replace(/\./g, '-')}`;
+        const tempElement = panel.querySelector(`#temperature-${panelId}`);
+        
+        if (tempElement) {
+            // Format temperature to 1 decimal place
+            const tempText = `${temperature.toFixed(1)}°C`;
+            tempElement.textContent = tempText;
+            
+            // Apply color coding based on temperature thresholds
+            tempElement.classList.remove('temp-normal', 'temp-warning', 'temp-critical');
+            
+            if (temperature >= 70) {
+                tempElement.classList.add('temp-critical');
+            } else if (temperature >= 50) {
+                tempElement.classList.add('temp-warning');
+            } else {
+                tempElement.classList.add('temp-normal');
             }
         }
     }
