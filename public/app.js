@@ -188,6 +188,9 @@ class AudioVisualizer {
             case 'amplifierInfo':
                 this.updateAmplifierInfo(data.amplifierIP, data.info);
                 break;
+            case 'limiterStatus':
+                this.updateLimiterStatus(data.amplifierIP, data.channelType, data.channelId, data.isLimiting);
+                break;
             case 'error':
                 this.showError(data.message);
                 break;
@@ -227,10 +230,7 @@ class AudioVisualizer {
                         <span class="amplifier-temperature" id="temperature-${panelId}">--°C</span>
                     </div>
                 </div>
-                <div class="amplifier-controls">
-                    <button class="auto-script-btn" data-ip="${ip}" title="Open Auto Script">🚀</button>
-                    <button class="close-panel-btn" data-ip="${ip}">×</button>
-                </div>
+                <button class="close-panel-btn-top-right" data-ip="${ip}">×</button>
             </div>
             
             <div class="amplifier-channels">
@@ -251,15 +251,8 @@ class AudioVisualizer {
         `;
         
         // Add close button event listener
-        const closeBtn = panel.querySelector('.close-panel-btn');
+        const closeBtn = panel.querySelector('.close-panel-btn-top-right');
         closeBtn.addEventListener('click', () => this.removeAmplifierPanel(ip));
-        
-        // Add auto script button event listener
-        const autoScriptBtn = panel.querySelector('.auto-script-btn');
-        autoScriptBtn.addEventListener('click', () => this.openAutoScript(ip));
-        
-        // Update button state
-        this.updateAutoScriptButton(autoScriptBtn);
         
         // Store panel reference
         this.amplifierPanels.set(ip, panel);
@@ -343,6 +336,12 @@ class AudioVisualizer {
                                 <div class="vu-segment red"></div>
                                 <div class="vu-segment red"></div>
                             </div>
+                        </div>
+                        <div class="limiter-light-container">
+                            <div class="limiter-light" id="${type}-${i}-${panelId}-limiter" title="${type === 'input' ? 'Clip' : 'Limiter'}">
+                                <div class="limiter-led"></div>
+                            </div>
+                            <div class="limiter-label">${type === 'input' ? 'CLIP' : 'LIMIT'}</div>
                         </div>
                     </div>
                     <div class="meter-label">${type === 'input' ? 'IN' : 'OUT'} ${i}</div>
@@ -611,6 +610,30 @@ class AudioVisualizer {
         }
     }
 
+    updateLimiterStatus(amplifierIP, channelType, channelId, isLimiting) {
+        const panel = this.amplifierPanels.get(amplifierIP);
+        if (!panel) {
+            return;
+        }
+        
+        const panelId = `panel-${amplifierIP.replace(/\./g, '-')}`;
+        const limiterLight = panel.querySelector(`#${channelType}-${channelId}-${panelId}-limiter`);
+        
+        if (limiterLight) {
+            // Remove both classes first
+            limiterLight.classList.remove('active', 'clip-active');
+            
+            if (isLimiting) {
+                // Use different classes for input vs output
+                if (channelType === 'input') {
+                    limiterLight.classList.add('clip-active'); // Orange for clipping
+                } else {
+                    limiterLight.classList.add('active'); // Red for limiting
+                }
+            }
+        }
+    }
+
     updateTemperature(amplifierIP, temperature) {
         const panel = this.amplifierPanels.get(amplifierIP);
         if (!panel) {
@@ -854,9 +877,6 @@ class AudioVisualizer {
             ipCard.addEventListener('click', () => this.addAmplifierPanel(ip.ip, ip.name || ip.ip));
             this.ipCardsList.appendChild(ipCard);
         });
-        
-        // Update auto script button states
-        this.updateAutoScriptButtons();
     }
 
     showError(message) {

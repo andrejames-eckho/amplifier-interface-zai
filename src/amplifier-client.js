@@ -71,8 +71,8 @@ class NPA43AClient extends EventEmitter {
             throw new Error('Invalid end header');
         }
 
-        // Validate function code - accept both gain level (0x0E), mute (0x03), and temperature (0x12)
-        if (buffer[6] !== 0x0E && buffer[6] !== 0x03 && buffer[6] !== 0x12) {
+        // Validate function code - accept both gain level (0x0E), mute (0x03), temperature (0x12), and clip/limiter status (0x15)
+        if (buffer[6] !== 0x0E && buffer[6] !== 0x03 && buffer[6] !== 0x12 && buffer[6] !== 0x15) {
             throw new Error(`Invalid function code: 0x${buffer[6].toString(16)}`);
         }
 
@@ -150,6 +150,35 @@ class NPA43AClient extends EventEmitter {
                 temperature: temperature,
                 timestamp: Date.now()
             };
+        } else if (functionCode === 0x15) {
+            // Clip/Limiter status response - parse status data
+            if (buffer.length < 10) {
+                throw new Error(`Insufficient data for clip/limiter status: need 10 bytes, got ${buffer.length}`);
+            }
+            
+            const ioType = buffer[8]; // 0x01 = inputs, 0x02 = outputs
+            const statusByte = buffer[9]; // One byte with status bits for all channels
+            
+            // Parse status for each channel (one bit per channel)
+            const results = [];
+            const channelType = ioType === 0x01 ? 'input' : 'output';
+            
+            // Each bit represents a channel (bit 0 = channel 1, bit 1 = channel 2, etc.)
+            for (let bit = 0; bit < 4; bit++) {
+                const channelId = bit + 1;
+                const isLimiting = (statusByte & (1 << bit)) !== 0;
+                
+                results.push({
+                    channelType: channelType,
+                    channelId: channelId,
+                    isLimiting: isLimiting,
+                    timestamp: Date.now()
+                });
+            }
+            
+            // Return the first result for single channel queries, or all results for batch queries
+            // For now, we'll return all results since we're doing batch queries
+            return results;
         } else {
             throw new Error(`Unsupported function code: 0x${functionCode.toString(16)}`);
         }
@@ -386,16 +415,28 @@ class NPA43AClient extends EventEmitter {
                     }
                 }
                 
-                console.log(`✅ Received: ${result.channelType ? result.channelType + ' ' + result.channelId + ' = ' + (result.db !== undefined ? result.db.toFixed(1) + ' dB' : (result.muted ? 'MUTED' : 'UNMUTED')) : (result.temperature !== undefined ? 'Temperature = ' + result.temperature.toFixed(1) + '°C' : 'Unknown data')}`);
+                console.log(`✅ Received: ${result.channelType ? result.channelType + ' ' + result.channelId + ' = ' + (result.db !== undefined ? result.db.toFixed(1) + ' dB' : (result.muted ? 'MUTED' : 'UNMUTED')) : (result.temperature !== undefined ? 'Temperature = ' + result.temperature.toFixed(1) + '°C' : (result.isLimiting !== undefined ? result.channelType + ' ' + result.channelId + ' = ' + (result.isLimiting ? 'LIMITING' : 'NORMAL') : 'Unknown data'))}`);
                 
-                // Update connection status - if we're receiving data, we're connected
-                if (!this.isConnected) {
-                    console.log('🔗 Connection status updated based on data reception');
-                    this.isConnected = true;
-                    this.emit('connected');
+                // Handle array results from limiter status
+                if (Array.isArray(result)) {
+                    result.forEach(r => {
+                        // Update connection status - if we're receiving data, we're connected
+                        if (!this.isConnected) {
+                            console.log('🔗 Connection status updated based on data reception');
+                            this.isConnected = true;
+                            this.emit('connected');
+                        }
+                        this.emit('data', r);
+                    });
+                } else {
+                    // Update connection status - if we're receiving data, we're connected
+                    if (!this.isConnected) {
+                        console.log('🔗 Connection status updated based on data reception');
+                        this.isConnected = true;
+                        this.emit('connected');
+                    }
+                    this.emit('data', result);
                 }
-                
-                this.emit('data', result);
             } catch (err) {
                 console.error('❌ Parse error:', err.message);
                 console.error('❌ Message that failed to parse:', message.toString('hex').toUpperCase());
@@ -517,6 +558,12 @@ class NPA43AClient extends EventEmitter {
                 const masterMuteCommand = this.createMuteStatusCommand('all-output', null);
                 this.client.write(masterMuteCommand);
                 
+                // Also poll clip/limiter status for all channels
+                this.pollingSequence.forEach(channel => {
+                    const limiterCommand = this.createLimiterStatusCommand(channel.type, channel.id);
+                    this.client.write(limiterCommand);
+                });
+                
                 // Poll temperature
                 const temperatureCommand = this.createTemperatureCommand();
                 this.client.write(temperatureCommand);
@@ -607,6 +654,28 @@ class NPA43AClient extends EventEmitter {
             0x63,                   // Read Command
             0x12,                   // Function Code (Temperature)
             0x00,                   // Data Length
+            0xEE                    // End Header
+        ]);
+    }
+
+    createLimiterStatusCommand(channelType, channelId) {
+        let type;
+        
+        if (channelType === 'input') {
+            type = 0x01;
+        } else if (channelType === 'output') {
+            type = 0x02;
+        } else {
+            throw new Error(`Invalid channel type: ${channelType}`);
+        }
+        
+        return Buffer.from([
+            0xA5, 0xC3, 0x3C, 0x5A, // Start Header
+            this.deviceId,           // Device ID
+            0x63,                   // Read Command
+            0x15,                   // Function Code (Clip/Limiter Status)
+            0x01,                   // Data Length
+            type,                   // Type (Input/Output)
             0xEE                    // End Header
         ]);
     }

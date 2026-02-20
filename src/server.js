@@ -446,6 +446,16 @@ class AudioVisualizerServer {
                         temperature: data.temperature,
                         timestamp: data.timestamp
                     });
+                } else if (data.isLimiting !== undefined) {
+                    // Limiter/Clip status data
+                    this.broadcast({
+                        type: 'limiterStatus',
+                        amplifierIP: amplifierIP,
+                        channelType: data.channelType,
+                        channelId: data.channelId,
+                        isLimiting: data.isLimiting,
+                        timestamp: data.timestamp
+                    });
                 }
             });
 
