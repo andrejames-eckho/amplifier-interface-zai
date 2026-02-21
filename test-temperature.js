@@ -66,13 +66,10 @@ class NPA43ATemperatureTester {
 
     async connect() {
         return new Promise((resolve, reject) => {
-            console.log(`Connecting to amplifier at ${this.amplifierIP}:${this.port}...`);
-            
             this.client = new net.Socket();
             this.client.setTimeout(5000);
 
             this.client.connect(this.port, this.amplifierIP, () => {
-                console.log('✓ Connected to amplifier');
                 resolve();
             });
 
@@ -92,9 +89,6 @@ class NPA43ATemperatureTester {
     async readTemperature() {
         return new Promise((resolve, reject) => {
             const command = this.createTemperatureCommand();
-            console.log('\n=== Sending Temperature Command ===');
-            console.log(`Hex: ${command.toString('hex').toUpperCase()}`);
-            console.log(`Bytes: [${Array.from(command).join(', ')}]`);
 
             let responseBuffer = Buffer.alloc(0);
 
@@ -108,9 +102,6 @@ class NPA43ATemperatureTester {
                     
                     try {
                         const result = this.parseTemperatureResponse(responseBuffer);
-                        console.log('\n=== Temperature Response Received ===');
-                        console.log(`Hex: ${result.rawHex}`);
-                        console.log(`Temperature: ${result.temperature.toFixed(1)}°C`);
                         resolve(result);
                     } catch (err) {
                         console.error('✗ Parse error:', err.message);
@@ -134,7 +125,6 @@ class NPA43ATemperatureTester {
     async disconnect() {
         if (this.client) {
             this.client.destroy();
-            console.log('\n✓ Disconnected from amplifier');
         }
     }
 }

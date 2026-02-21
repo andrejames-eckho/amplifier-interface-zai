@@ -1061,6 +1061,23 @@ main {
     }
 }
 
+/* dB Value Display Styles */
+.db-value-display {
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    color: #cbd5e1;
+    background: rgba(30, 41, 59, 0.3);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 4px;
+    padding: 2px 6px;
+    min-width: 60px;
+    text-align: center;
+    transition: all 0.1s ease;
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
 /* Vertical VU Meter Styles */
 .meter-container.vertical {
     background: rgba(15, 23, 42, 0.8);
@@ -1345,6 +1362,12 @@ main {
         width: 20px;
         height: 20px;
         font-size: 8px;
+    }
+    
+    .db-value-display {
+        font-size: 0.7rem;
+        min-width: 50px;
+        padding: 1px 4px;
     }
 }
 
@@ -2097,6 +2120,12 @@ main {
         height: 18px;
         font-size: 7px;
     }
+    
+    .db-value-display {
+        font-size: 0.6rem;
+        min-width: 45px;
+        padding: 1px 3px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -2141,5 +2170,11 @@ main {
         width: 24px;
         height: 24px;
         font-size: 10px;
+    }
+    
+    .db-value-display {
+        font-size: 0.5rem;
+        min-width: 40px;
+        padding: 1px 2px;
     }
 }

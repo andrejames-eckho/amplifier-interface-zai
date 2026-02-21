@@ -159,10 +159,8 @@ class AudioVisualizer {
     }
 
     handleMessage(data) {
-        console.log('📨 Frontend received message:', data);
         switch (data.type) {
             case 'status':
-                console.log('🔄 Updating connection status to:', data.connected);
                 this.connectedIPs = data.connectedIPs || [];
                 this.updateConnectionStatus(data.connected);
                 
@@ -270,13 +268,15 @@ class AudioVisualizer {
         for (let i = 1; i <= 4; i++) {
             amplifierData.meters[`input-${i}`] = {
                 bar: panel.querySelector(`#input-${i}-${panelId}-bar`),
-                segments: null // Will be set after DOM is ready
+                segments: null, // Will be set after DOM is ready
+                dbDisplay: panel.querySelector(`#input-${i}-${panelId}-db`)
             };
         }
         for (let i = 1; i <= 4; i++) {
             amplifierData.meters[`output-${i}`] = {
                 bar: panel.querySelector(`#output-${i}-${panelId}-bar`),
-                segments: null // Will be set after DOM is ready
+                segments: null, // Will be set after DOM is ready
+                dbDisplay: panel.querySelector(`#output-${i}-${panelId}-db`)
             };
         }
         
@@ -290,29 +290,8 @@ class AudioVisualizer {
         for (let i = 1; i <= count; i++) {
             meters += `
                 <div class="meter-container vertical" data-channel="${type}-${i}" data-amplifier="${ip}">
+                    <div class="db-value-display" id="${type}-${i}-${panelId}-db">-∞ dB</div>
                     <div class="vu-meter">
-                        <div class="vu-scale">
-                            <div class="scale-label">+60</div>
-                            <div class="scale-label">+50</div>
-                            <div class="scale-label">+40</div>
-                            <div class="scale-label">+30</div>
-                            <div class="scale-label">+20</div>
-                            <div class="scale-label">+10</div>
-                            <div class="scale-label">+6</div>
-                            <div class="scale-label">+3</div>
-                            <div class="scale-label">0</div>
-                            <div class="scale-label">-3</div>
-                            <div class="scale-label">-6</div>
-                            <div class="scale-label">-12</div>
-                            <div class="scale-label">-18</div>
-                            <div class="scale-label">-24</div>
-                            <div class="scale-label">-30</div>
-                            <div class="scale-label">-36</div>
-                            <div class="scale-label">-42</div>
-                            <div class="scale-label">-48</div>
-                            <div class="scale-label">-54</div>
-                            <div class="scale-label">-60</div>
-                        </div>
                         <div class="vu-bar-container">
                             <div class="vu-bar" id="${type}-${i}-${panelId}-bar">
                                 <div class="vu-segment green"></div>
@@ -327,6 +306,12 @@ class AudioVisualizer {
                                 <div class="vu-segment green"></div>
                                 <div class="vu-segment green"></div>
                                 <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment green"></div>
+                                <div class="vu-segment yellow"></div>
+                                <div class="vu-segment yellow"></div>
+                                <div class="vu-segment yellow"></div>
                                 <div class="vu-segment yellow"></div>
                                 <div class="vu-segment yellow"></div>
                                 <div class="vu-segment yellow"></div>
@@ -521,9 +506,6 @@ class AudioVisualizer {
             return;
         }
         
-        // Clamp value to range -60 to +60
-        const clampedDb = Math.max(-60, Math.min(60, dbValue));
-        
         // Update vertical VU meter segments
         if (meter.bar) {
             const segments = meter.bar.querySelectorAll('.vu-segment');
@@ -532,34 +514,81 @@ class AudioVisualizer {
                 meter.segments = meter.bar.querySelectorAll('.vu-segment');
             }
             
+            const clampedDb = Math.max(0, Math.min(120, dbValue));
             const segmentArray = meter.segments || segments;
             
             // Calculate how many segments should be lit based on dB value
-            // Segment mapping (from bottom to top): -60, -54, -48, -42, -36, -30, -24, -18, -12, -6, -3, 0, +3, +6, +10, +20, +30, +40, +50, +60
-            const segmentThresholds = [-60, -54, -48, -42, -36, -30, -24, -18, -12, -6, -3, 0, 3, 6, 10, 20, 30, 40, 50, 60];
+            // 24-segment VU meter mapping: 0dB to +120dB (bottom to top)
+            // Segments 0-15 (Green): 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
+            // Segments 16-19 (Yellow): 80, 85, 90, 95
+            // Segments 20-23 (Red): 100, 105, 110, 120
+            const segmentThresholds = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120];
             
+            let litSegments = 0;
             segmentArray.forEach((segment, index) => {
                 const threshold = segmentThresholds[index];
                 if (clampedDb >= threshold) {
                     segment.classList.add('active');
+                    litSegments++;
                 } else {
                     segment.classList.remove('active');
                 }
             });
         }
+        
+        // Update dB value display
+        if (meter.dbDisplay) {
+            const displayValue = this.formatDbValue(dbValue);
+            meter.dbDisplay.textContent = displayValue;
+            
+            // Apply color coding based on dB value
+            this.updateDbDisplayColor(meter.dbDisplay, dbValue);
+        }
+    }
+
+    updateDbDisplayColor(displayElement, dbValue) {
+        let color;
+        let bgColor;
+        
+        if (dbValue >= 100) {
+            // Red for critical (+100dB and above)
+            color = '#f44336';
+            bgColor = 'rgba(244, 67, 54, 0.1)';
+        } else if (dbValue >= 80) {
+            // Yellow for warning (+80dB to +99dB)
+            color = '#FF9800';
+            bgColor = 'rgba(255, 152, 0, 0.1)';
+        } else {
+            // Green for normal (0dB to +79dB)
+            color = '#4CAF50';
+            bgColor = 'rgba(76, 175, 80, 0.1)';
+        }
+        
+        displayElement.style.color = color;
+        displayElement.style.background = bgColor;
+        displayElement.style.border = `1px solid ${color}40`;
+    }
+
+    formatDbValue(dbValue) {
+        // Handle very low values as -∞
+        if (dbValue <= -70) {
+            return '-∞ dB';
+        }
+        // Round to 1 decimal place
+        return `${dbValue.toFixed(1)} dB`;
     }
 
     updateMeterColor(fillElement, dbValue) {
         let color;
         
-        if (dbValue > 0) {
-            // Red for clipping (> 0dB)
+        if (dbValue >= 100) {
+            // Red for critical (+100dB and above)
             color = '#f44336';
-        } else if (dbValue > -6) {
-            // Yellow for warning (-6dB to 0dB)
+        } else if (dbValue >= 80) {
+            // Yellow for warning (+80dB to +99dB)
             color = '#FF9800';
         } else {
-            // Green for normal (< -6dB)
+            // Green for normal (0dB to +79dB)
             color = '#4CAF50';
         }
         
@@ -570,16 +599,16 @@ class AudioVisualizer {
         let color;
         let bgColor;
         
-        if (dbValue > 0) {
-            // Red for clipping (> 0dB)
+        if (dbValue >= 100) {
+            // Red for critical (+100dB and above)
             color = '#f44336';
             bgColor = 'rgba(244, 67, 54, 0.1)';
-        } else if (dbValue > -6) {
-            // Yellow for warning (-6dB to 0dB)
+        } else if (dbValue >= 80) {
+            // Yellow for warning (+80dB to +99dB)
             color = '#FF9800';
             bgColor = 'rgba(255, 152, 0, 0.1)';
         } else {
-            // Green for normal (< -6dB)
+            // Green for normal (0dB to +79dB)
             color = '#4CAF50';
             bgColor = 'rgba(76, 175, 80, 0.1)';
         }

@@ -195,10 +195,6 @@ class AudioVisualizerServer {
         this.app.post('/api/mute', express.json(), (req, res) => {
             const { type, id, mute, amplifierIP } = req.body;
             
-            console.log(`\n=== MUTE API CALL ===`);
-            console.log(`Request body:`, req.body);
-            console.log(`Type: ${type}, ID: ${id}, Mute: ${mute}, Amplifier IP: ${amplifierIP}`);
-            
             // Find the correct amplifier client
             let targetClient = null;
             
@@ -219,35 +215,27 @@ class AudioVisualizerServer {
             }
             
             if (!targetClient) {
-                console.log(`❌ No connected amplifier found`);
                 return res.status(400).json({ error: 'No connected amplifier found' });
             }
             
-            console.log(`✓ Using amplifier ${targetClient.amplifierIP}, sending command...`);
-            
             try {
                 if (type === 'all-output') {
-                    console.log(`Sending master mute command (all-output)`);
                     targetClient.setMute('all-output', null, mute);
                 } else if (type === 'input' || type === 'output') {
                     if (!id || id < 1 || id > 4) {
-                        console.log(`❌ Invalid channel ID: ${id}`);
                         return res.status(400).json({ error: 'Invalid channel ID. Must be 1-4' });
                     }
-                    console.log(`Sending channel mute command: ${type} ${id}`);
                     targetClient.setMute(type, id, mute);
                 } else {
-                    console.log(`❌ Invalid type: ${type}`);
                     return res.status(400).json({ error: 'Invalid type. Must be input, output, or all-output' });
                 }
                 
-                console.log(`✓ Command sent successfully`);
                 res.json({ 
                     success: true, 
                     message: `${mute ? 'Muted' : 'Unmuted'} ${type}${id ? ' ' + id : ''}` 
                 });
             } catch (err) {
-                console.log(`❌ Error sending command:`, err.message);
+                console.error('Error sending mute command:', err.message);
                 res.status(500).json({ error: err.message });
             }
         });
@@ -373,7 +361,6 @@ class AudioVisualizerServer {
 
     broadcast(data) {
         const message = JSON.stringify(data);
-        console.log('📡 Broadcasting to', this.connectedClients.size, 'clients:', data);
         this.connectedClients.forEach(ws => {
             if (ws.readyState === WebSocket.OPEN) {
                 ws.send(message);

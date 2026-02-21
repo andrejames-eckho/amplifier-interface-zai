@@ -374,7 +374,6 @@ class NPA43AClient extends EventEmitter {
         // Process each complete message
         messages.forEach((message, index) => {
             try {
-                console.log(`🔍 Processing message ${index + 1}:`, message.toString('hex').toUpperCase());
                 const result = this.parseResponse(message);
                 
                 // Create cache key that includes actual values to detect real changes
@@ -415,23 +414,20 @@ class NPA43AClient extends EventEmitter {
                     }
                 }
                 
-                console.log(`✅ Received: ${result.channelType ? result.channelType + ' ' + result.channelId + ' = ' + (result.db !== undefined ? result.db.toFixed(1) + ' dB' : (result.muted ? 'MUTED' : 'UNMUTED')) : (result.temperature !== undefined ? 'Temperature = ' + result.temperature.toFixed(1) + '°C' : (result.isLimiting !== undefined ? result.channelType + ' ' + result.channelId + ' = ' + (result.isLimiting ? 'LIMITING' : 'NORMAL') : 'Unknown data'))}`);
-                
+                // Emit data for non-duplicate responses
                 // Handle array results from limiter status
                 if (Array.isArray(result)) {
                     result.forEach(r => {
-                        // Update connection status - if we're receiving data, we're connected
-                        if (!this.isConnected) {
-                            console.log('🔗 Connection status updated based on data reception');
-                            this.isConnected = true;
-                            this.emit('connected');
-                        }
+                    // Update connection status - if we're receiving data, we're connected
+                    if (!this.isConnected) {
+                        this.isConnected = true;
+                        this.emit('connected');
+                    }
                         this.emit('data', r);
                     });
                 } else {
                     // Update connection status - if we're receiving data, we're connected
                     if (!this.isConnected) {
-                        console.log('🔗 Connection status updated based on data reception');
                         this.isConnected = true;
                         this.emit('connected');
                     }
@@ -686,30 +682,7 @@ class NPA43AClient extends EventEmitter {
         }
 
         const command = this.createMuteCommand(channelType, channelId, mute);
-        
-        console.log(`\n=== SENDING MUTE COMMAND ===`);
-        console.log(`Target: ${channelType}${channelId !== undefined ? ' ' + channelId : ''}`);
-        console.log(`Action: ${mute ? 'MUTE' : 'UNMUTE'}`);
-        console.log(`Hex: ${command.toString('hex').toUpperCase()}`);
-        console.log(`Bytes: [${Array.from(command).join(', ')}]`);
-        
-        // Log each byte with meaning
-        console.log(`Breakdown:`);
-        console.log(`  Header: 0x${command.slice(0,4).toString('hex').toUpperCase()} (A5 C3 3C 5A)`);
-        console.log(`  Device ID: 0x${command[4].toString(16).toUpperCase()} (${command[4]})`);
-        console.log(`  Command: 0x${command[5].toString(16).toUpperCase()} (${command[5]} = Write)`);
-        console.log(`  Function: 0x${command[6].toString(16).toUpperCase()} (${command[6]} = Mute)`);
-        console.log(`  Length: 0x${command[7].toString(16).toUpperCase()} (${command[7]} bytes)`);
-        console.log(`  Fixed: 0x${command[8].toString(16).toUpperCase()} (${command[8]})`);
-        console.log(`  Type: 0x${command[9].toString(16).toUpperCase()} (${command[9]} = ${command[9] === 0x01 ? 'Input' : 'Output'})`);
-        console.log(`  Channel ID: 0x${command[10].toString(16).toUpperCase()} (${command[10]})`);
-        console.log(`  Mute State: 0x${command[11].toString(16).toUpperCase()} (${command[11]} = ${command[11] === 0x01 ? 'Mute' : 'Unmute'})`);
-        console.log(`  End: 0x${command[12].toString(16).toUpperCase()} (EE)`);
-        
         this.client.write(command);
-        
-        console.log(`✓ Command sent to amplifier at ${this.amplifierIP}:${this.port}`);
-        console.log(`=== END MUTE COMMAND ===\n`);
     }
 
     async getMuteStatus(channelType, channelId) {
