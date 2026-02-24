@@ -267,33 +267,175 @@ class AudioVisualizer {
         const amplifierData = this.activeAmplifiers.get(ip);
         for (let i = 1; i <= 4; i++) {
             amplifierData.meters[`input-${i}`] = {
-                bar: panel.querySelector(`#input-${i}-${panelId}-bar`),
-                segments: null, // Will be set after DOM is ready
-                dbDisplay: panel.querySelector(`#input-${i}-${panelId}-db`)
+                bar: null, // Input channels don't have VU bars
+                segments: null,
+                dbDisplay: null // Input channels don't have dB displays
             };
         }
         for (let i = 1; i <= 4; i++) {
             amplifierData.meters[`output-${i}`] = {
                 bar: panel.querySelector(`#output-${i}-${panelId}-bar`),
                 segments: null, // Will be set after DOM is ready
-                dbDisplay: panel.querySelector(`#output-${i}-${panelId}-db`)
+                dbDisplay: null // Output channels don't have dB displays in compact mode
             };
         }
         
         return panel;
     }
 
-    createChannelMeters(type, ip, count) {
-        const panelId = `panel-${ip.replace(/\./g, '-')}`;
-        let meters = '';
+handleMessage(data) {
+    switch (data.type) {
+        case 'status':
+            this.connectedIPs = data.connectedIPs || [];
+            this.updateConnectionStatus(data.connected);
+            
+            // Auto-create panels for newly connected amplifiers
+            if (data.connected && this.connectedIPs.length > 0) {
+                this.connectedIPs.forEach(ip => {
+                    const savedIP = this.savedIPs.find(savedIP => savedIP.ip === ip);
+                    if (savedIP && !this.amplifierPanels.has(ip)) {
+                        this.addAmplifierPanel(ip, savedIP.name || ip);
+                    }
+                });
+            }
+            break;
+        case 'audioData':
+            this.updateMeter(data.amplifierIP, data.channelType, data.channelId, data.db);
+            break;
+        case 'muteStatus':
+            this.updateMuteStatus(data.amplifierIP, data.channelType, data.channelId, data.muted);
+            break;
+        case 'temperature':
+            this.updateTemperature(data.amplifierIP, data.temperature);
+            break;
+        case 'amplifierInfo':
+            this.updateAmplifierInfo(data.amplifierIP, data.info);
+            break;
+        case 'limiterStatus':
+            this.updateLimiterStatus(data.amplifierIP, data.channelType, data.channelId, data.isLimiting);
+            break;
+        case 'error':
+            this.showError(data.message);
+            break;
+    }
+}
+
+updateConnectionStatus(connected) {
+    this.isConnected = connected;
+    
+    if (connected) {
+        this.statusIndicator.classList.remove('disconnected', 'warning');
+        this.statusIndicator.classList.add('connected');
+        this.statusText.textContent = `Connected to ${this.amplifierPanels.size} amplifier(s)`;
         
-        for (let i = 1; i <= count; i++) {
+        // Clear any warning state when we get a status update
+        this.statusIndicator.classList.remove('warning');
+    } else {
+        this.statusIndicator.classList.remove('connected', 'warning');
+        this.statusIndicator.classList.add('disconnected');
+        this.statusText.textContent = 'Disconnected';
+    }
+}
+
+createAmplifierPanel(ip, name) {
+    const panelId = `panel-${ip.replace(/\./g, '-')}`;
+    const panel = document.createElement('div');
+    panel.className = 'amplifier-panel';
+    panel.id = panelId;
+    panel.dataset.ip = ip;
+    
+    panel.innerHTML = `
+        <div class="amplifier-header">
+            <div class="amplifier-info">
+                <h3 class="amplifier-name">${name || ip}</h3>
+                <div class="amplifier-details">
+                    <span class="amplifier-ip">Control IP: ${ip}</span>
+                    <span class="amplifier-temperature" id="temperature-${panelId}">--°C</span>
+                </div>
+            </div>
+            <button class="close-panel-btn-top-right" data-ip="${ip}">×</button>
+        </div>
+        
+        <div class="amplifier-channels">
+            <div class="channels-section">
+                <h4>Inputs</h4>
+                <div class="channels-grid input-channels">
+                    ${this.createChannelMeters('input', ip, 4)}
+                </div>
+            </div>
+            
+            <div class="channels-section">
+                <h4>Outputs</h4>
+                <div class="channels-grid output-channels">
+                    ${this.createChannelMeters('output', ip, 4)}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add close button event listener
+    const closeBtn = panel.querySelector('.close-panel-btn-top-right');
+    closeBtn.addEventListener('click', () => this.removeAmplifierPanel(ip));
+    
+    // Store panel reference
+    this.amplifierPanels.set(ip, panel);
+    
+    // Store amplifier data
+    this.activeAmplifiers.set(ip, {
+        ip: ip,
+        name: name || ip,
+        meters: {},
+        info: {}
+    });
+    
+    // Initialize meter references
+    const amplifierData = this.activeAmplifiers.get(ip);
+    for (let i = 1; i <= 4; i++) {
+        amplifierData.meters[`input-${i}`] = {
+            bar: null, // Input channels don't have VU bars
+            segments: null,
+            dbDisplay: null // Input channels don't have dB displays
+        };
+    }
+    for (let i = 1; i <= 4; i++) {
+        amplifierData.meters[`output-${i}`] = {
+            bar: panel.querySelector(`#output-${i}-${panelId}-bar`),
+            segments: null, // Will be set after DOM is ready
+            dbDisplay: null // Output channels don't have dB displays in compact mode
+        };
+    }
+    
+    return panel;
+}
+
+createChannelMeters(type, ip, count) {
+    const panelId = `panel-${ip.replace(/\./g, '-')}`;
+    let meters = '';
+    
+    for (let i = 1; i <= count; i++) {
+        if (type === 'input') {
+            // Compact input channels - only clip indicator and mute button
             meters += `
-                <div class="meter-container vertical" data-channel="${type}-${i}" data-amplifier="${ip}">
-                    <div class="db-value-display" id="${type}-${i}-${panelId}-db">-∞ dB</div>
-                    <div class="vu-meter">
+                <div class="meter-container input-compact" data-channel="${type}-${i}" data-amplifier="${ip}">
+                    <div class="limiter-light-container">
+                        <div class="limiter-light" id="${type}-${i}-${panelId}-limiter" title="Clip">
+                            <div class="limiter-led"></div>
+                        </div>
+                        <div class="limiter-label">CLIP</div>
+                    </div>
+                    <div class="meter-label">IN ${i}</div>
+                    <button class="channel-mute-btn" data-channel="${type}-${i}" data-amplifier="${ip}" disabled>
+                        <span class="mute-icon">🔊</span>
+                    </button>
+                </div>
+            `;
+        } else {
+            // Compact output channels - smaller VU meter
+            meters += `
+                <div class="meter-container output-compact" data-channel="${type}-${i}" data-amplifier="${ip}">
+                    <div class="vu-meter compact">
                         <div class="vu-bar-container">
-                            <div class="vu-bar" id="${type}-${i}-${panelId}-bar">
+                            <div class="vu-bar compact" id="${type}-${i}-${panelId}-bar">
                                 <div class="vu-segment green"></div>
                                 <div class="vu-segment green"></div>
                                 <div class="vu-segment green"></div>
@@ -323,24 +465,25 @@ class AudioVisualizer {
                             </div>
                         </div>
                         <div class="limiter-light-container">
-                            <div class="limiter-light" id="${type}-${i}-${panelId}-limiter" title="${type === 'input' ? 'Clip' : 'Limiter'}">
+                            <div class="limiter-light" id="${type}-${i}-${panelId}-limiter" title="Limiter">
                                 <div class="limiter-led"></div>
                             </div>
-                            <div class="limiter-label">${type === 'input' ? 'CLIP' : 'LIMIT'}</div>
+                            <div class="limiter-label">LIMIT</div>
                         </div>
                     </div>
-                    <div class="meter-label">${type === 'input' ? 'IN' : 'OUT'} ${i}</div>
+                    <div class="meter-label">OUT ${i}</div>
                     <button class="channel-mute-btn" data-channel="${type}-${i}" data-amplifier="${ip}" disabled>
                         <span class="mute-icon">🔊</span>
                     </button>
                 </div>
             `;
         }
-        
-        return meters;
     }
+    
+    return meters;
+}
 
-    addAmplifierPanel(ip, name) {
+addAmplifierPanel(ip, name) {
         // Check if panel already exists
         if (this.amplifierPanels.has(ip)) {
             this.showError('Amplifier is already being displayed');
@@ -506,8 +649,8 @@ class AudioVisualizer {
             return;
         }
         
-        // Update vertical VU meter segments
-        if (meter.bar) {
+        // Update VU meter only for output channels (input channels don't have VU meters in compact mode)
+        if (channelType === 'output' && meter.bar) {
             const segments = meter.bar.querySelectorAll('.vu-segment');
             if (segments.length === 0) {
                 // Initialize segments if not already done
@@ -536,46 +679,7 @@ class AudioVisualizer {
             });
         }
         
-        // Update dB value display
-        if (meter.dbDisplay) {
-            const displayValue = this.formatDbValue(dbValue);
-            meter.dbDisplay.textContent = displayValue;
-            
-            // Apply color coding based on dB value
-            this.updateDbDisplayColor(meter.dbDisplay, dbValue);
-        }
-    }
-
-    updateDbDisplayColor(displayElement, dbValue) {
-        let color;
-        let bgColor;
-        
-        if (dbValue >= 100) {
-            // Red for critical (+100dB and above)
-            color = '#f44336';
-            bgColor = 'rgba(244, 67, 54, 0.1)';
-        } else if (dbValue >= 80) {
-            // Yellow for warning (+80dB to +99dB)
-            color = '#FF9800';
-            bgColor = 'rgba(255, 152, 0, 0.1)';
-        } else {
-            // Green for normal (0dB to +79dB)
-            color = '#4CAF50';
-            bgColor = 'rgba(76, 175, 80, 0.1)';
-        }
-        
-        displayElement.style.color = color;
-        displayElement.style.background = bgColor;
-        displayElement.style.border = `1px solid ${color}40`;
-    }
-
-    formatDbValue(dbValue) {
-        // Handle very low values as -∞
-        if (dbValue <= -70) {
-            return '-∞ dB';
-        }
-        // Round to 1 decimal place
-        return `${dbValue.toFixed(1)} dB`;
+        // dB value displays have been removed from compact interface
     }
 
     updateMeterColor(fillElement, dbValue) {
@@ -593,29 +697,6 @@ class AudioVisualizer {
         }
         
         fillElement.style.background = `linear-gradient(to top, ${color} 0%, ${color} 100%)`;
-    }
-
-    updateCompactMeterColor(valueElement, dbValue) {
-        let color;
-        let bgColor;
-        
-        if (dbValue >= 100) {
-            // Red for critical (+100dB and above)
-            color = '#f44336';
-            bgColor = 'rgba(244, 67, 54, 0.1)';
-        } else if (dbValue >= 80) {
-            // Yellow for warning (+80dB to +99dB)
-            color = '#FF9800';
-            bgColor = 'rgba(255, 152, 0, 0.1)';
-        } else {
-            // Green for normal (0dB to +79dB)
-            color = '#4CAF50';
-            bgColor = 'rgba(76, 175, 80, 0.1)';
-        }
-        
-        valueElement.style.color = color;
-        valueElement.style.background = bgColor;
-        valueElement.style.border = `1px solid ${color}40`;
     }
 
     updateMuteStatus(amplifierIP, channelType, channelId, isMuted) {

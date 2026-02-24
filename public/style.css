@@ -1061,21 +1061,252 @@ main {
     }
 }
 
-/* dB Value Display Styles */
-.db-value-display {
-    font-size: 0.8rem;
-    font-weight: 700;
-    font-family: 'Courier New', monospace;
+/* Compact Input Channel Styles */
+.meter-container.input-compact {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-height: 80px;
+    height: 80px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.meter-container.input-compact:hover {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: rgba(148, 163, 184, 0.4);
+    transform: translateY(-1px);
+}
+
+.meter-container.input-compact .meter-label {
+    font-size: 0.7rem;
+    font-weight: 600;
     color: #cbd5e1;
-    background: rgba(30, 41, 59, 0.3);
-    border: 1px solid rgba(148, 163, 184, 0.3);
-    border-radius: 4px;
-    padding: 2px 6px;
-    min-width: 60px;
     text-align: center;
+    margin-top: 4px;
+}
+
+.meter-container.input-compact .channel-mute-btn {
+    background: rgba(71, 85, 105, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: #f8fafc;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 8px;
+    padding: 0;
+    margin-top: 4px;
+}
+
+.meter-container.input-compact .channel-mute-btn:hover {
+    background: rgba(100, 116, 139, 0.8);
+}
+
+.meter-container.input-compact .channel-mute-btn.muted {
+    background: rgba(239, 68, 68, 0.8);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.meter-container.input-compact .channel-mute-btn.muted:hover {
+    background: #dc2626;
+}
+
+.meter-container.input-compact .channel-mute-btn .mute-icon {
+    font-size: 8px;
+}
+
+/* Compact Output Channel Styles */
+.meter-container.output-compact {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-height: 120px;
+    height: 120px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.meter-container.output-compact:hover {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: rgba(148, 163, 184, 0.4);
+    transform: translateY(-1px);
+}
+
+.meter-container.output-compact .meter-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    text-align: center;
+    margin-top: 4px;
+}
+
+.meter-container.output-compact .channel-mute-btn {
+    background: rgba(71, 85, 105, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: #f8fafc;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 8px;
+    padding: 0;
+    margin-top: 4px;
+}
+
+.meter-container.output-compact .channel-mute-btn:hover {
+    background: rgba(100, 116, 139, 0.8);
+}
+
+.meter-container.output-compact .channel-mute-btn.muted {
+    background: rgba(239, 68, 68, 0.8);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.meter-container.output-compact .channel-mute-btn.muted:hover {
+    background: #dc2626;
+}
+
+.meter-container.output-compact .channel-mute-btn .mute-icon {
+    font-size: 8px;
+}
+
+/* Compact VU Meter Styles */
+.vu-meter.compact {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    height: 90px;
+}
+
+.vu-bar.compact {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 1px;
+    height: 100%;
+    width: 16px;
+}
+
+.vu-bar.compact .vu-segment {
+    height: 6px;
+    width: 100%;
+    border-radius: 2px;
     transition: all 0.1s ease;
-    margin-bottom: 4px;
-    line-height: 1.2;
+    opacity: 0.2;
+}
+
+.vu-bar.compact .vu-segment.green {
+    background: #87CEEB; /* Sky blue when inactive */
+    border: 1px solid #7AB8DD;
+}
+
+.vu-bar.compact .vu-segment.yellow {
+    background: #90EE90; /* Light green when inactive */
+    border: 1px solid #7FDD7F;
+}
+
+.vu-bar.compact .vu-segment.red {
+    background: #8B4513; /* Dark brown when inactive */
+    border: 1px solid #654321;
+}
+
+.vu-bar.compact .vu-segment.green.active {
+    background: #87CEEB; /* Sky blue when active */
+    opacity: 1;
+    box-shadow: 0 0 4px rgba(135, 206, 235, 0.6);
+}
+
+.vu-bar.compact .vu-segment.yellow.active {
+    background: #90EE90; /* Bright green when active */
+    opacity: 1;
+    box-shadow: 0 0 4px rgba(144, 238, 144, 0.6);
+}
+
+.vu-bar.compact .vu-segment.red.active {
+    background: #8B4513; /* Dark brown when active */
+    opacity: 1;
+    box-shadow: 0 0 4px rgba(139, 69, 19, 0.6);
+}
+
+/* Update amplifier panel grid layout for compact meters */
+.amplifier-panel .channels-grid {
+    gap: 6px;
+}
+
+.amplifier-panel .input-channels,
+.amplifier-panel .output-channels {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Responsive adjustments for compact meters */
+@media (max-width: 1200px) {
+    .amplifier-panel .input-channels,
+    .amplifier-panel .output-channels {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .meter-container.input-compact {
+        min-height: 70px;
+        height: 70px;
+        padding: 4px;
+    }
+    
+    .meter-container.output-compact {
+        min-height: 100px;
+        height: 100px;
+        padding: 4px;
+    }
+    
+    .vu-meter.compact {
+        height: 70px;
+        gap: 4px;
+    }
+    
+    .vu-bar.compact {
+        width: 14px;
+        gap: 0;
+    }
+    
+    .vu-bar.compact .vu-segment {
+        height: 5px;
+    }
+    
+    .meter-container.input-compact .channel-mute-btn,
+    .meter-container.output-compact .channel-mute-btn {
+        width: 18px;
+        height: 18px;
+        font-size: 7px;
+    }
+    
+    .meter-container.input-compact .meter-label,
+    .meter-container.output-compact .meter-label {
+        font-size: 0.6rem;
+    }
+}
+
+/* dB Value Display Styles - Hidden in compact mode */
+.db-value-display {
+    display: none;
 }
 
 /* Vertical VU Meter Styles */
@@ -1544,8 +1775,8 @@ main {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    height: calc(100vh - 250px);
-    max-height: calc(100vh - 250px);
+    height: calc(100vh - 280px);
+    max-height: calc(100vh - 280px);
     overflow: hidden;
 }
 
@@ -1772,7 +2003,7 @@ main {
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    height: calc(100vh - 400px);
+    height: calc(100vh - 430px);
 }
 
 /* Custom scrollbar for amplifier channels */
@@ -1980,12 +2211,12 @@ main {
         max-width: 100%;
         width: 100%;
         padding: 10px;
-        height: calc(100vh - 220px);
-        max-height: calc(100vh - 220px);
+        height: calc(100vh - 250px);
+        max-height: calc(100vh - 250px);
     }
     
     .amplifier-channels {
-        height: calc(100vh - 360px);
+        height: calc(100vh - 390px);
     }
     
     .amplifier-panel .input-channels,
@@ -2070,12 +2301,12 @@ main {
     .amplifier-panel {
         padding: 8px;
         border-radius: 12px;
-        height: calc(100vh - 200px);
-        max-height: calc(100vh - 200px);
+        height: calc(100vh - 230px);
+        max-height: calc(100vh - 230px);
     }
     
     .amplifier-channels {
-        height: calc(100vh - 320px);
+        height: calc(100vh - 350px);
     }
     
     .amplifier-panel .input-channels,
@@ -2139,6 +2370,8 @@ main {
     .amplifier-panel {
         padding: 8px;
         border-radius: 12px;
+        height: calc(100vh - 230px);
+        max-height: calc(100vh - 230px);
     }
     
     .amplifier-panel .meter-container {
