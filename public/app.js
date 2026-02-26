@@ -7,14 +7,14 @@ class AudioVisualizer {
         this.reconnectDelay = 2000;
         this.lastStatusUpdate = 0;
         this.connectionStatusCheckInterval = null;
-        
+
         // Multi-amplifier support
         this.activeAmplifiers = new Map(); // Map of IP -> amplifier data
         this.amplifierPanels = new Map(); // Map of IP -> panel element
-        
+
         // External app management
         this.externalAppOpened = false;
-        
+
         this.initializeElements();
         this.bindEvents();
         this.connectWebSocket();
@@ -28,11 +28,11 @@ class AudioVisualizer {
         this.menuContent = document.getElementById('menuContent');
         this.ipCardsList = document.getElementById('ipCardsList');
         this.manageIPsFromMenu = document.getElementById('manageIPsFromMenu');
-        
+
         // Connection elements
         this.statusIndicator = document.getElementById('statusIndicator');
         this.statusText = document.getElementById('statusText');
-        
+
         // Modal elements
         this.ipModal = document.getElementById('ipModal');
         this.closeModal = document.getElementById('closeModal');
@@ -40,15 +40,15 @@ class AudioVisualizer {
         this.newIPNameInput = document.getElementById('newIPName');
         this.addIPBtn = document.getElementById('addIPBtn');
         this.savedIPsList = document.getElementById('savedIPsList');
-        
+
         // Amplifiers container
         this.amplifiersContainer = document.getElementById('amplifiersContainer');
         this.noAmplifiersMessage = document.getElementById('noAmplifiersMessage');
-        
+
         // Error toast
         this.errorToast = document.getElementById('errorToast');
         this.errorMessage = document.getElementById('errorMessage');
-        
+
         // IP management
         this.savedIPs = [];
         this.currentIP = null;
@@ -59,21 +59,21 @@ class AudioVisualizer {
         this.manageIPsFromMenu.addEventListener('click', () => this.openIPModal());
         this.closeModal.addEventListener('click', () => this.closeIPModal());
         this.addIPBtn.addEventListener('click', () => this.addNewIP());
-        
+
         // Close modal when clicking outside
         window.addEventListener('click', (e) => {
             if (e.target === this.ipModal) {
                 this.closeIPModal();
             }
         });
-        
+
         // Allow Enter key to add IP
         this.newIPInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 this.addNewIP();
             }
         });
-        
+
         this.newIPNameInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 this.addNewIP();
@@ -84,23 +84,23 @@ class AudioVisualizer {
     connectWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}`;
-        
+
         console.log(`Connecting to WebSocket at ${wsUrl}`);
-        
+
         this.ws = new WebSocket(wsUrl);
-        
+
         this.ws.onopen = () => {
             console.log('WebSocket connected');
             this.reconnectAttempts = 0;
             this.lastStatusUpdate = Date.now();
             this.loadIPs(); // Load IPs when WebSocket connects
         };
-        
+
         this.ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
                 this.handleMessage(data);
-                
+
                 // Update last status update timestamp for monitoring
                 if (data.type === 'status') {
                     this.lastStatusUpdate = Date.now();
@@ -109,11 +109,11 @@ class AudioVisualizer {
                 console.error('Failed to parse WebSocket message:', err);
             }
         };
-        
+
         this.ws.onclose = () => {
             console.log('WebSocket disconnected');
             this.ws = null;
-            
+
             // Attempt to reconnect
             if (this.reconnectAttempts < this.maxReconnectAttempts) {
                 this.reconnectAttempts++;
@@ -123,7 +123,7 @@ class AudioVisualizer {
                 this.showError('Lost connection to server. Please refresh the page.');
             }
         };
-        
+
         this.ws.onerror = (err) => {
             console.error('WebSocket error:', err);
             this.showError('WebSocket connection error');
@@ -135,7 +135,7 @@ class AudioVisualizer {
         this.connectionStatusCheckInterval = setInterval(() => {
             const now = Date.now();
             const timeSinceLastUpdate = now - this.lastStatusUpdate;
-            
+
             // Only show warning if we're supposed to be connected but haven't received updates for 20 seconds
             if (timeSinceLastUpdate > 20000 && this.isConnected) {
                 if (!this.statusIndicator.classList.contains('warning')) {
@@ -163,7 +163,7 @@ class AudioVisualizer {
             case 'status':
                 this.connectedIPs = data.connectedIPs || [];
                 this.updateConnectionStatus(data.connected);
-                
+
                 // Auto-create panels for newly connected amplifiers
                 if (data.connected && this.connectedIPs.length > 0) {
                     this.connectedIPs.forEach(ip => {
@@ -197,12 +197,12 @@ class AudioVisualizer {
 
     updateConnectionStatus(connected) {
         this.isConnected = connected;
-        
+
         if (connected) {
             this.statusIndicator.classList.remove('disconnected', 'warning');
             this.statusIndicator.classList.add('connected');
             this.statusText.textContent = `Connected to ${this.amplifierPanels.size} amplifier(s)`;
-            
+
             // Clear any warning state when we get a status update
             this.statusIndicator.classList.remove('warning');
         } else {
@@ -218,7 +218,7 @@ class AudioVisualizer {
         panel.className = 'amplifier-panel';
         panel.id = panelId;
         panel.dataset.ip = ip;
-        
+
         panel.innerHTML = `
             <div class="amplifier-header">
                 <div class="amplifier-info">
@@ -247,14 +247,14 @@ class AudioVisualizer {
                 </div>
             </div>
         `;
-        
+
         // Add close button event listener
         const closeBtn = panel.querySelector('.close-panel-btn-top-right');
         closeBtn.addEventListener('click', () => this.removeAmplifierPanel(ip));
-        
+
         // Store panel reference
         this.amplifierPanels.set(ip, panel);
-        
+
         // Store amplifier data
         this.activeAmplifiers.set(ip, {
             ip: ip,
@@ -262,7 +262,7 @@ class AudioVisualizer {
             meters: {},
             info: {}
         });
-        
+
         // Initialize meter references
         const amplifierData = this.activeAmplifiers.get(ip);
         for (let i = 1; i <= 4; i++) {
@@ -279,226 +279,185 @@ class AudioVisualizer {
                 dbDisplay: null // Output channels don't have dB displays in compact mode
             };
         }
-        
+
         return panel;
     }
 
-handleMessage(data) {
-    switch (data.type) {
-        case 'status':
-            this.connectedIPs = data.connectedIPs || [];
-            this.updateConnectionStatus(data.connected);
-            
-            // Auto-create panels for newly connected amplifiers
-            if (data.connected && this.connectedIPs.length > 0) {
-                this.connectedIPs.forEach(ip => {
-                    const savedIP = this.savedIPs.find(savedIP => savedIP.ip === ip);
-                    if (savedIP && !this.amplifierPanels.has(ip)) {
-                        this.addAmplifierPanel(ip, savedIP.name || ip);
-                    }
-                });
-            }
-            break;
-        case 'audioData':
-            this.updateMeter(data.amplifierIP, data.channelType, data.channelId, data.db);
-            break;
-        case 'muteStatus':
-            this.updateMuteStatus(data.amplifierIP, data.channelType, data.channelId, data.muted);
-            break;
-        case 'temperature':
-            this.updateTemperature(data.amplifierIP, data.temperature);
-            break;
-        case 'amplifierInfo':
-            this.updateAmplifierInfo(data.amplifierIP, data.info);
-            break;
-        case 'limiterStatus':
-            this.updateLimiterStatus(data.amplifierIP, data.channelType, data.channelId, data.isLimiting);
-            break;
-        case 'error':
-            this.showError(data.message);
-            break;
-    }
-}
+    handleMessage(data) {
+        switch (data.type) {
+            case 'status':
+                this.connectedIPs = data.connectedIPs || [];
+                this.updateConnectionStatus(data.connected);
 
-updateConnectionStatus(connected) {
-    this.isConnected = connected;
-    
-    if (connected) {
-        this.statusIndicator.classList.remove('disconnected', 'warning');
-        this.statusIndicator.classList.add('connected');
-        this.statusText.textContent = `Connected to ${this.amplifierPanels.size} amplifier(s)`;
-        
-        // Clear any warning state when we get a status update
-        this.statusIndicator.classList.remove('warning');
-    } else {
-        this.statusIndicator.classList.remove('connected', 'warning');
-        this.statusIndicator.classList.add('disconnected');
-        this.statusText.textContent = 'Disconnected';
+                // Auto-create panels for newly connected amplifiers
+                if (data.connected && this.connectedIPs.length > 0) {
+                    this.connectedIPs.forEach(ip => {
+                        const savedIP = this.savedIPs.find(savedIP => savedIP.ip === ip);
+                        if (savedIP && !this.amplifierPanels.has(ip)) {
+                            this.addAmplifierPanel(ip, savedIP.name || ip);
+                        }
+                    });
+                }
+                break;
+            case 'audioData':
+                this.updateMeter(data.amplifierIP, data.channelType, data.channelId, data.db);
+                break;
+            case 'muteStatus':
+                this.updateMuteStatus(data.amplifierIP, data.channelType, data.channelId, data.muted);
+                break;
+            case 'temperature':
+                this.updateTemperature(data.amplifierIP, data.temperature);
+                break;
+            case 'amplifierInfo':
+                this.updateAmplifierInfo(data.amplifierIP, data.info);
+                break;
+            case 'limiterStatus':
+                this.updateLimiterStatus(data.amplifierIP, data.channelType, data.channelId, data.isLimiting);
+                break;
+            case 'error':
+                this.showError(data.message);
+                break;
+        }
     }
-}
 
-createAmplifierPanel(ip, name) {
-    const panelId = `panel-${ip.replace(/\./g, '-')}`;
-    const panel = document.createElement('div');
-    panel.className = 'amplifier-panel';
-    panel.id = panelId;
-    panel.dataset.ip = ip;
-    
-    panel.innerHTML = `
-        <div class="amplifier-header">
-            <div class="amplifier-info">
-                <h3 class="amplifier-name">${name || ip}</h3>
-                <div class="amplifier-details">
-                    <span class="amplifier-ip">Control IP: ${ip}</span>
-                    <span class="amplifier-temperature" id="temperature-${panelId}">--°C</span>
+    updateConnectionStatus(connected) {
+        this.isConnected = connected;
+
+        if (connected) {
+            this.statusIndicator.classList.remove('disconnected', 'warning');
+            this.statusIndicator.classList.add('connected');
+            this.statusText.textContent = `Connected to ${this.amplifierPanels.size} amplifier(s)`;
+
+            // Clear any warning state when we get a status update
+            this.statusIndicator.classList.remove('warning');
+        } else {
+            this.statusIndicator.classList.remove('connected', 'warning');
+            this.statusIndicator.classList.add('disconnected');
+            this.statusText.textContent = 'Disconnected';
+        }
+    }
+
+    createAmplifierPanel(ip, name) {
+        const panelId = `panel-${ip.replace(/\./g, '-')}`;
+        const panel = document.createElement('div');
+        panel.className = 'amplifier-panel ultra-compact';
+        panel.id = panelId;
+        panel.dataset.ip = ip;
+
+        panel.innerHTML = `
+        <div class="uc-header">
+            <div class="uc-info">
+                <h3 class="uc-name">${name || ip}</h3>
+                <div class="uc-details">
+                    <span class="uc-ip">IP: ${ip}</span>
+                    <span class="uc-temp" id="temperature-${panelId}">--°C</span>
                 </div>
             </div>
-            <button class="close-panel-btn-top-right" data-ip="${ip}">×</button>
+            <button class="close-panel-btn" data-ip="${ip}">×</button>
         </div>
         
-        <div class="amplifier-channels">
-            <div class="channels-section">
-                <h4>Inputs</h4>
-                <div class="channels-grid input-channels">
+        <div class="uc-channels">
+            <div class="uc-inputs">
+                <span class="uc-label">IN</span>
+                <div class="uc-meters-container">
                     ${this.createChannelMeters('input', ip, 4)}
                 </div>
             </div>
             
-            <div class="channels-section">
-                <h4>Outputs</h4>
-                <div class="channels-grid output-channels">
+            <div class="uc-outputs">
+                <span class="uc-label">OUT</span>
+                <div class="uc-meters-container">
                     ${this.createChannelMeters('output', ip, 4)}
                 </div>
             </div>
         </div>
     `;
-    
-    // Add close button event listener
-    const closeBtn = panel.querySelector('.close-panel-btn-top-right');
-    closeBtn.addEventListener('click', () => this.removeAmplifierPanel(ip));
-    
-    // Store panel reference
-    this.amplifierPanels.set(ip, panel);
-    
-    // Store amplifier data
-    this.activeAmplifiers.set(ip, {
-        ip: ip,
-        name: name || ip,
-        meters: {},
-        info: {}
-    });
-    
-    // Initialize meter references
-    const amplifierData = this.activeAmplifiers.get(ip);
-    for (let i = 1; i <= 4; i++) {
-        amplifierData.meters[`input-${i}`] = {
-            bar: null, // Input channels don't have VU bars
-            segments: null,
-            dbDisplay: null // Input channels don't have dB displays
-        };
-    }
-    for (let i = 1; i <= 4; i++) {
-        amplifierData.meters[`output-${i}`] = {
-            bar: panel.querySelector(`#output-${i}-${panelId}-bar`),
-            segments: null, // Will be set after DOM is ready
-            dbDisplay: null // Output channels don't have dB displays in compact mode
-        };
-    }
-    
-    return panel;
-}
 
-createChannelMeters(type, ip, count) {
-    const panelId = `panel-${ip.replace(/\./g, '-')}`;
-    let meters = '';
-    
-    for (let i = 1; i <= count; i++) {
-        if (type === 'input') {
-            // Compact input channels - only clip indicator and mute button
-            meters += `
-                <div class="meter-container input-compact" data-channel="${type}-${i}" data-amplifier="${ip}">
-                    <div class="limiter-light-container">
-                        <div class="limiter-light" id="${type}-${i}-${panelId}-limiter" title="Clip">
-                            <div class="limiter-led"></div>
-                        </div>
-                        <div class="limiter-label">CLIP</div>
-                    </div>
-                    <div class="meter-label">IN ${i}</div>
-                    <button class="channel-mute-btn" data-channel="${type}-${i}" data-amplifier="${ip}" disabled>
-                        <span class="mute-icon">🔊</span>
-                    </button>
-                </div>
-            `;
-        } else {
-            // Compact output channels - smaller VU meter
-            meters += `
-                <div class="meter-container output-compact" data-channel="${type}-${i}" data-amplifier="${ip}">
-                    <div class="vu-meter compact">
-                        <div class="vu-bar-container">
-                            <div class="vu-bar compact" id="${type}-${i}-${panelId}-bar">
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment green"></div>
-                                <div class="vu-segment yellow"></div>
-                                <div class="vu-segment yellow"></div>
-                                <div class="vu-segment yellow"></div>
-                                <div class="vu-segment yellow"></div>
-                                <div class="vu-segment yellow"></div>
-                                <div class="vu-segment yellow"></div>
-                                <div class="vu-segment yellow"></div>
-                                <div class="vu-segment red"></div>
-                                <div class="vu-segment red"></div>
-                                <div class="vu-segment red"></div>
-                                <div class="vu-segment red"></div>
-                            </div>
-                        </div>
-                        <div class="limiter-light-container">
-                            <div class="limiter-light" id="${type}-${i}-${panelId}-limiter" title="Limiter">
-                                <div class="limiter-led"></div>
-                            </div>
-                            <div class="limiter-label">LIMIT</div>
-                        </div>
-                    </div>
-                    <div class="meter-label">OUT ${i}</div>
-                    <button class="channel-mute-btn" data-channel="${type}-${i}" data-amplifier="${ip}" disabled>
-                        <span class="mute-icon">🔊</span>
-                    </button>
-                </div>
-            `;
+        // Add close button event listener
+        const closeBtn = panel.querySelector('.close-panel-btn');
+        closeBtn.addEventListener('click', () => this.removeAmplifierPanel(ip));
+
+        // Store panel reference
+        this.amplifierPanels.set(ip, panel);
+
+        // Store amplifier data
+        this.activeAmplifiers.set(ip, {
+            ip: ip,
+            name: name || ip,
+            meters: {},
+            info: {}
+        });
+
+        // Initialize meter references
+        const amplifierData = this.activeAmplifiers.get(ip);
+        for (let i = 1; i <= 4; i++) {
+            amplifierData.meters[`input-${i}`] = {
+                bar: null, // Input channels don't have VU bars
+                segments: null,
+                dbDisplay: null // Input channels don't have dB displays
+            };
         }
-    }
-    
-    return meters;
-}
+        for (let i = 1; i <= 4; i++) {
+            amplifierData.meters[`output-${i}`] = {
+                bar: panel.querySelector(`#output-${i}-${panelId}-bar`),
+                segments: null, // Will be set after DOM is ready
+                dbDisplay: null // Output channels don't have dB displays in compact mode
+            };
+        }
 
-addAmplifierPanel(ip, name) {
+        return panel;
+    }
+
+    createChannelMeters(type, ip, count) {
+        const panelId = `panel-${ip.replace(/\./g, '-')}`;
+        let meters = '';
+
+        for (let i = 1; i <= count; i++) {
+            if (type === 'input') {
+                meters += `
+                <div class="uc-meter-box" data-channel="${type}-${i}" data-amplifier="${ip}">
+                    <div class="uc-meter-top">
+                        <span class="uc-ch-label">${i}</span>
+                        <div class="uc-led" id="${type}-${i}-${panelId}-limiter" title="Clip"></div>
+                    </div>
+                    <button class="uc-mute-btn mute-icon" data-channel="${type}-${i}" data-amplifier="${ip}">🔊</button>
+                </div>
+            `;
+            } else {
+                meters += `
+                <div class="uc-meter-box" data-channel="${type}-${i}" data-amplifier="${ip}">
+                    <div class="uc-meter-top">
+                        <span class="uc-ch-label">${i}</span>
+                        <div class="uc-led" id="${type}-${i}-${panelId}-limiter" title="Limit"></div>
+                    </div>
+                    <div class="uc-vu-bar" id="${type}-${i}-${panelId}-bar">
+                        ${Array(24).fill('<div class="vu-segment"></div>').join('')}
+                    </div>
+                    <button class="uc-mute-btn mute-icon" data-channel="${type}-${i}" data-amplifier="${ip}">🔊</button>
+                </div>
+            `;
+            }
+        }
+
+        return meters;
+    }
+
+    addAmplifierPanel(ip, name) {
         // Check if panel already exists
         if (this.amplifierPanels.has(ip)) {
             this.showError('Amplifier is already being displayed');
             return;
         }
-        
+
         // Hide no amplifiers message
         if (this.noAmplifiersMessage) {
             this.noAmplifiersMessage.style.display = 'none';
         }
-        
+
         // Create and add panel
         const panel = this.createAmplifierPanel(ip, name);
         this.amplifiersContainer.appendChild(panel);
-        
+
         // Request connection to this amplifier
         this.connectToAmplifier(ip);
     }
@@ -509,17 +468,17 @@ addAmplifierPanel(ip, name) {
             panel.remove();
             this.amplifierPanels.delete(ip);
             this.activeAmplifiers.delete(ip);
-            
+
             // Reset external app flag if no amplifiers are active (user likely closed external app too)
             if (this.amplifierPanels.size === 0) {
                 this.externalAppOpened = false;
             }
-            
+
             // Show no amplifiers message if no panels left
             if (this.amplifierPanels.size === 0 && this.noAmplifiersMessage) {
                 this.noAmplifiersMessage.style.display = 'block';
             }
-            
+
             // Disconnect from this amplifier
             this.disconnectFromAmplifier(ip);
         }
@@ -534,15 +493,15 @@ addAmplifierPanel(ip, name) {
                 },
                 body: JSON.stringify({ ip })
             });
-            
+
             const result = await response.json();
-            
+
             if (!response.ok) {
                 throw new Error(result.error || 'Failed to connect to amplifier');
             }
-            
+
             console.log(`✅ Connected to amplifier ${ip}`);
-            
+
         } catch (err) {
             console.error('❌ Failed to connect to amplifier:', err);
             this.showError(err.message);
@@ -558,15 +517,15 @@ addAmplifierPanel(ip, name) {
                 },
                 body: JSON.stringify({ ip })
             });
-            
+
             const result = await response.json();
-            
+
             if (!response.ok) {
                 throw new Error(result.error || 'Failed to disconnect from amplifier');
             }
-            
+
             console.log(`✅ Disconnected from amplifier ${ip}`);
-            
+
         } catch (err) {
             console.error('❌ Failed to disconnect from amplifier:', err);
         }
@@ -579,10 +538,10 @@ addAmplifierPanel(ip, name) {
                 this.showError('External app is already open. Close all amplifier panels to reset.');
                 return;
             }
-            
+
             // Mark that the external app has been opened
             this.externalAppOpened = true;
-            
+
             // Call the backend to open the external app (using existing endpoint)
             const response = await fetch('/api/open-external-app', {
                 method: 'POST',
@@ -591,18 +550,18 @@ addAmplifierPanel(ip, name) {
                 },
                 body: JSON.stringify({ ip })
             });
-            
+
             const result = await response.json();
-            
+
             if (!response.ok) {
                 throw new Error(result.error || 'Failed to open auto script');
             }
-            
+
             console.log(`✅ Auto script opened for amplifier ${ip}`);
-            
+
             // Update all auto script buttons to show opened state
             this.updateAutoScriptButtons();
-            
+
         } catch (err) {
             console.error('❌ Failed to open auto script:', err);
             this.showError(err.message);
@@ -640,15 +599,15 @@ addAmplifierPanel(ip, name) {
         if (!amplifierData) {
             return;
         }
-        
+
         const channelKey = `${channelType}-${channelId}`;
         const meter = amplifierData.meters[channelKey];
-        
+
         if (!meter) {
             console.error(`Unknown channel: ${channelKey} for amplifier ${amplifierIP}`);
             return;
         }
-        
+
         // Update VU meter only for output channels (input channels don't have VU meters in compact mode)
         if (channelType === 'output' && meter.bar) {
             const segments = meter.bar.querySelectorAll('.vu-segment');
@@ -656,17 +615,17 @@ addAmplifierPanel(ip, name) {
                 // Initialize segments if not already done
                 meter.segments = meter.bar.querySelectorAll('.vu-segment');
             }
-            
+
             const clampedDb = Math.max(0, Math.min(120, dbValue));
             const segmentArray = meter.segments || segments;
-            
+
             // Calculate how many segments should be lit based on dB value
             // 24-segment VU meter mapping: 0dB to +120dB (bottom to top)
             // Segments 0-15 (Green): 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75
             // Segments 16-19 (Yellow): 80, 85, 90, 95
             // Segments 20-23 (Red): 100, 105, 110, 120
             const segmentThresholds = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 120];
-            
+
             let litSegments = 0;
             segmentArray.forEach((segment, index) => {
                 const threshold = segmentThresholds[index];
@@ -678,13 +637,13 @@ addAmplifierPanel(ip, name) {
                 }
             });
         }
-        
+
         // dB value displays have been removed from compact interface
     }
 
     updateMeterColor(fillElement, dbValue) {
         let color;
-        
+
         if (dbValue >= 100) {
             // Red for critical (+100dB and above)
             color = '#f44336';
@@ -695,7 +654,6 @@ addAmplifierPanel(ip, name) {
             // Green for normal (0dB to +79dB)
             color = '#4CAF50';
         }
-        
         fillElement.style.background = `linear-gradient(to top, ${color} 0%, ${color} 100%)`;
     }
 
@@ -704,18 +662,17 @@ addAmplifierPanel(ip, name) {
         if (!panel) {
             return;
         }
-        
+
         const channelKey = `${channelType}-${channelId}`;
-        const button = panel.querySelector(`[data-channel="${channelKey}"][data-amplifier="${amplifierIP}"]`);
-        
+        const button = panel.querySelector(`[data-channel="${channelKey}"][data-amplifier="${amplifierIP}"] .uc-mute-btn`) || panel.querySelector(`.uc-mute-btn[data-channel="${channelKey}"]`);
+
         if (button) {
-            const icon = button.querySelector('.mute-icon');
             if (isMuted) {
                 button.classList.add('muted');
-                icon.textContent = '🔇';
+                button.textContent = '🔇';
             } else {
                 button.classList.remove('muted');
-                icon.textContent = '🔊';
+                button.textContent = '🔊';
             }
         }
     }
@@ -725,14 +682,14 @@ addAmplifierPanel(ip, name) {
         if (!panel) {
             return;
         }
-        
+
         const panelId = `panel-${amplifierIP.replace(/\./g, '-')}`;
         const limiterLight = panel.querySelector(`#${channelType}-${channelId}-${panelId}-limiter`);
-        
+
         if (limiterLight) {
             // Remove both classes first
             limiterLight.classList.remove('active', 'clip-active');
-            
+
             if (isLimiting) {
                 // Use different classes for input vs output
                 if (channelType === 'input') {
@@ -749,18 +706,18 @@ addAmplifierPanel(ip, name) {
         if (!panel) {
             return;
         }
-        
+
         const panelId = `panel-${amplifierIP.replace(/\./g, '-')}`;
         const tempElement = panel.querySelector(`#temperature-${panelId}`);
-        
+
         if (tempElement) {
             // Format temperature to 1 decimal place
             const tempText = `${temperature.toFixed(1)}°C`;
             tempElement.textContent = tempText;
-            
+
             // Apply color coding based on temperature thresholds
             tempElement.classList.remove('temp-normal', 'temp-warning', 'temp-critical');
-            
+
             if (temperature >= 70) {
                 tempElement.classList.add('temp-critical');
             } else if (temperature >= 50) {
@@ -774,21 +731,21 @@ addAmplifierPanel(ip, name) {
     updateAmplifierInfo(amplifierIP, info) {
         const amplifierData = this.activeAmplifiers.get(amplifierIP);
         const panel = this.amplifierPanels.get(amplifierIP);
-        
+
         if (!amplifierData || !panel) {
             return;
         }
-        
+
         // Update stored info
         amplifierData.info = info;
-        
+
         // Update display
         const modelElement = panel.querySelector('.amplifier-model');
         const presetElement = panel.querySelector('.amplifier-preset');
         const dataIPElement = panel.querySelector('.amplifier-data-ip');
         const volumeElement = panel.querySelector('.volume-value');
         const startStopBtn = panel.querySelector('.start-stop-btn');
-        
+
         if (modelElement) modelElement.textContent = `Model: ${info.model || '--'}`;
         if (presetElement) presetElement.textContent = `Default Preset: ${info.preset || '--'}`;
         if (dataIPElement) dataIPElement.textContent = `IP: ${info.dataIP || '--'}`;
@@ -800,13 +757,13 @@ addAmplifierPanel(ip, name) {
         try {
             const response = await fetch('/api/ips');
             const result = await response.json();
-            
+
             if (response.ok) {
                 this.savedIPs = result.ips || [];
                 this.connectedIPs = result.connectedIPs || [];
                 this.updateConnectionStatus(this.connectedIPs.length > 0);
                 this.renderIPCards();
-                
+
                 // Automatically create panels for connected amplifiers
                 this.connectedIPs.forEach(ip => {
                     const savedIP = this.savedIPs.find(savedIP => savedIP.ip === ip);
@@ -834,21 +791,21 @@ addAmplifierPanel(ip, name) {
     async addNewIP() {
         const ip = this.newIPInput.value.trim();
         const name = this.newIPNameInput.value.trim();
-        
+
         if (!ip) {
             this.showError('IP address is required');
             return;
         }
-        
+
         if (!this.isValidIP(ip)) {
             this.showError('Invalid IP address format');
             return;
         }
-        
+
         try {
             this.addIPBtn.disabled = true;
             this.addIPBtn.textContent = 'Adding...';
-            
+
             const response = await fetch('/api/ips', {
                 method: 'POST',
                 headers: {
@@ -856,18 +813,18 @@ addAmplifierPanel(ip, name) {
                 },
                 body: JSON.stringify({ ip, name })
             });
-            
+
             const result = await response.json();
-            
+
             if (!response.ok) {
                 throw new Error(result.error || 'Failed to add IP');
             }
-            
+
             this.newIPInput.value = '';
             this.newIPNameInput.value = '';
             this.loadSavedIPs();
             this.loadIPs();
-            
+
         } catch (err) {
             this.showError(err.message);
         } finally {
@@ -880,7 +837,7 @@ addAmplifierPanel(ip, name) {
         try {
             const response = await fetch('/api/ips');
             const result = await response.json();
-            
+
             if (response.ok) {
                 this.savedIPs = result.ips || [];
                 this.renderSavedIPs();
@@ -892,19 +849,19 @@ addAmplifierPanel(ip, name) {
 
     renderSavedIPs() {
         this.savedIPsList.innerHTML = '';
-        
+
         if (this.savedIPs.length === 0) {
             this.savedIPsList.innerHTML = '<div class="no-ips">No saved IP addresses</div>';
             return;
         }
-        
+
         this.savedIPs.forEach(ip => {
             const ipItem = document.createElement('div');
             ipItem.className = 'ip-item';
             if (ip.ip === this.currentIP) {
                 ipItem.classList.add('current-ip');
             }
-            
+
             ipItem.innerHTML = `
                 <div class="ip-info">
                     <div class="ip-name">${ip.name || ip.ip}</div>
@@ -914,10 +871,10 @@ addAmplifierPanel(ip, name) {
                     <button class="delete-btn" data-id="${ip.id}">Delete</button>
                 </div>
             `;
-            
+
             this.savedIPsList.appendChild(ipItem);
         });
-        
+
         // Add delete event listeners
         this.savedIPsList.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -931,21 +888,21 @@ addAmplifierPanel(ip, name) {
         if (!confirm('Are you sure you want to delete this IP address?')) {
             return;
         }
-        
+
         try {
             const response = await fetch(`/api/ips/${id}`, {
                 method: 'DELETE'
             });
-            
+
             const result = await response.json();
-            
+
             if (!response.ok) {
                 throw new Error(result.error || 'Failed to delete IP');
             }
-            
+
             this.loadSavedIPs();
             this.loadIPs();
-            
+
         } catch (err) {
             this.showError(err.message);
         }
@@ -958,24 +915,24 @@ addAmplifierPanel(ip, name) {
 
     renderIPCards() {
         this.ipCardsList.innerHTML = '';
-        
+
         if (this.savedIPs.length === 0) {
             this.ipCardsList.innerHTML = '<div class="no-ips">No saved amplifiers</div>';
             return;
         }
-        
+
         this.savedIPs.forEach(ip => {
             const ipCard = document.createElement('div');
             ipCard.className = 'ip-card';
             if (this.amplifierPanels.has(ip.ip)) {
                 ipCard.classList.add('active');
             }
-            
+
             const isConnected = this.connectedIPs && this.connectedIPs.includes(ip.ip);
             if (isConnected) {
                 ipCard.classList.add('connected');
             }
-            
+
             ipCard.innerHTML = `
                 <div class="ip-card-header">
                     <div class="ip-card-name">${ip.name || ip.ip}</div>
@@ -983,7 +940,7 @@ addAmplifierPanel(ip, name) {
                 </div>
                 <div class="ip-card-ip">${ip.ip}</div>
             `;
-            
+
             ipCard.addEventListener('click', () => this.addAmplifierPanel(ip.ip, ip.name || ip.ip));
             this.ipCardsList.appendChild(ipCard);
         });
@@ -992,7 +949,7 @@ addAmplifierPanel(ip, name) {
     showError(message) {
         this.errorMessage.textContent = message;
         this.errorToast.classList.add('show');
-        
+
         // Auto-hide after 5 seconds
         setTimeout(() => {
             this.hideError();
