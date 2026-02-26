@@ -4,7 +4,8 @@
     box-sizing: border-box;
 }
 
-*html, body {
+*html,
+body {
     height: 100vh;
     width: 100vw;
     margin: 0;
@@ -19,7 +20,7 @@ body {
     display: flex;
     flex-direction: row;
     overflow: hidden;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 /* Sidebar Styles */
@@ -144,10 +145,10 @@ body {
     border-radius: 12px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 8px;
+    padding: 10px;
     box-sizing: border-box;
     flex: 1;
     min-width: 0;
@@ -160,39 +161,43 @@ body {
     .sidebar {
         width: 240px;
     }
-    
+
     .container {
         margin-left: 240px;
         max-width: calc(100vw - 240px);
         height: 100vh;
     }
-    
+
     main {
         height: calc(100vh - 120px);
     }
 }
 
 header {
-    text-align: center;
-    padding: 20px;
+    text-align: left;
+    padding: 10px 20px;
     flex-shrink: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 300;
-    margin-bottom: 15px;
+    margin-bottom: 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .connection-panel {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     gap: 15px;
     background: rgba(51, 65, 85, 0.3);
-    padding: 15px;
-    border-radius: 12px;
+    padding: 10px 15px;
+    border-radius: 8px;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(148, 163, 184, 0.2);
 }
@@ -306,11 +311,13 @@ h1 {
     padding: 20px;
 }
 
-.add-ip-section, .saved-ips-section {
+.add-ip-section,
+.saved-ips-section {
     margin-bottom: 25px;
 }
 
-.add-ip-section h4, .saved-ips-section h4 {
+.add-ip-section h4,
+.saved-ips-section h4 {
     margin-bottom: 15px;
     font-weight: 400;
     color: #e2e8f0;
@@ -444,9 +451,11 @@ h1 {
     0% {
         box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
     }
+
     50% {
         box-shadow: 0 0 15px rgba(255, 193, 7, 0.8);
     }
+
     100% {
         box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
     }
@@ -595,9 +604,11 @@ button:disabled {
     0% {
         box-shadow: 0 0 15px rgba(244, 67, 54, 0.4);
     }
+
     50% {
         box-shadow: 0 0 25px rgba(244, 67, 54, 0.6);
     }
+
     100% {
         box-shadow: 0 0 15px rgba(244, 67, 54, 0.4);
     }
@@ -714,12 +725,14 @@ button:disabled {
 main {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
     flex: 1;
     overflow-y: auto;
-    padding: 0 8px;
-    align-items: center;
-    height: calc(100vh - 120px);
+    overflow-x: hidden;
+    padding: 0;
+    align-items: flex-start;
+    height: calc(100vh - 80px);
+    width: 100%;
 }
 
 .meters-section {
@@ -900,6 +913,7 @@ main {
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -910,13 +924,13 @@ main {
     .meters-section {
         max-width: 1000px;
     }
-    
+
     .meters-grid {
         gap: 3px;
         padding: 0 1px;
         max-width: 900px;
     }
-    
+
     .meter-scale {
         font-size: 0.35rem;
         width: 16px;
@@ -927,39 +941,39 @@ main {
     .sidebar {
         width: 240px;
     }
-    
+
     .container {
         margin-left: 240px;
         max-width: calc(100vw - 240px);
         padding: 6px;
         height: 100vh;
     }
-    
+
     main {
         height: calc(100vh - 120px);
     }
-    
+
     .meters-section {
         max-width: 800px;
     }
-    
+
     .meters-grid {
         grid-template-columns: repeat(4, 1fr);
         gap: 3px;
         padding: 0 1px;
         max-width: 700px;
     }
-    
+
     .meter-container {
         min-height: 85px;
         padding: 3px;
     }
-    
+
     .meter-scale {
         font-size: 0.3rem;
         width: 14px;
     }
-    
+
     h1 {
         font-size: 1.5rem;
     }
@@ -969,47 +983,47 @@ main {
     .sidebar {
         width: 240px;
     }
-    
+
     .container {
         margin-left: 240px;
         max-width: calc(100vw - 240px);
         padding: 5px;
     }
-    
+
     .meters-section {
         max-width: 600px;
     }
-    
+
     h1 {
         font-size: 1.2rem;
     }
-    
+
     .meters-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 2px;
         padding: 0 1px;
         max-width: 500px;
     }
-    
+
     .meter-container {
         min-height: 80px;
         padding: 3px;
     }
-    
+
     .meter-scale {
         font-size: 0.25rem;
         width: 12px;
     }
-    
+
     .connection-panel {
         padding: 8px;
     }
-    
+
     .connection-controls {
         flex-direction: column;
         width: 100%;
     }
-    
+
     #amplifierIP {
         width: 100%;
     }
@@ -1019,43 +1033,43 @@ main {
     .sidebar {
         width: 200px;
     }
-    
+
     .container {
         margin-left: 200px;
         max-width: calc(100vw - 200px);
         padding: 4px;
         height: 100vh;
     }
-    
+
     main {
         height: calc(100vh - 120px);
     }
-    
+
     .meters-section {
         max-width: 400px;
     }
-    
+
     .meters-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 2px;
         padding: 0 1px;
         max-width: 350px;
     }
-    
+
     .meter-container {
         min-height: 70px;
         padding: 2px;
     }
-    
+
     .meter-scale {
         font-size: 0.2rem;
         width: 10px;
     }
-    
+
     h1 {
         font-size: 1rem;
     }
-    
+
     .meters-section h2 {
         font-size: 1.2rem;
     }
@@ -1214,34 +1228,40 @@ main {
 }
 
 .vu-bar.compact .vu-segment.green {
-    background: #87CEEB; /* Sky blue when inactive */
+    background: #87CEEB;
+    /* Sky blue when inactive */
     border: 1px solid #7AB8DD;
 }
 
 .vu-bar.compact .vu-segment.yellow {
-    background: #90EE90; /* Light green when inactive */
+    background: #90EE90;
+    /* Light green when inactive */
     border: 1px solid #7FDD7F;
 }
 
 .vu-bar.compact .vu-segment.red {
-    background: #8B4513; /* Dark brown when inactive */
+    background: #8B4513;
+    /* Dark brown when inactive */
     border: 1px solid #654321;
 }
 
 .vu-bar.compact .vu-segment.green.active {
-    background: #87CEEB; /* Sky blue when active */
+    background: #87CEEB;
+    /* Sky blue when active */
     opacity: 1;
     box-shadow: 0 0 4px rgba(135, 206, 235, 0.6);
 }
 
 .vu-bar.compact .vu-segment.yellow.active {
-    background: #90EE90; /* Bright green when active */
+    background: #90EE90;
+    /* Bright green when active */
     opacity: 1;
     box-shadow: 0 0 4px rgba(144, 238, 144, 0.6);
 }
 
 .vu-bar.compact .vu-segment.red.active {
-    background: #8B4513; /* Dark brown when active */
+    background: #8B4513;
+    /* Dark brown when active */
     opacity: 1;
     box-shadow: 0 0 4px rgba(139, 69, 19, 0.6);
 }
@@ -1258,6 +1278,7 @@ main {
 
 /* Responsive adjustments for compact meters */
 @media (max-width: 1200px) {
+
     .amplifier-panel .input-channels,
     .amplifier-panel .output-channels {
         grid-template-columns: repeat(2, 1fr);
@@ -1270,34 +1291,34 @@ main {
         height: 70px;
         padding: 4px;
     }
-    
+
     .meter-container.output-compact {
         min-height: 100px;
         height: 100px;
         padding: 4px;
     }
-    
+
     .vu-meter.compact {
         height: 70px;
         gap: 4px;
     }
-    
+
     .vu-bar.compact {
         width: 14px;
         gap: 0;
     }
-    
+
     .vu-bar.compact .vu-segment {
         height: 5px;
     }
-    
+
     .meter-container.input-compact .channel-mute-btn,
     .meter-container.output-compact .channel-mute-btn {
         width: 18px;
         height: 18px;
         font-size: 7px;
     }
-    
+
     .meter-container.input-compact .meter-label,
     .meter-container.output-compact .meter-label {
         font-size: 0.6rem;
@@ -1381,35 +1402,41 @@ main {
 }
 
 .vu-segment.red {
-    background: #8B4513; /* Dark brown when inactive */
+    background: #8B4513;
+    /* Dark brown when inactive */
     border: 1px solid #654321;
 }
 
 .vu-segment.yellow {
-    background: #90EE90; /* Light green when inactive */
+    background: #90EE90;
+    /* Light green when inactive */
     border: 1px solid #7FDD7F;
 }
 
 .vu-segment.green {
-    background: #87CEEB; /* Sky blue when inactive */
+    background: #87CEEB;
+    /* Sky blue when inactive */
     border: 1px solid #7AB8DD;
 }
 
 /* Active states for segments */
 .vu-segment.red.active {
-    background: #8B4513; /* Dark brown when active */
+    background: #8B4513;
+    /* Dark brown when active */
     opacity: 1;
     box-shadow: 0 0 4px rgba(139, 69, 19, 0.6);
 }
 
 .vu-segment.yellow.active {
-    background: #90EE90; /* Bright green when active */
+    background: #90EE90;
+    /* Bright green when active */
     opacity: 1;
     box-shadow: 0 0 4px rgba(144, 238, 144, 0.6);
 }
 
 .vu-segment.green.active {
-    background: #87CEEB; /* Sky blue when active */
+    background: #87CEEB;
+    /* Sky blue when active */
     opacity: 1;
     box-shadow: 0 0 4px rgba(135, 206, 235, 0.6);
 }
@@ -1487,36 +1514,38 @@ main {
 }
 
 .limiter-light.active .limiter-led {
-    background: #ff0000;
-    box-shadow: 0 0 8px #ff0000, inset 0 0 4px #ff6666;
+    background: #ffea00;
+    box-shadow: 0 0 8px #ffea00, inset 0 0 4px #ffff66;
     animation: limiterPulse 0.5s ease-in-out infinite alternate;
 }
 
 .limiter-light.clip-active .limiter-led {
-    background: #ff6600;
-    box-shadow: 0 0 8px #ff6600, inset 0 0 4px #ffaa66;
+    background: #ffea00;
+    box-shadow: 0 0 8px #ffea00, inset 0 0 4px #ffff66;
     animation: clipPulse 0.3s ease-in-out infinite alternate;
 }
 
 @keyframes limiterPulse {
     0% {
-        background: #ff0000;
-        box-shadow: 0 0 8px #ff0000, inset 0 0 4px #ff6666;
+        background: #ffea00;
+        box-shadow: 0 0 8px #ffea00, inset 0 0 4px #ffff66;
     }
+
     100% {
-        background: #ff3333;
-        box-shadow: 0 0 12px #ff0000, inset 0 0 6px #ff9999;
+        background: #ffd600;
+        box-shadow: 0 0 12px #ffea00, inset 0 0 6px #ffff99;
     }
 }
 
 @keyframes clipPulse {
     0% {
-        background: #ff6600;
-        box-shadow: 0 0 8px #ff6600, inset 0 0 4px #ffaa66;
+        background: #ffea00;
+        box-shadow: 0 0 8px #ffea00, inset 0 0 4px #ffff66;
     }
+
     100% {
-        background: #ff8833;
-        box-shadow: 0 0 12px #ff6600, inset 0 0 6px #ffcc99;
+        background: #ffee33;
+        box-shadow: 0 0 12px #ffea00, inset 0 0 6px #ffff99;
     }
 }
 
@@ -1529,14 +1558,14 @@ main {
     letter-spacing: 0.5px;
 }
 
-.limiter-light.active + .limiter-label {
-    color: #ff0000;
-    text-shadow: 0 0 4px #ff0000;
+.limiter-light.active+.limiter-label {
+    color: #ffea00;
+    text-shadow: 0 0 4px #ffea00;
 }
 
-.limiter-light.clip-active + .limiter-label {
-    color: #ff6600;
-    text-shadow: 0 0 4px #ff6600;
+.limiter-light.clip-active+.limiter-label {
+    color: #ffea00;
+    text-shadow: 0 0 4px #ffea00;
 }
 
 /* Update amplifier panel grid layout for vertical meters */
@@ -1551,6 +1580,7 @@ main {
 
 /* Responsive adjustments for vertical meters */
 @media (max-width: 1200px) {
+
     .amplifier-panel .input-channels,
     .amplifier-panel .output-channels {
         grid-template-columns: repeat(2, 1fr);
@@ -1562,39 +1592,39 @@ main {
         min-height: 180px;
         padding: 6px;
     }
-    
+
     .vu-meter {
         height: 140px;
     }
-    
+
     .vu-scale {
         font-size: 0.4rem;
         min-width: 18px;
     }
-    
+
     .scale-label {
         height: 6px;
     }
-    
+
     .vu-segment {
         height: 6px;
     }
-    
+
     .vu-bar {
         width: 16px;
         gap: 0;
     }
-    
+
     .meter-container.vertical .meter-label {
         font-size: 0.6rem;
     }
-    
+
     .meter-container.vertical .channel-mute-btn {
         width: 20px;
         height: 20px;
         font-size: 8px;
     }
-    
+
     .db-value-display {
         font-size: 0.7rem;
         min-width: 50px;
@@ -1692,6 +1722,7 @@ main {
 
 /* Responsive adjustments for compact meters */
 @media (max-width: 1200px) {
+
     .amplifier-panel .input-channels,
     .amplifier-panel .output-channels {
         grid-template-columns: repeat(2, 1fr);
@@ -1704,16 +1735,16 @@ main {
         height: 50px;
         padding: 6px;
     }
-    
+
     .compact-meter-value {
         font-size: 0.9rem;
         min-width: 45px;
     }
-    
+
     .compact-meter-label {
         font-size: 0.5rem;
     }
-    
+
     .compact-channel-mute-btn {
         width: 18px;
         height: 18px;
@@ -1723,17 +1754,16 @@ main {
 
 /* Amplifier Panels Layout */
 .amplifiers-container {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 20px;
-    overflow-x: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 10px;
+    padding: 10px;
+    overflow-x: hidden;
     overflow-y: auto;
-    height: calc(100vh - 200px);
+    height: 100%;
     align-items: flex-start;
-    max-height: calc(100vh - 200px);
     justify-content: flex-start;
+    width: 100%;
 }
 
 .no-amplifiers-message {
@@ -1749,6 +1779,7 @@ main {
     border: 2px dashed rgba(148, 163, 184, 0.3);
     min-width: 400px;
     margin: 20px auto;
+    grid-column: 1 / -1;
 }
 
 .no-amplifiers-message h3 {
@@ -1765,18 +1796,15 @@ main {
 .amplifier-panel {
     background: rgba(30, 41, 59, 0.8);
     border: 1px solid rgba(148, 163, 184, 0.2);
-    border-radius: 16px;
-    padding: 12px;
-    min-width: 500px;
-    max-width: 600px;
-    box-shadow: 0 8px 32px rgba(2, 6, 23, 0.4);
+    border-radius: 12px;
+    padding: 10px;
+    min-width: 0;
+    box-shadow: 0 4px 16px rgba(2, 6, 23, 0.4);
     backdrop-filter: blur(12px);
-    flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    height: calc(100vh - 280px);
-    max-height: calc(100vh - 280px);
+    gap: 8px;
+    height: auto;
     overflow: hidden;
 }
 
@@ -1796,10 +1824,10 @@ main {
     transition: all 0.2s ease;
 }
 
-    .close-panel-btn:hover {
-        background: #dc2626;
-        transform: scale(1.1);
-    }
+.close-panel-btn:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
 
 .amplifier-header {
     position: relative;
@@ -1873,9 +1901,11 @@ main {
     0% {
         box-shadow: 0 0 8px rgba(244, 67, 54, 0.4);
     }
+
     50% {
         box-shadow: 0 0 15px rgba(244, 67, 54, 0.6);
     }
+
     100% {
         box-shadow: 0 0 8px rgba(244, 67, 54, 0.4);
     }
@@ -2182,98 +2212,98 @@ main {
 
 @media (max-width: 1200px) {
     .amplifiers-container {
-        flex-direction: column;
-        align-items: center;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 350px), 1fr));
+        align-items: stretch;
     }
-    
+
     .amplifier-panel {
         min-width: 100%;
-        max-width: 700px;
+        max-width: 100%;
         width: 100%;
-        max-height: calc(100vh - 250px);
+        max-height: none;
     }
 }
 
 @media (max-width: 768px) {
     .amplifiers-container {
-        flex-direction: column;
-        align-items: center;
-        overflow-x: visible;
+        grid-template-columns: 1fr;
+        align-items: stretch;
+        overflow-x: hidden;
         overflow-y: auto;
         padding: 10px;
         gap: 15px;
-        height: calc(100vh - 180px);
-        max-height: calc(100vh - 180px);
+        height: 100%;
+        max-height: none;
     }
-    
+
     .amplifier-panel {
         min-width: 100%;
         max-width: 100%;
         width: 100%;
         padding: 10px;
-        height: calc(100vh - 250px);
-        max-height: calc(100vh - 250px);
+        height: auto;
+        max-height: none;
     }
-    
+
     .amplifier-channels {
         height: calc(100vh - 390px);
     }
-    
+
     .amplifier-panel .input-channels,
     .amplifier-panel .output-channels {
         grid-template-columns: repeat(2, 1fr);
         gap: 8px;
     }
-    
+
     .meter-container.vertical {
         min-height: 160px;
         padding: 6px;
     }
-    
+
     .vu-meter {
         height: 120px;
     }
-    
+
     .vu-scale {
         font-size: 0.4rem;
         min-width: 18px;
     }
-    
+
     .scale-label {
         height: 6px;
     }
-    
+
     .vu-segment {
         height: 6px;
     }
-    
+
     .vu-bar {
         width: 16px;
         gap: 0;
     }
-    
+
     .meter-container.vertical .meter-label {
         font-size: 0.6rem;
     }
-    
+
     .meter-container.vertical .channel-mute-btn {
         width: 20px;
         height: 20px;
         font-size: 8px;
     }
-    
+
     .amplifier-header {
         flex-direction: column;
         gap: 15px;
         align-items: stretch;
     }
-    
+
     .amplifier-controls {
         align-items: center;
         flex-direction: row;
         justify-content: space-between;
     }
-    
+
     .input-channels,
     .output-channels {
         display: grid;
@@ -2282,7 +2312,7 @@ main {
         flex: 1;
         min-height: 0;
     }
-    
+
     .no-amplifiers-message {
         min-width: auto;
         margin: 10px;
@@ -2297,61 +2327,61 @@ main {
         height: calc(100vh - 160px);
         max-height: calc(100vh - 160px);
     }
-    
+
     .amplifier-panel {
         padding: 8px;
         border-radius: 12px;
         height: calc(100vh - 230px);
         max-height: calc(100vh - 230px);
     }
-    
+
     .amplifier-channels {
         height: calc(100vh - 350px);
     }
-    
+
     .amplifier-panel .input-channels,
     .amplifier-panel .output-channels {
         grid-template-columns: repeat(1, 1fr);
         gap: 6px;
     }
-    
+
     .meter-container.vertical {
         min-height: 140px;
         padding: 4px;
     }
-    
+
     .vu-meter {
         height: 100px;
     }
-    
+
     .vu-scale {
         font-size: 0.35rem;
         min-width: 16px;
     }
-    
+
     .scale-label {
         height: 5px;
     }
-    
+
     .vu-segment {
         height: 5px;
     }
-    
+
     .vu-bar {
         width: 14px;
         gap: 0;
     }
-    
+
     .meter-container.vertical .meter-label {
         font-size: 0.5rem;
     }
-    
+
     .meter-container.vertical .channel-mute-btn {
         width: 18px;
         height: 18px;
         font-size: 7px;
     }
-    
+
     .db-value-display {
         font-size: 0.6rem;
         min-width: 45px;
@@ -2366,14 +2396,14 @@ main {
         height: calc(100vh - 160px);
         max-height: calc(100vh - 160px);
     }
-    
+
     .amplifier-panel {
         padding: 8px;
         border-radius: 12px;
         height: calc(100vh - 230px);
         max-height: calc(100vh - 230px);
     }
-    
+
     .amplifier-panel .meter-container {
         height: 16px;
         min-height: 14px;
@@ -2381,30 +2411,30 @@ main {
         min-width: 14px;
         padding: 1px;
     }
-    
+
     .amplifier-panel .meter-label {
         font-size: 0.35rem;
         padding: 0px 1px;
     }
-    
+
     .amplifier-panel .channel-mute-btn {
         width: 16px;
         height: 16px;
         font-size: 6px;
     }
-    
+
     .input-channels,
     .output-channels {
         grid-template-columns: 1fr;
         gap: 6px;
     }
-    
+
     .amplifier-panel .channel-mute-btn {
         width: 24px;
         height: 24px;
         font-size: 10px;
     }
-    
+
     .db-value-display {
         font-size: 0.5rem;
         min-width: 40px;
