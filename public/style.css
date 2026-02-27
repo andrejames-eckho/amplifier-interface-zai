@@ -1228,42 +1228,36 @@ main {
 }
 
 .vu-bar.compact .vu-segment.green {
-    background: #87CEEB;
-    /* Sky blue when inactive */
-    border: 1px solid #7AB8DD;
+    background: rgba(76, 175, 80, 0.2);
+    border: 1px solid rgba(76, 175, 80, 0.3);
 }
 
 .vu-bar.compact .vu-segment.yellow {
-    background: #90EE90;
-    /* Light green when inactive */
-    border: 1px solid #7FDD7F;
+    background: rgba(255, 152, 0, 0.2);
+    border: 1px solid rgba(255, 152, 0, 0.3);
 }
 
 .vu-bar.compact .vu-segment.red {
-    background: #8B4513;
-    /* Dark brown when inactive */
-    border: 1px solid #654321;
+    background: rgba(244, 67, 54, 0.2);
+    border: 1px solid rgba(244, 67, 54, 0.3);
 }
 
 .vu-bar.compact .vu-segment.green.active {
-    background: #87CEEB;
-    /* Sky blue when active */
+    background: #4CAF50;
     opacity: 1;
-    box-shadow: 0 0 4px rgba(135, 206, 235, 0.6);
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.8);
 }
 
 .vu-bar.compact .vu-segment.yellow.active {
-    background: #90EE90;
-    /* Bright green when active */
+    background: #FF9800;
     opacity: 1;
-    box-shadow: 0 0 4px rgba(144, 238, 144, 0.6);
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.8);
 }
 
 .vu-bar.compact .vu-segment.red.active {
-    background: #8B4513;
-    /* Dark brown when active */
+    background: #f44336;
     opacity: 1;
-    box-shadow: 0 0 4px rgba(139, 69, 19, 0.6);
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.8);
 }
 
 /* Update amplifier panel grid layout for compact meters */
@@ -1402,43 +1396,37 @@ main {
 }
 
 .vu-segment.red {
-    background: #8B4513;
-    /* Dark brown when inactive */
-    border: 1px solid #654321;
+    background: rgba(244, 67, 54, 0.2);
+    border: 1px solid rgba(244, 67, 54, 0.3);
 }
 
 .vu-segment.yellow {
-    background: #90EE90;
-    /* Light green when inactive */
-    border: 1px solid #7FDD7F;
+    background: rgba(255, 152, 0, 0.2);
+    border: 1px solid rgba(255, 152, 0, 0.3);
 }
 
 .vu-segment.green {
-    background: #87CEEB;
-    /* Sky blue when inactive */
-    border: 1px solid #7AB8DD;
+    background: rgba(76, 175, 80, 0.2);
+    border: 1px solid rgba(76, 175, 80, 0.3);
 }
 
 /* Active states for segments */
 .vu-segment.red.active {
-    background: #8B4513;
-    /* Dark brown when active */
+    background: #f44336;
     opacity: 1;
-    box-shadow: 0 0 4px rgba(139, 69, 19, 0.6);
+    box-shadow: 0 0 10px rgba(244, 67, 54, 0.8);
 }
 
 .vu-segment.yellow.active {
-    background: #90EE90;
-    /* Bright green when active */
+    background: #FF9800;
     opacity: 1;
-    box-shadow: 0 0 4px rgba(144, 238, 144, 0.6);
+    box-shadow: 0 0 10px rgba(255, 152, 0, 0.8);
 }
 
 .vu-segment.green.active {
-    background: #87CEEB;
-    /* Sky blue when active */
+    background: #4CAF50;
     opacity: 1;
-    box-shadow: 0 0 4px rgba(135, 206, 235, 0.6);
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
 }
 
 .meter-container.vertical .meter-label {
@@ -1956,38 +1944,44 @@ main {
 .vu-segment {
     width: 100%;
     flex: 1;
-    background: rgba(71, 85, 105, 0.3);
+    background: rgba(100, 116, 139, 0.4);
 }
 
 .vu-segment.active.green {
     background: #4CAF50;
-    box-shadow: 0 0 2px #4CAF50;
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
 }
 
 .vu-segment.active.yellow {
     background: #FF9800;
-    box-shadow: 0 0 2px #FF9800;
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(255, 152, 0, 0.8);
 }
 
 .vu-segment.active.red {
     background: #f44336;
-    box-shadow: 0 0 2px #f44336;
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(244, 67, 54, 0.8);
 }
 
 /* Handle segments without specific classes */
 .vu-segment.active:nth-child(-n+15) {
     background: #4CAF50;
-    box-shadow: 0 0 2px #4CAF50;
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
 }
 
 .vu-segment.active:nth-child(n+16):nth-child(-n+20) {
     background: #FF9800;
-    box-shadow: 0 0 2px #FF9800;
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(255, 152, 0, 0.8);
 }
 
 .vu-segment.active:nth-child(n+21) {
     background: #f44336;
-    box-shadow: 0 0 2px #f44336;
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(244, 67, 54, 0.8);
 }
 
 .uc-mute-btn {
