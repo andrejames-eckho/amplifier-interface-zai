@@ -39,6 +39,7 @@ class AudioVisualizer {
         this.newIPInput = document.getElementById('newIP');
         this.newIPNameInput = document.getElementById('newIPName');
         this.addIPBtn = document.getElementById('addIPBtn');
+        this.scanNetworkBtn = document.getElementById('scanNetworkBtn');
         this.savedIPsList = document.getElementById('savedIPsList');
 
         // Amplifiers container
@@ -59,6 +60,10 @@ class AudioVisualizer {
         this.manageIPsFromMenu.addEventListener('click', () => this.openIPModal());
         this.closeModal.addEventListener('click', () => this.closeIPModal());
         this.addIPBtn.addEventListener('click', () => this.addNewIP());
+
+        if (this.scanNetworkBtn) {
+            this.scanNetworkBtn.addEventListener('click', () => this.scanNetwork());
+        }
 
         // Close modal when clicking outside
         window.addEventListener('click', (e) => {
@@ -830,6 +835,85 @@ class AudioVisualizer {
         } finally {
             this.addIPBtn.disabled = false;
             this.addIPBtn.textContent = 'Add';
+        }
+    }
+
+    async scanNetwork() {
+        if (!this.scanNetworkBtn) return;
+
+        try {
+            // Update UI state
+            const originalText = this.scanNetworkBtn.textContent;
+            this.scanNetworkBtn.textContent = 'Scanning...';
+            this.scanNetworkBtn.disabled = true;
+            this.scanNetworkBtn.classList.add('scanning');
+
+            // Call the API
+            const response = await fetch('/api/scan-network');
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Network scan failed');
+            }
+
+            if (result.ips && result.ips.length > 0) {
+                let addedCount = 0;
+
+                // Add each discovered IP that isn't already saved
+                for (const ip of result.ips) {
+                    const isAlreadySaved = this.savedIPs.some(saved => saved.ip === ip);
+
+                    if (!isAlreadySaved) {
+                        // Automatically add the discovered IP
+                        const addResponse = await fetch('/api/ips', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                ip: ip,
+                                name: `NPA Amp (${ip.split('.').pop()})`
+                            })
+                        });
+
+                        if (addResponse.ok) {
+                            addedCount++;
+                        }
+                    }
+                }
+
+                if (addedCount > 0) {
+                    // Refresh the list if we added new IPs
+                    await this.loadIPs();
+                    this.loadSavedIPs();
+                    // Show a success message briefly
+                    this.scanNetworkBtn.textContent = `Added ${addedCount} device(s)!`;
+                    setTimeout(() => {
+                        this.scanNetworkBtn.textContent = originalText;
+                    }, 3000);
+                } else {
+                    this.scanNetworkBtn.textContent = 'No new devices found';
+                    setTimeout(() => {
+                        this.scanNetworkBtn.textContent = originalText;
+                    }, 3000);
+                }
+            } else {
+                this.scanNetworkBtn.textContent = 'No devices found';
+                setTimeout(() => {
+                    this.scanNetworkBtn.textContent = originalText;
+                }, 3000);
+            }
+        } catch (err) {
+            console.error('Network scan error:', err);
+            this.showError(err.message || 'Error scanning network');
+            this.scanNetworkBtn.textContent = 'Scan Failed';
+            setTimeout(() => {
+                this.scanNetworkBtn.textContent = 'Scan Network';
+            }, 3000);
+        } finally {
+            // Restore UI state
+            this.scanNetworkBtn.disabled = false;
+            this.scanNetworkBtn.classList.remove('scanning');
         }
     }
 

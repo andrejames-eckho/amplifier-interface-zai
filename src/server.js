@@ -4,6 +4,7 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const NPA43AClient = require('./amplifier-client');
+const networkScanner = require('./network-scanner');
 
 class AudioVisualizerServer {
     constructor(port = 8080) {
@@ -16,11 +17,11 @@ class AudioVisualizerServer {
         this.heartbeatInterval = null;
         this.ipStorageFile = path.join(__dirname, 'ip-addresses.json');
         this.savedIPs = this.loadIPAddresses();
-        
+
         // Amplifier storage - map of IP -> client
         this.amplifierClients = new Map();
         this.amplifierData = new Map(); // Map of IP -> amplifier data
-        
+
         this.setupExpress();
         this.setupWebSocket();
         this.startPeriodicStatusBroadcast();
@@ -51,11 +52,11 @@ class AudioVisualizerServer {
     setupExpress() {
         // Serve static files from public directory
         this.app.use(express.static(path.join(__dirname, '../public')));
-        
+
         // API endpoint to connect to amplifier
         this.app.post('/api/connect', express.json(), async (req, res) => {
             const { ip } = req.body;
-            
+
             if (!ip) {
                 return res.status(400).json({ error: 'IP address is required' });
             }
@@ -80,7 +81,7 @@ class AudioVisualizerServer {
         // API endpoint to add a new IP address
         this.app.post('/api/ips', express.json(), (req, res) => {
             const { ip, name } = req.body;
-            
+
             if (!ip) {
                 return res.status(400).json({ error: 'IP address is required' });
             }
@@ -105,9 +106,9 @@ class AudioVisualizerServer {
 
             this.savedIPs.push(newIP);
             this.saveIPAddresses();
-            
-            res.json({ 
-                success: true, 
+
+            res.json({
+                success: true,
                 message: 'IP address added successfully',
                 ip: newIP
             });
@@ -116,7 +117,7 @@ class AudioVisualizerServer {
         // API endpoint to remove an IP address
         this.app.delete('/api/ips/:id', (req, res) => {
             const { id } = req.params;
-            
+
             const index = this.savedIPs.findIndex(ip => ip.id === id);
             if (index === -1) {
                 return res.status(404).json({ error: 'IP address not found' });
@@ -129,18 +130,32 @@ class AudioVisualizerServer {
             // Disconnect from this amplifier if connected
             this.disconnectFromAmplifier(removedIP.ip);
 
-            res.json({ 
-                success: true, 
+            res.json({
+                success: true,
                 message: 'IP address removed successfully',
                 removedIP: removedIP
             });
         });
 
+        // API endpoint to scan local network for amplifiers
+        this.app.get('/api/scan-network', async (req, res) => {
+            try {
+                const discoveredIPs = await networkScanner.scanNetwork();
+                res.json({
+                    success: true,
+                    message: `Discovery scan complete. Found ${discoveredIPs.length} device(s).`,
+                    ips: discoveredIPs
+                });
+            } catch (err) {
+                console.error('Network scan failed:', err);
+                res.status(500).json({ error: 'Network scan failed' });
+            }
+        });
 
         // API endpoint to disconnect
         this.app.post('/api/disconnect', express.json(), (req, res) => {
             const { ip } = req.body;
-            
+
             if (ip) {
                 this.disconnectFromAmplifier(ip);
                 res.json({ success: true, message: `Disconnected from amplifier ${ip}` });
@@ -153,28 +168,28 @@ class AudioVisualizerServer {
         // API endpoint to open external app
         this.app.post('/api/open-external-app', express.json(), (req, res) => {
             const { ip } = req.body;
-            
+
             if (!ip) {
                 return res.status(400).json({ error: 'IP address is required' });
             }
 
             try {
                 const { spawn } = require('child_process');
-                
+
                 // Path to the test script
                 const scriptPath = path.join(__dirname, '../test-app.sh');
-                
+
                 // Open the script in a new terminal window
                 // On macOS, use osascript to open Terminal with the script
                 const osascript = spawn('osascript', [
                     '-e', `tell application "Terminal" to do script "bash '${scriptPath}' '${ip}'"`
                 ]);
-                
+
                 osascript.on('error', (err) => {
                     console.error('Failed to open external app:', err);
                     return res.status(500).json({ error: 'Failed to open external app' });
                 });
-                
+
                 osascript.on('close', (code) => {
                     if (code === 0) {
                         console.log(`✅ External app opened for amplifier ${ip}`);
@@ -184,7 +199,7 @@ class AudioVisualizerServer {
                         res.status(500).json({ error: 'Failed to open external app' });
                     }
                 });
-                
+
             } catch (err) {
                 console.error('Error opening external app:', err);
                 res.status(500).json({ error: err.message });
@@ -194,10 +209,10 @@ class AudioVisualizerServer {
         // API endpoint for mute control
         this.app.post('/api/mute', express.json(), (req, res) => {
             const { type, id, mute, amplifierIP } = req.body;
-            
+
             // Find the correct amplifier client
             let targetClient = null;
-            
+
             if (amplifierIP) {
                 // Use specific amplifier
                 targetClient = this.channelClients.get(amplifierIP);
@@ -213,11 +228,11 @@ class AudioVisualizerServer {
                     }
                 }
             }
-            
+
             if (!targetClient) {
                 return res.status(400).json({ error: 'No connected amplifier found' });
             }
-            
+
             try {
                 if (type === 'all-output') {
                     targetClient.setMute('all-output', null, mute);
@@ -229,10 +244,10 @@ class AudioVisualizerServer {
                 } else {
                     return res.status(400).json({ error: 'Invalid type. Must be input, output, or all-output' });
                 }
-                
-                res.json({ 
-                    success: true, 
-                    message: `${mute ? 'Muted' : 'Unmuted'} ${type}${id ? ' ' + id : ''}` 
+
+                res.json({
+                    success: true,
+                    message: `${mute ? 'Muted' : 'Unmuted'} ${type}${id ? ' ' + id : ''}`
                 });
             } catch (err) {
                 console.error('Error sending mute command:', err.message);
@@ -244,7 +259,7 @@ class AudioVisualizerServer {
         this.app.get('/api/status', (req, res) => {
             const connectedIPs = Array.from(this.amplifierClients.keys())
                 .filter(ip => this.amplifierClients.get(ip).isConnected);
-            
+
             res.json({
                 connected: connectedIPs.length > 0,
                 connectedIPs: connectedIPs,
@@ -256,19 +271,19 @@ class AudioVisualizerServer {
         // API endpoint for mute control
         this.app.post('/api/mute', express.json(), (req, res) => {
             const { type, id, mute, amplifierIP } = req.body;
-            
+
             // Find the correct amplifier client
             let targetClient = null;
-            
+
             if (amplifierIP) {
                 // Use specific amplifier
                 targetClient = this.amplifierClients.get(amplifierIP);
             }
-            
+
             if (!targetClient) {
                 return res.status(400).json({ error: 'Amplifier not found or not connected' });
             }
-            
+
             try {
                 if (type === 'all-output') {
                     targetClient.setMute('all-output', null, mute);
@@ -280,10 +295,10 @@ class AudioVisualizerServer {
                 } else {
                     return res.status(400).json({ error: 'Invalid type. Must be input, output, or all-output' });
                 }
-                
-                res.json({ 
-                    success: true, 
-                    message: `${mute ? 'Muted' : 'Unmuted'} ${type}${id ? ' ' + id : ''}` 
+
+                res.json({
+                    success: true,
+                    message: `${mute ? 'Muted' : 'Unmuted'} ${type}${id ? ' ' + id : ''}`
                 });
             } catch (err) {
                 res.status(500).json({ error: err.message });
@@ -371,7 +386,7 @@ class AudioVisualizerServer {
     broadcastCurrentStatus() {
         const connectedIPs = Array.from(this.amplifierClients.keys())
             .filter(ip => this.amplifierClients.get(ip).isConnected);
-            
+
         this.broadcast({
             type: 'status',
             connected: connectedIPs.length > 0,
@@ -389,10 +404,10 @@ class AudioVisualizerServer {
             }
 
             console.log(`Creating amplifier client for IP ${amplifierIP}`);
-            
+
             // Create new client for this IP
             const client = new NPA43AClient(amplifierIP, 8234);
-            
+
             // Set up event handlers for this client
             client.on('connected', () => {
                 console.log(`🔗 Amplifier ${amplifierIP} connected`);
@@ -457,9 +472,9 @@ class AudioVisualizerServer {
             // Store and connect to amplifier
             this.amplifierClients.set(amplifierIP, client);
             await client.connect();
-            
+
             console.log(`✓ Connected to amplifier ${amplifierIP}`);
-            
+
         } catch (err) {
             console.error(`Failed to connect to amplifier ${amplifierIP}:`, err.message);
             throw err;
@@ -483,7 +498,7 @@ class AudioVisualizerServer {
             }
             this.amplifierClients.clear();
         }
-        
+
         this.broadcastCurrentStatus();
     }
 
@@ -497,13 +512,13 @@ class AudioVisualizerServer {
     stop() {
         this.disconnectFromAmplifier();
         this.stopPeriodicUpdates();
-        
+
         // Ensure all amplifier clients are disconnected
         for (const [ip, client] of this.amplifierClients.entries()) {
             client.disconnect();
         }
         this.amplifierClients.clear();
-        
+
         this.server.close();
     }
 }
