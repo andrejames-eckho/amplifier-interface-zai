@@ -16,14 +16,14 @@ class NPA43AClient extends EventEmitter {
         this.reconnectInterval = null;
         this.lastDataReceived = 0;
         this.connectionTimeout = null;
-        
+
         // Response caching to reduce redundant processing
         this.responseCache = new Map();
         this.cacheTimeout = 50; // ms
-        
+
         // Data buffering for handling fragmented TCP responses
         this.dataBuffer = Buffer.alloc(0);
-        
+
         // Define polling sequence: In1-4, Out1-4
         this.pollingSequence = [
             { type: 'input', id: 1 },
@@ -56,13 +56,13 @@ class NPA43AClient extends EventEmitter {
         // Check minimum length based on function code
         const fc = buffer[6];
         const minLength = (fc === 0x12) ? 11 : 12;
-        
+
         if (buffer.length < minLength) {
             throw new Error(`Response too short: ${buffer.length} bytes`);
         }
 
         // Validate headers
-        if (buffer[0] !== 0xA5 || buffer[1] !== 0xC3 || 
+        if (buffer[0] !== 0xA5 || buffer[1] !== 0xC3 ||
             buffer[2] !== 0x3C || buffer[3] !== 0x5A) {
             throw new Error('Invalid start header');
         }
@@ -81,21 +81,21 @@ class NPA43AClient extends EventEmitter {
         const dataLength = buffer[7]; // Use actual data length from response
         const type = buffer[8];
         const channelId = buffer[9];
-        
+
         if (functionCode === 0x0E) {
             // Gain level response - parse dB data
             // Check if we have enough data for the dB value
             if (buffer.length < 10 + 2) {
                 throw new Error(`Insufficient data for dB value: need ${10 + 2} bytes, got ${buffer.length}`);
             }
-            
+
             const dbLow = buffer[10];
             const dbHigh = buffer[11];
 
             // Combine bytes into signed 16-bit integer
             const value = (dbHigh << 8) | dbLow;
             const signedValue = value >= 0x8000 ? value - 0x10000 : value;
-            
+
             // Calculate final dB value
             const dbValue = signedValue / 10;
 
@@ -113,12 +113,12 @@ class NPA43AClient extends EventEmitter {
             if (buffer.length < 11) {
                 throw new Error(`Insufficient data for mute status: need 11 bytes, got ${buffer.length}`);
             }
-            
+
             const muteStatus = buffer[10];
-            
+
             // Map the actual amplifier channel back to display channel (1-4)
             const displayChannel = { type: type === 0x01 ? 'input' : 'output', id: channelId };
-            
+
             return {
                 channelType: displayChannel.type,
                 channelId: displayChannel.id,
@@ -130,22 +130,22 @@ class NPA43AClient extends EventEmitter {
             if (buffer.length < 11) {
                 throw new Error(`Insufficient data for temperature: need 11 bytes, got ${buffer.length}`);
             }
-            
+
             const dataLength = buffer[7];
             if (dataLength !== 0x02) {
                 throw new Error(`Invalid temperature data length: expected 2 bytes, got ${dataLength}`);
             }
-            
+
             const tempLow = buffer[8];
             const tempHigh = buffer[9];
-            
+
             // Combine bytes into signed 16-bit integer (little-endian)
             const rawTemp = tempLow | (tempHigh << 8);
             const signedTemp = rawTemp >= 0x8000 ? rawTemp - 0x10000 : rawTemp;
-            
+
             // Calculate final temperature in Celsius (0.1°C per unit)
             const temperature = signedTemp * 0.1;
-            
+
             return {
                 temperature: temperature,
                 timestamp: Date.now()
@@ -155,19 +155,19 @@ class NPA43AClient extends EventEmitter {
             if (buffer.length < 10) {
                 throw new Error(`Insufficient data for clip/limiter status: need 10 bytes, got ${buffer.length}`);
             }
-            
+
             const ioType = buffer[8]; // 0x01 = inputs, 0x02 = outputs
             const statusByte = buffer[9]; // One byte with status bits for all channels
-            
+
             // Parse status for each channel (one bit per channel)
             const results = [];
             const channelType = ioType === 0x01 ? 'input' : 'output';
-            
+
             // Each bit represents a channel (bit 0 = channel 1, bit 1 = channel 2, etc.)
             for (let bit = 0; bit < 4; bit++) {
                 const channelId = bit + 1;
                 const isLimiting = (statusByte & (1 << bit)) !== 0;
-                
+
                 results.push({
                     channelType: channelType,
                     channelId: channelId,
@@ -175,7 +175,7 @@ class NPA43AClient extends EventEmitter {
                     timestamp: Date.now()
                 });
             }
-            
+
             // Return the first result for single channel queries, or all results for batch queries
             // For now, we'll return all results since we're doing batch queries
             return results;
@@ -188,7 +188,7 @@ class NPA43AClient extends EventEmitter {
     async connect() {
         return new Promise((resolve, reject) => {
             console.log(`Connecting to amplifier at ${this.amplifierIP}:${this.port}...`);
-            
+
             this.client = new net.Socket();
             this.client.setTimeout(5000);
 
@@ -224,7 +224,7 @@ class NPA43AClient extends EventEmitter {
                 this.isConnected = false;
                 console.log('Connection to amplifier closed');
                 this.stopConnectionMonitoring();
-                
+
                 if (wasConnected) {
                     this.emit('disconnected');
                     this.scheduleReconnect();
@@ -243,7 +243,7 @@ class NPA43AClient extends EventEmitter {
         this.connectionTimeout = setInterval(() => {
             const now = Date.now();
             const timeSinceLastData = now - this.lastDataReceived;
-            
+
             if (timeSinceLastData > 10000) { // 10 seconds without data
                 console.warn('⚠️ No data received for 10 seconds, connection may be stale');
                 this.isConnected = false;
@@ -280,7 +280,7 @@ class NPA43AClient extends EventEmitter {
 
         this.reconnectInterval = setTimeout(async () => {
             this.reconnectInterval = null;
-            
+
             try {
                 await this.connect();
             } catch (err) {
@@ -292,27 +292,35 @@ class NPA43AClient extends EventEmitter {
     findCompleteMessages(buffer) {
         const messages = [];
         let offset = 0;
-        
+
         // First try to find standard protocol messages
         while (offset < buffer.length) {
             // Need at least 9 bytes to determine message length
             if (offset + 9 > buffer.length) {
                 break;
             }
-            
+
             // Look for start header
-            if (buffer[offset] === 0xA5 && buffer[offset + 1] === 0xC3 && 
+            if (buffer[offset] === 0xA5 && buffer[offset + 1] === 0xC3 &&
                 buffer[offset + 2] === 0x3C && buffer[offset + 3] === 0x5A) {
-                
+
                 // Get data length from byte 7
                 const dataLength = buffer[offset + 7];
                 const totalMessageLength = 8 + dataLength + 1; // 8 bytes header + data + 1 byte end header
-                
+
                 // Check if we have enough data for complete message
                 if (offset + totalMessageLength <= buffer.length) {
                     // Check if end header is correct
                     if (buffer[offset + totalMessageLength - 1] === 0xEE) {
-                        // Found a complete message
+                        // Validate function code — skip unsupported frames silently
+                        // (e.g. the device may send 0x02 acknowledgement frames we don't use)
+                        const fc = buffer[offset + 6];
+                        const supportedFCs = [0x0E, 0x03, 0x12, 0x15];
+                        if (!supportedFCs.includes(fc)) {
+                            offset += totalMessageLength; // skip this frame, move on
+                            continue;
+                        }
+                        // Found a complete, supported message
                         const message = buffer.slice(offset, offset + totalMessageLength);
                         messages.push(message);
                         offset = offset + totalMessageLength;
@@ -333,16 +341,16 @@ class NPA43AClient extends EventEmitter {
                 }
             }
         }
-        
+
         // If no standard messages found, try to find any pattern that might be valid
         if (messages.length === 0 && buffer.length >= 12) {
             // Look for any segment that has plausible structure
             for (let i = 0; i <= buffer.length - 12; i++) {
                 // Check for start header pattern
-                if (i + 4 <= buffer.length && 
-                    buffer[i] === 0xA5 && buffer[i + 1] === 0xC3 && 
+                if (i + 4 <= buffer.length &&
+                    buffer[i] === 0xA5 && buffer[i + 1] === 0xC3 &&
                     buffer[i + 2] === 0x3C && buffer[i + 3] === 0x5A) {
-                    
+
                     // Check function code
                     if (i + 6 < buffer.length && (buffer[i + 6] === 0x0E || buffer[i + 6] === 0x03)) {
                         // Look for end header within reasonable distance
@@ -360,22 +368,32 @@ class NPA43AClient extends EventEmitter {
                 }
             }
         }
-        
+
         return { messages, remainingOffset: offset };
     }
 
     handleResponse(buffer) {
+        // The amplifier echoes back every command we send before it sends the real response.
+        // A command echo has the same start header, is exactly 10 bytes, and ends with 0xEE.
+        // Silently discard these so they don't pollute the parse error log.
+        if (buffer.length === 10 &&
+            buffer[0] === 0xA5 && buffer[1] === 0xC3 &&
+            buffer[2] === 0x3C && buffer[3] === 0x5A &&
+            buffer[buffer.length - 1] === 0xEE) {
+            return; // Command echo — ignore
+        }
+
         // Append new data to buffer
         this.dataBuffer = Buffer.concat([this.dataBuffer, buffer]);
-        
+
         // Find complete messages in buffer
         const { messages, remainingOffset } = this.findCompleteMessages(this.dataBuffer);
-        
+
         // Process each complete message
         messages.forEach((message, index) => {
             try {
                 const result = this.parseResponse(message);
-                
+
                 // Create cache key that includes actual values to detect real changes
                 let valueKey;
                 if (result.db !== undefined) {
@@ -387,24 +405,24 @@ class NPA43AClient extends EventEmitter {
                 } else {
                     valueKey = 'unknown';
                 }
-                
-                const cacheKey = result.temperature !== undefined ? 
-                    `temperature-${valueKey}` : 
+
+                const cacheKey = result.temperature !== undefined ?
+                    `temperature-${valueKey}` :
                     `${result.channelType}-${result.channelId}-${valueKey}`;
                 const now = Date.now();
-                
+
                 // Check cache to avoid duplicate processing of identical values
                 const cached = this.responseCache.get(cacheKey);
                 if (cached && (now - cached.timestamp) < this.cacheTimeout) {
                     return; // Skip duplicate response with same value
                 }
-                
+
                 // Update cache
                 this.responseCache.set(cacheKey, {
                     ...result,
                     timestamp: now
                 });
-                
+
                 // Clean old cache entries
                 if (this.responseCache.size > 32) { // Increased cache size for 8 channels
                     for (const [key, value] of this.responseCache.entries()) {
@@ -413,16 +431,16 @@ class NPA43AClient extends EventEmitter {
                         }
                     }
                 }
-                
+
                 // Emit data for non-duplicate responses
                 // Handle array results from limiter status
                 if (Array.isArray(result)) {
                     result.forEach(r => {
-                    // Update connection status - if we're receiving data, we're connected
-                    if (!this.isConnected) {
-                        this.isConnected = true;
-                        this.emit('connected');
-                    }
+                        // Update connection status - if we're receiving data, we're connected
+                        if (!this.isConnected) {
+                            this.isConnected = true;
+                            this.emit('connected');
+                        }
                         this.emit('data', r);
                     });
                 } else {
@@ -439,14 +457,14 @@ class NPA43AClient extends EventEmitter {
                 this.emit('error', err);
             }
         });
-        
+
         // Keep remaining incomplete data in buffer
         if (remainingOffset < this.dataBuffer.length) {
             this.dataBuffer = this.dataBuffer.slice(remainingOffset);
         } else {
             this.dataBuffer = Buffer.alloc(0);
         }
-        
+
         // Prevent buffer from growing too large (corruption protection)
         if (this.dataBuffer.length > 4096) {
             console.warn('⚠️  Buffer overflow, clearing data buffer');
@@ -462,11 +480,11 @@ class NPA43AClient extends EventEmitter {
         return new Promise((resolve, reject) => {
             const command = this.createCommand(channelType, channelId);
             let timeout = null;
-            
+
             // Create a unique response handler for this specific command
             const expectedResponseKey = `${channelType}-${channelId}`;
             let responseHandler = null;
-            
+
             const cleanup = () => {
                 if (timeout) {
                     clearTimeout(timeout);
@@ -477,11 +495,11 @@ class NPA43AClient extends EventEmitter {
                     responseHandler = null;
                 }
             };
-            
+
             responseHandler = (data) => {
                 // Use the global handler to process this data
                 this.handleResponse(data);
-                
+
                 // Check if this response matches our expected channel
                 // This is a bit of a hack - we'll resolve after a short delay
                 // to let the global handler process the data
@@ -490,7 +508,7 @@ class NPA43AClient extends EventEmitter {
                     const recentResponses = Array.from(this.responseCache.entries())
                         .filter(([key, value]) => key.startsWith(expectedResponseKey))
                         .filter(([key, value]) => Date.now() - value.timestamp < 200);
-                    
+
                     if (recentResponses.length > 0) {
                         const [, latestResponse] = recentResponses[recentResponses.length - 1];
                         cleanup();
@@ -498,18 +516,18 @@ class NPA43AClient extends EventEmitter {
                     }
                 }, 50);
             };
-            
+
             const onError = (err) => {
                 cleanup();
                 reject(err);
             };
-            
+
             // Set timeout for response
             timeout = setTimeout(() => {
                 cleanup();
                 reject(new Error('Command timeout'));
             }, 1000);
-            
+
             this.client.once('data', responseHandler);
             this.client.once('error', onError);
             this.client.write(command);
@@ -531,7 +549,7 @@ class NPA43AClient extends EventEmitter {
         }
 
         console.log(`Starting polling with ${intervalMs}ms interval`);
-        
+
         const poll = async () => {
             if (!this.isConnected) {
                 return;
@@ -543,27 +561,27 @@ class NPA43AClient extends EventEmitter {
                     const command = this.createCommand(channel.type, channel.id);
                     this.client.write(command);
                 });
-                
+
                 // Also poll mute status for all channels
                 this.pollingSequence.forEach(channel => {
                     const muteCommand = this.createMuteStatusCommand(channel.type, channel.id);
                     this.client.write(muteCommand);
                 });
-                
+
                 // Poll master mute status
                 const masterMuteCommand = this.createMuteStatusCommand('all-output', null);
                 this.client.write(masterMuteCommand);
-                
+
                 // Also poll clip/limiter status for all channels
                 this.pollingSequence.forEach(channel => {
                     const limiterCommand = this.createLimiterStatusCommand(channel.type, channel.id);
                     this.client.write(limiterCommand);
                 });
-                
+
                 // Poll temperature
                 const temperatureCommand = this.createTemperatureCommand();
                 this.client.write(temperatureCommand);
-                
+
             } catch (err) {
                 console.error('Polling error:', err.message);
                 this.emit('error', err);
@@ -572,7 +590,7 @@ class NPA43AClient extends EventEmitter {
 
         // Start immediately
         poll();
-        
+
         // Then set up interval
         this.pollingInterval = setInterval(poll, intervalMs);
     }
@@ -587,7 +605,7 @@ class NPA43AClient extends EventEmitter {
 
     createMuteCommand(channelType, channelId, mute = true) {
         let type, id;
-        
+
         if (channelType === 'all-output') {
             type = 0x02;
             id = 0x00;
@@ -600,7 +618,7 @@ class NPA43AClient extends EventEmitter {
         } else {
             throw new Error(`Invalid channel type: ${channelType}`);
         }
-        
+
         return Buffer.from([
             0xA5, 0xC3, 0x3C, 0x5A, // Start Header
             this.deviceId,           // Device ID
@@ -617,7 +635,7 @@ class NPA43AClient extends EventEmitter {
 
     createMuteStatusCommand(channelType, channelId) {
         let type, id;
-        
+
         if (channelType === 'all-output') {
             type = 0x02;
             id = 0x00;
@@ -630,7 +648,7 @@ class NPA43AClient extends EventEmitter {
         } else {
             throw new Error(`Invalid channel type: ${channelType}`);
         }
-        
+
         return Buffer.from([
             0xA5, 0xC3, 0x3C, 0x5A, // Start Header
             this.deviceId,           // Device ID
@@ -656,7 +674,7 @@ class NPA43AClient extends EventEmitter {
 
     createLimiterStatusCommand(channelType, channelId) {
         let type;
-        
+
         if (channelType === 'input') {
             type = 0x01;
         } else if (channelType === 'output') {
@@ -664,7 +682,7 @@ class NPA43AClient extends EventEmitter {
         } else {
             throw new Error(`Invalid channel type: ${channelType}`);
         }
-        
+
         return Buffer.from([
             0xA5, 0xC3, 0x3C, 0x5A, // Start Header
             this.deviceId,           // Device ID
@@ -697,13 +715,13 @@ class NPA43AClient extends EventEmitter {
     disconnect() {
         this.stopPolling();
         this.stopConnectionMonitoring();
-        
+
         // Clear any pending reconnection
         if (this.reconnectInterval) {
             clearTimeout(this.reconnectInterval);
             this.reconnectInterval = null;
         }
-        
+
         if (this.client) {
             this.client.destroy();
             this.client = null;

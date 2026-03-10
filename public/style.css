@@ -1262,12 +1262,13 @@ main {
 
 /* Update amplifier panel grid layout for compact meters */
 .amplifier-panel .channels-grid {
-    gap: 6px;
+    gap: 0;
 }
 
 .amplifier-panel .input-channels,
 .amplifier-panel .output-channels {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, auto);
+    justify-content: center;
 }
 
 /* Responsive adjustments for compact meters */
@@ -1558,12 +1559,13 @@ main {
 
 /* Update amplifier panel grid layout for vertical meters */
 .amplifier-panel .channels-grid {
-    gap: 8px;
+    gap: 0;
 }
 
 .amplifier-panel .input-channels,
 .amplifier-panel .output-channels {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, auto);
+    justify-content: center;
 }
 
 /* Responsive adjustments for vertical meters */
@@ -1700,12 +1702,13 @@ main {
 
 /* Update amplifier panel grid layout for compact meters */
 .amplifier-panel .channels-grid {
-    gap: 6px;
+    gap: 0;
 }
 
 .amplifier-panel .input-channels,
 .amplifier-panel .output-channels {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, auto);
+    justify-content: center;
 }
 
 /* Responsive adjustments for compact meters */
@@ -1786,8 +1789,7 @@ main {
     border: 1px solid rgba(148, 163, 184, 0.2);
     border-radius: 8px;
     padding: 10px;
-    min-width: 320px;
-    max-width: 400px;
+    width: fit-content;
     box-shadow: 0 4px 12px rgba(2, 6, 23, 0.4);
     backdrop-filter: blur(12px);
     display: flex;
@@ -1862,7 +1864,7 @@ main {
 .uc-channels {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 2px;
 }
 
 .uc-inputs,
@@ -1883,9 +1885,8 @@ main {
 
 .uc-meters-container {
     display: flex;
-    flex: 1;
-    gap: 6px;
-    justify-content: space-between;
+    gap: 4px;
+    justify-content: flex-start;
 }
 
 /* Meter Box */
@@ -2011,217 +2012,4 @@ main {
     background: #dc2626;
 }
 
-/* Responsive Design for Amplifier Panels */
-@media (max-width: 1400px) {
-    .amplifier-panel {
-        min-width: 450px;
-        max-width: 550px;
-    }
-}
-
-@media (max-width: 1200px) {
-    .amplifiers-container {
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 350px), 1fr));
-        align-items: stretch;
-    }
-
-    .amplifier-panel {
-        min-width: 100%;
-        max-width: 100%;
-        width: 100%;
-        max-height: none;
-    }
-}
-
-@media (max-width: 768px) {
-    .amplifiers-container {
-        grid-template-columns: 1fr;
-        align-items: stretch;
-        overflow-x: hidden;
-        overflow-y: auto;
-        padding: 10px;
-        gap: 15px;
-        height: 100%;
-        max-height: none;
-    }
-
-    .amplifier-panel {
-        min-width: 100%;
-        max-width: 100%;
-        width: 100%;
-        padding: 10px;
-        height: auto;
-        max-height: none;
-    }
-
-    .amplifier-channels {
-        height: calc(100vh - 390px);
-    }
-
-    .amplifier-panel .input-channels,
-    .amplifier-panel .output-channels {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-    }
-
-    .meter-container.vertical {
-        min-height: 160px;
-        padding: 6px;
-    }
-
-    .vu-meter {
-        height: 120px;
-    }
-
-    .vu-scale {
-        font-size: 0.4rem;
-        min-width: 18px;
-    }
-
-    .scale-label {
-        height: 6px;
-    }
-
-    .vu-segment {
-        height: 6px;
-    }
-
-    .vu-bar {
-        width: 16px;
-        gap: 0;
-    }
-
-    .meter-container.vertical .meter-label {
-        font-size: 0.6rem;
-    }
-
-    .meter-container.vertical .channel-mute-btn {
-        width: 20px;
-        height: 20px;
-        font-size: 8px;
-    }
-
-    .amplifier-header {
-        flex-direction: column;
-        gap: 15px;
-        align-items: stretch;
-    }
-
-    .amplifier-controls {
-        align-items: center;
-        flex-direction: row;
-        justify-content: space-between;
-    }
-
-    .input-channels,
-    .output-channels {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 4px;
-        flex: 1;
-        min-height: 0;
-    }
-
-    .no-amplifiers-message {
-        min-width: auto;
-        margin: 10px;
-        padding: 40px 20px;
-    }
-}
-
-@media (max-width: 600px) {
-    .amplifiers-container {
-        padding: 8px;
-        gap: 8px;
-        height: calc(100vh - 160px);
-        max-height: calc(100vh - 160px);
-    }
-
-    .amplifier-panel {
-        padding: 8px;
-        border-radius: 12px;
-        height: calc(100vh - 230px);
-        max-height: calc(100vh - 230px);
-    }
-
-    .amplifier-channels {
-        height: calc(100vh - 350px);
-    }
-
-    .amplifier-panel .input-channels,
-    .amplifier-panel .output-channels {
-        grid-template-columns: repeat(1, 1fr);
-        gap: 6px;
-    }
-
-    .meter-container.vertical {
-        min-height: 140px;
-        padding: 4px;
-    }
-
-    .vu-meter {
-        height: 100px;
-    }
-
-    .vu-scale {
-        font-size: 0.35rem;
-        min-width: 16px;
-    }
-
-    .scale-label {
-        height: 5px;
-    }
-
-    .vu-segment {
-        height: 5px;
-    }
-
-    .vu-bar {
-        width: 14px;
-        gap: 0;
-    }
-
-    .meter-container.vertical .meter-label {
-        font-size: 0.5rem;
-    }
-
-    .meter-container.vertical .channel-mute-btn {
-        width: 18px;
-        height: 18px;
-        font-size: 7px;
-    }
-
-    .db-value-display {
-        font-size: 0.6rem;
-        min-width: 45px;
-        padding: 1px 3px;
-    }
-}
-
-@media (max-width: 480px) {
-    .amplifiers-container {
-        padding: 5px;
-        gap: 10px;
-        height: calc(100vh - 160px);
-        max-height: calc(100vh - 160px);
-    }
-
-    .amplifier-panel {
-        padding: 8px;
-        border-radius: 12px;
-        height: calc(100vh - 230px);
-        max-height: calc(100vh - 230px);
-    }
-
-    .input-channels,
-    .output-channels {
-        grid-template-columns: 1fr;
-        gap: 6px;
-    }
-
-    .db-value-display {
-        font-size: 0.5rem;
-        min-width: 40px;
-        padding: 1px 2px;
-    }
-}
+/* Responsive Design for Amplifier Panels - Fixed to Ultra Compact */

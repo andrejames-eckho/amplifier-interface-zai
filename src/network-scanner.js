@@ -1,10 +1,11 @@
 const net = require('net');
 const os = require('os');
+const { exec } = require('child_process');
 
 class NetworkScanner {
     constructor() {
         this.targetPort = 8234;
-        this.connectionTimeout = 2000; // ms timeout for each connection attempt
+        this.connectionTimeout = 500; // ms — closed ports fail in <5ms, so 500ms is plenty
     }
 
     /**
@@ -15,16 +16,66 @@ class NetworkScanner {
         const interfaces = os.networkInterfaces();
         for (const name of Object.keys(interfaces)) {
             for (const iface of interfaces[name]) {
-                // Skip internal loopback and non-IPv4 addresses
                 if (!iface.internal && iface.family === 'IPv4') {
-                    results.push({
-                        address: iface.address,
-                        netmask: iface.netmask,
-                    });
+                    results.push({ address: iface.address, netmask: iface.netmask });
                 }
             }
         }
         return results;
+    }
+
+    /**
+     * Read the ARP cache to find link-local /24 subnets that actually have devices.
+     * Uses `arp -an` (available on macOS and Linux).
+     * Returns a Set of /24 network addresses like "169.254.5.0".
+     */
+    getArpCacheSubnets() {
+        return new Promise((resolve) => {
+            const isWindows = process.platform === 'win32';
+
+            // Windows `arp -a` format:  "  192.168.1.1   aa-bb-cc-dd-ee-ff   dynamic"
+            // macOS/Linux format:       "? (169.254.5.5) at c8:17:f5:74:95:8c on en10..."
+            // Pre-filter incomplete entries at the shell level to avoid maxBuffer overflow.
+            const command = isWindows
+                ? 'arp -a | findstr /V "incomplete"'
+                : "arp -an | grep -v '(incomplete)'";
+
+            exec(command, (err, stdout) => {
+                const subnets = new Set();
+                if (err) {
+                    console.warn('Could not read ARP cache:', err.message);
+                    resolve(subnets);
+                    return;
+                }
+
+                const classC_Mask = this.ipToInt('255.255.255.0');
+
+                for (const line of stdout.split('\n')) {
+                    let ip = null;
+
+                    if (isWindows) {
+                        // Windows: IP followed by MAC in aa-bb-cc format, then type
+                        const m = line.match(/\s+(\d+\.\d+\.\d+\.\d+)\s+([0-9a-f]{2}-){5}[0-9a-f]{2}\s+(dynamic|static)/i);
+                        if (!m) continue;
+                        ip = m[1];
+                    } else {
+                        if (line.includes('(incomplete)')) continue; // safety net
+                        const m = line.match(/\((\d+\.\d+\.\d+\.\d+)\)/);
+                        if (!m) continue;
+                        ip = m[1];
+                    }
+
+                    const ipInt = this.ipToInt(ip);
+                    const netAddr = (ipInt & classC_Mask) >>> 0;
+                    subnets.add(this.intToIp(netAddr));
+                }
+
+                if (subnets.size > 0) {
+                    console.log(`ARP cache found ${subnets.size} /24 subnet(s):`, [...subnets].join(', '));
+                }
+                resolve(subnets);
+            });
+        });
     }
 
     /**
@@ -47,104 +98,39 @@ class NetworkScanner {
     }
 
     /**
-     * Generate all IP addresses in the subnet
+     * Generate all host IPs in a /24 subnet given the network address string (e.g. "169.254.5.0").
      */
-    getSubnetIPs(networkInfo) {
-        if (!networkInfo || !networkInfo.address || !networkInfo.netmask) {
-            return [];
-        }
-
-        const ipInt = this.ipToInt(networkInfo.address);
-        const maskInt = this.ipToInt(networkInfo.netmask);
-
-        let networkAddress = (ipInt & maskInt) >>> 0;
-        let broadcastAddress = (networkAddress | (~maskInt >>> 0)) >>> 0;
-
-        const totalIPs = broadcastAddress - networkAddress - 1;
-
+    getClassCIPs(networkAddr) {
+        const classC_Mask = this.ipToInt('255.255.255.0');
+        const netInt = this.ipToInt(networkAddr);
+        const bcastInt = (netInt | (~classC_Mask >>> 0)) >>> 0;
         const ips = [];
-
-        if (totalIPs > 1024) {
-            // If the subnet is huge (like a /16 with 65k IPs, e.g. 169.254.x.x), 
-            // scanning all of them takes too long and may hit system limits.
-            // Let's scan:
-            // 1. the immediate /24 subnet of the interface
-            // 2. common default fallback subnets (e.g. 192.168.1.x, 192.168.0.x)
-            // 3. known active IP if available (e.g., 169.254.21.x based on user context)
-            console.log(`Subnet is too large (${totalIPs} IPs). Optimizing scan range...`);
-
-            // Add the local /24 subnet
-            const localClassC_Mask = this.ipToInt('255.255.255.0');
-            const localClassC_Network = (ipInt & localClassC_Mask) >>> 0;
-            const localClassC_Broadcast = (localClassC_Network | (~localClassC_Mask >>> 0)) >>> 0;
-
-            for (let i = localClassC_Network + 1; i < localClassC_Broadcast; i++) {
-                ips.push(this.intToIp(i));
-            }
-
-            // Also search common class C subnets and 169.254.21.x just in case
-            const extraSubnets = [
-                '192.168.1.0',
-                '192.168.0.0',
-                '169.254.21.0' // Known subnet for the device
-            ];
-
-            for (const subnet of extraSubnets) {
-                const subNetInt = this.ipToInt(subnet);
-                const subBcastInt = (subNetInt | (~localClassC_Mask >>> 0)) >>> 0;
-
-                for (let i = subNetInt + 1; i < subBcastInt; i++) {
-                    const extraIp = this.intToIp(i);
-                    if (!ips.includes(extraIp)) {
-                        ips.push(extraIp);
-                    }
-                }
-            }
-
-            return ips;
-        }
-
-        // Standard logic for smaller subnets like /24
-        // Start from networkAddress + 1 to broadcastAddress - 1
-        for (let i = networkAddress + 1; i < broadcastAddress; i++) {
+        for (let i = netInt + 1; i < bcastInt; i++) {
             ips.push(this.intToIp(i));
         }
         return ips;
     }
 
     /**
-     * Test if a specific IP/port is reachable
+     * Test if a specific IP/port is reachable via TCP connect
      */
     testConnection(ip) {
         return new Promise((resolve) => {
             let resolved = false;
-
             const socket = new net.Socket();
             socket.setTimeout(this.connectionTimeout);
-
-            const cleanup = () => {
-                socket.destroy();
-            };
 
             const finish = (result) => {
                 if (!resolved) {
                     resolved = true;
-                    cleanup();
+                    socket.destroy();
                     resolve(result);
                 }
             };
 
-            socket.on('connect', () => {
-                finish(true);
-            });
-
-            socket.on('timeout', () => {
-                finish(false);
-            });
-
-            socket.on('error', () => {
-                finish(false);
-            });
+            socket.on('connect', () => finish(true));
+            socket.on('timeout', () => finish(false));
+            socket.on('error', () => finish(false));
 
             try {
                 socket.connect(this.targetPort, ip);
@@ -155,7 +141,11 @@ class NetworkScanner {
     }
 
     /**
-     * Scan the local network for devices with the target port open
+     * Scan the local network for devices with the target port open.
+     * Strategy:
+     *  1. Read the ARP cache to find /24 blocks with known devices (fast, targeted).
+     *  2. Also scan the local NIC's own /24 and common private subnets.
+     *  3. Skip the full 169.254.0.0/16 sweep — it's too slow due to ARP timeouts on macOS.
      */
     async scanNetwork() {
         const networkInterfaces = this.getLocalNetworkInterfaces();
@@ -165,33 +155,55 @@ class NetworkScanner {
             return [];
         }
 
-        let ipsToScan = [];
+        // --- Build the set of /24 subnets to scan ---
+        const subnetsToScan = new Set();
+        const classC_Mask = this.ipToInt('255.255.255.0');
 
-        for (const networkInfo of networkInterfaces) {
-            console.log(`Analyzing interface ${networkInfo.address} with mask ${networkInfo.netmask}`);
-            const ips = this.getSubnetIPs(networkInfo);
-            ipsToScan = ipsToScan.concat(ips);
+        // 1. Add ARP-cache subnets (fastest way to find link-local devices)
+        const arpSubnets = await this.getArpCacheSubnets();
+        for (const s of arpSubnets) subnetsToScan.add(s);
+
+        // 2. Add each local NIC's own /24
+        for (const iface of networkInterfaces) {
+            const ifaceInt = this.ipToInt(iface.address);
+            const netAddr = (ifaceInt & classC_Mask) >>> 0;
+            subnetsToScan.add(this.intToIp(netAddr));
         }
 
-        // Remove duplicates just in case some subnets overlap
-        ipsToScan = [...new Set(ipsToScan)];
+        // 3. Add common private fallbacks
+        subnetsToScan.add('192.168.1.0');
+        subnetsToScan.add('192.168.0.0');
+        subnetsToScan.add('10.0.0.0');
+
+        // --- Expand subnets into individual IPs ---
+        const ipsSet = new Set();
+        const ipsToScan = [];
+
+        for (const subnet of subnetsToScan) {
+            console.log(`  → Scanning subnet ${subnet}/24`);
+            for (const ip of this.getClassCIPs(subnet)) {
+                if (!ipsSet.has(ip)) {
+                    ipsSet.add(ip);
+                    ipsToScan.push(ip);
+                }
+            }
+        }
 
         if (ipsToScan.length === 0) {
             console.warn('No IP addresses to scan.');
             return [];
         }
 
-        console.log(`Scanning ${ipsToScan.length} unique IP addresses across all interfaces...`);
+        console.log(`Scanning ${ipsToScan.length} unique IP addresses...`);
 
-        // Define a reasonable concurrency limit to prevent ENFILE errors
-        // 1000 is usually safe on macOS/Linux for file descriptors
-        const concurrencyLimit = 500;
+        // --- Concurrent TCP scan ---
+        const concurrencyLimit = 200;
         const discoveredIPs = [];
         let inFlight = 0;
         let currentIndex = 0;
 
         return new Promise((resolve) => {
-            const nextBatch = async () => {
+            const nextBatch = () => {
                 while (inFlight < concurrencyLimit && currentIndex < ipsToScan.length) {
                     const ip = ipsToScan[currentIndex++];
                     inFlight++;
@@ -203,23 +215,21 @@ class NetworkScanner {
                             discoveredIPs.push(ip);
                         }
 
-                        // If we're done scanning and no requests are in flight, finish up
                         if (currentIndex >= ipsToScan.length && inFlight === 0) {
+                            console.log(`Scan complete. Found ${discoveredIPs.length} device(s).`);
                             resolve(discoveredIPs);
                         } else {
-                            nextBatch(); // Schedule next connection
+                            nextBatch();
                         }
                     });
                 }
 
-                // Edge case: if loop terminates naturally but ipsToScan is empty
                 if (currentIndex >= ipsToScan.length && inFlight === 0) {
-                    console.log(`Scan complete. Found ${discoveredIPs.length} devices.`);
+                    console.log(`Scan complete. Found ${discoveredIPs.length} device(s).`);
                     resolve(discoveredIPs);
                 }
             };
 
-            // Start the scanning queue
             nextBatch();
         });
     }

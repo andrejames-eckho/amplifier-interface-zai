@@ -175,22 +175,40 @@ class AudioVisualizerServer {
 
             try {
                 const { spawn } = require('child_process');
-
-                // Path to the test script
                 const scriptPath = path.join(__dirname, '../test-app.sh');
+                const isWindows = process.platform === 'win32';
 
-                // Open the script in a new terminal window
-                // On macOS, use osascript to open Terminal with the script
-                const osascript = spawn('osascript', [
-                    '-e', `tell application "Terminal" to do script "bash '${scriptPath}' '${ip}'"`
-                ]);
+                let child;
+                if (isWindows) {
+                    // On Windows: open a new Command Prompt running the batch script equivalent.
+                    // Falls back to running the .sh via Git Bash if available.
+                    const winScriptPath = scriptPath.replace('.sh', '.bat');
+                    const gitBash = 'C:\\Program Files\\Git\\bin\\bash.exe';
+                    const fs = require('fs');
 
-                osascript.on('error', (err) => {
+                    if (fs.existsSync(winScriptPath)) {
+                        // Use .bat script if provided
+                        child = spawn('cmd.exe', ['/c', 'start', 'cmd.exe', '/k', `"${winScriptPath}" "${ip}"`], { shell: true });
+                    } else if (fs.existsSync(gitBash)) {
+                        // Fallback: run .sh via Git Bash
+                        child = spawn('cmd.exe', ['/c', 'start', `"${gitBash}"`, '-c', `"bash '${scriptPath}' '${ip}'; exec bash"`], { shell: true });
+                    } else {
+                        return res.status(500).json({ error: 'No script found. Provide test-app.bat for Windows.' });
+                    }
+                } else {
+                    // macOS: open Terminal.app via osascript
+                    child = spawn('osascript', [
+                        '-e', `tell application "Terminal" to do script "bash '${scriptPath}' '${ip}'"`
+                    ]);
+                }
+
+
+                child.on('error', (err) => {
                     console.error('Failed to open external app:', err);
                     return res.status(500).json({ error: 'Failed to open external app' });
                 });
 
-                osascript.on('close', (code) => {
+                child.on('close', (code) => {
                     if (code === 0) {
                         console.log(`✅ External app opened for amplifier ${ip}`);
                         res.json({ success: true, message: 'External app opened successfully' });
