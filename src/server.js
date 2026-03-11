@@ -137,6 +137,30 @@ class AudioVisualizerServer {
             });
         });
 
+        // API endpoint to rename an IP address
+        this.app.patch('/api/ips/:id', express.json(), (req, res) => {
+            const { id } = req.params;
+            const { name } = req.body;
+
+            if (!name) {
+                return res.status(400).json({ error: 'Name is required' });
+            }
+
+            const index = this.savedIPs.findIndex(ip => ip.id === id);
+            if (index === -1) {
+                return res.status(404).json({ error: 'IP address not found' });
+            }
+
+            this.savedIPs[index].name = name;
+            this.saveIPAddresses();
+
+            res.json({
+                success: true,
+                message: 'IP address renamed successfully',
+                ip: this.savedIPs[index]
+            });
+        });
+
         // API endpoint to scan local network for amplifiers
         this.app.get('/api/scan-network', async (req, res) => {
             try {

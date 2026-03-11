@@ -239,7 +239,9 @@ class AudioVisualizer {
                     <span class="uc-temp" id="temperature-${panelId}">--°C</span>
                 </div>
             </div>
-            <button class="close-panel-btn" data-ip="${ip}">×</button>
+            <div class="uc-header-actions">
+                <button class="close-panel-btn" data-ip="${ip}">×</button>
+            </div>
         </div>
         
         <div class="uc-channels">
@@ -261,7 +263,17 @@ class AudioVisualizer {
 
         // Add close button event listener
         const closeBtn = panel.querySelector('.close-panel-btn');
-        closeBtn.addEventListener('click', () => this.removeAmplifierPanel(ip));
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.removeAmplifierPanel(ip);
+        });
+
+        // Add inline renaming event listener
+        const nameElement = panel.querySelector('.uc-name');
+        nameElement.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleNameEdit(ip, nameElement);
+        });
 
         // Store panel reference
         this.amplifierPanels.set(ip, panel);
@@ -833,6 +845,7 @@ class AudioVisualizer {
                     <div class="ip-address">${ip.ip}</div>
                 </div>
                 <div class="ip-actions">
+                    <button class="rename-btn" data-id="${ip.id}" data-name="${ip.name || ip.ip}">Rename</button>
                     <button class="delete-btn" data-id="${ip.id}">Delete</button>
                 </div>
             `;
@@ -847,6 +860,160 @@ class AudioVisualizer {
                 this.deleteIP(id);
             });
         });
+
+        // Add rename event listeners
+        this.savedIPsList.querySelectorAll('.rename-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.dataset.id;
+                const name = e.target.dataset.name;
+                this.renameIP(id, name);
+            });
+        });
+    }
+
+    async renameIP(id, currentName) {
+        const newName = prompt('Enter a new name for this amplifier:', currentName);
+        if (newName === null || newName.trim() === '' || newName === currentName) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/ips/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: newName.trim() })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to rename amplifier');
+            }
+
+            // Update local state and UI
+            this.loadSavedIPs();
+            this.loadIPs();
+
+            // Also update any active panels
+            const renamedIP = this.savedIPs.find(ip => ip.id === id);
+            if (renamedIP && this.amplifierPanels.has(renamedIP.ip)) {
+                const panel = this.amplifierPanels.get(renamedIP.ip);
+                const nameElement = panel.querySelector('.uc-name');
+                if (nameElement) {
+                    nameElement.textContent = newName.trim();
+                }
+                const ampData = this.activeAmplifiers.get(renamedIP.ip);
+                if (ampData) {
+                    ampData.name = newName.trim();
+                }
+            }
+
+        } catch (err) {
+            this.showError(err.message);
+        }
+    }
+
+    toggleNameEdit(ip, nameElement) {
+        if (nameElement.querySelector('input')) return;
+
+        const currentName = nameElement.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentName;
+        input.className = 'uc-name-input';
+        
+        nameElement.textContent = '';
+        nameElement.appendChild(input);
+        input.focus();
+        input.select();
+
+        const save = async () => {
+            const newName = input.value.trim();
+            if (newName && newName !== currentName) {
+                const savedIP = this.savedIPs.find(sip => sip.ip === ip);
+                if (savedIP) {
+                    await this.renameIP(savedIP.id, currentName, newName);
+                }
+            } else {
+                nameElement.textContent = currentName;
+            }
+        };
+
+        input.addEventListener('blur', save);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                input.blur();
+            }
+        });
+    }
+
+    // Overload renameIP to handle both prompt and inline scenarios
+    async renameIP(id, currentName, inlineNewName = null) {
+        let newName = inlineNewName;
+        if (newName === null) {
+            newName = prompt('Enter a new name for this amplifier:', currentName);
+        }
+
+        if (newName === null || newName.trim() === '' || newName === currentName) {
+            // Restore name if it was an inline edit that got cancelled
+            const renamedIP = this.savedIPs.find(ip => ip.id === id);
+            if (renamedIP && this.amplifierPanels.has(renamedIP.ip)) {
+                const panel = this.amplifierPanels.get(renamedIP.ip);
+                const nameElement = panel.querySelector('.uc-name');
+                if (nameElement && nameElement.querySelector('input')) {
+                    nameElement.textContent = currentName;
+                }
+            }
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/ips/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: newName.trim() })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to rename amplifier');
+            }
+
+            // Update local state and UI
+            this.loadSavedIPs();
+            this.loadIPs();
+
+            // Also update any active panels
+            const renamedIP = this.savedIPs.find(ip => ip.id === id);
+            if (renamedIP && this.amplifierPanels.has(renamedIP.ip)) {
+                const panel = this.amplifierPanels.get(renamedIP.ip);
+                const nameElement = panel.querySelector('.uc-name');
+                if (nameElement) {
+                    nameElement.textContent = newName.trim();
+                }
+                const ampData = this.activeAmplifiers.get(renamedIP.ip);
+                if (ampData) {
+                    ampData.name = newName.trim();
+                }
+            }
+
+        } catch (err) {
+            this.showError(err.message);
+            // Restore name on error
+            const renamedIP = this.savedIPs.find(ip => ip.id === id);
+            if (renamedIP && this.amplifierPanels.has(renamedIP.ip)) {
+                const panel = this.amplifierPanels.get(renamedIP.ip);
+                const nameElement = panel.querySelector('.uc-name');
+                if (nameElement) {
+                    nameElement.textContent = currentName;
+                }
+            }
+        }
     }
 
     async deleteIP(id) {
