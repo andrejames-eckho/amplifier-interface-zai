@@ -112,9 +112,116 @@ class NetworkScanner {
     }
 
     /**
-     * Test if a specific IP/port is reachable via TCP connect
+     * Test if a device is actually an amplifier by attempting a brief protocol handshake
      */
-    testConnection(ip) {
+    async verifyAmplifier(ip) {
+        return new Promise((resolve) => {
+            const socket = new net.Socket();
+            socket.setTimeout(2000); // Longer timeout for amplifier protocol
+            
+            let resolved = false;
+            let dataReceived = Buffer.alloc(0);
+            
+            const finish = (isAmplifier) => {
+                if (!resolved) {
+                    resolved = true;
+                    socket.destroy();
+                    resolve(isAmplifier);
+                }
+            };
+
+            socket.on('connect', () => {
+                // Send a basic amplifier command to query device info
+                const queryCommand = Buffer.from([
+                    0xA5, 0xC3, 0x3C, 0x5A, // Start Header
+                    0xFF,                   // Device ID (broadcast)
+                    0x63,                   // Read Command
+                    0x0E,                   // Function Code (Gains Level)
+                    0x02,                   // Data Length
+                    0x01,                   // Type (Input)
+                    0x01,                   // Channel ID (1)
+                    0xEE                    // End Header
+                ]);
+                
+                socket.write(queryCommand);
+                
+                // Listen for response with amplifier protocol pattern
+                const dataHandler = (data) => {
+                    dataReceived = Buffer.concat([dataReceived, data]);
+                    
+                    // Check for amplifier protocol response pattern
+                    if (dataReceived.length >= 8) {
+                        // Look for start header: A5 C3 3C 5A
+                        const startIndex = dataReceived.indexOf(Buffer.from([0xA5, 0xC3, 0x3C, 0x5A]));
+                        if (startIndex !== -1 && dataReceived.length > startIndex + 8) {
+                            // Check for valid function code and end header
+                            const fc = dataReceived[startIndex + 6];
+                            const validFC = fc === 0x0E || fc === 0x03 || fc === 0x12 || fc === 0x15;
+                            const hasEndHeader = dataReceived[startIndex + dataReceived[startIndex + 7] + 8] === 0xEE;
+                            
+                            if (validFC && hasEndHeader) {
+                                finish(true);
+                                return;
+                            }
+                        }
+                    }
+                    
+                    // If we've received enough data but no valid pattern, it's not an amplifier
+                    if (dataReceived.length > 50) {
+                        finish(false);
+                    }
+                };
+                
+                socket.on('data', dataHandler);
+                
+                // Timeout if no valid response received
+                setTimeout(() => finish(false), 1500);
+            });
+            
+            socket.on('timeout', () => finish(false));
+            socket.on('error', () => finish(false));
+
+            try {
+                socket.connect(this.targetPort, ip);
+            } catch (err) {
+                finish(false);
+            }
+        });
+    }
+
+    /**
+     * Test if a specific IP/port is reachable via multiple methods
+     */
+    async testConnection(ip) {
+        const results = {
+            tcp: false,
+            ping: false,
+            reachable: false
+        };
+
+        // Method 1: Try TCP connection first (fastest if device is active)
+        results.tcp = await this.testTCPConnection(ip);
+        
+        // Method 2: If TCP fails, try ping to wake up dormant devices
+        if (!results.tcp) {
+            results.ping = await this.testPingConnection(ip);
+            
+            // After ping, try TCP again (device may now respond)
+            if (results.ping) {
+                // Wait a brief moment for device to respond
+                await new Promise(resolve => setTimeout(resolve, 100));
+                results.tcp = await this.testTCPConnection(ip);
+            }
+        }
+
+        results.reachable = results.tcp || results.ping;
+        return results;
+    }
+
+    /**
+     * Test TCP connection to specific port
+     */
+    testTCPConnection(ip) {
         return new Promise((resolve) => {
             let resolved = false;
             const socket = new net.Socket();
@@ -141,11 +248,75 @@ class NetworkScanner {
     }
 
     /**
+     * Test ping connectivity to wake up dormant devices
+     */
+    testPingConnection(ip) {
+        return new Promise((resolve) => {
+            const isWindows = process.platform === 'win32';
+            const pingCmd = isWindows 
+                ? `ping -n 1 -w 1000 ${ip}` 
+                : `ping -c 1 -W 1000 ${ip}`;
+
+            exec(pingCmd, { timeout: 2000 }, (error, stdout, stderr) => {
+                // Consider ping successful if we get any response (even with some errors)
+                const success = !error || (error && (
+                    stdout.includes('TTL=') || 
+                    stdout.includes('bytes from') ||
+                    stderr.includes('TTL=') ||
+                    (isWindows && error.code === 0) // Windows ping success
+                ));
+                resolve(success);
+            });
+        });
+    }
+
+    /**
+     * Pre-scan ping to populate ARP cache and wake dormant devices
+     */
+    async preScanPing(subnetsToScan) {
+        console.log('Pre-scanning subnets to populate ARP cache...');
+        
+        const pingPromises = [];
+        const isWindows = process.platform === 'win32';
+        
+        for (const subnet of subnetsToScan) {
+            // Ping a few strategic addresses in each subnet to populate ARP cache
+            const strategicIPs = [
+                this.intToIp(this.ipToInt(subnet) + 1),  // First usable IP
+                this.intToIp(this.ipToInt(subnet) + 254) // Near end of subnet
+            ];
+            
+            for (const ip of strategicIPs) {
+                pingPromises.push(
+                    new Promise(resolve => {
+                        const pingCmd = isWindows 
+                            ? `ping -n 1 -w 500 ${ip} >nul 2>&1` 
+                            : `ping -c 1 -W 500 ${ip} >/dev/null 2>&1`;
+                        
+                        exec(pingCmd, { timeout: 1000 }, () => {
+                            resolve(); // Don't care about result, just want to send ping
+                        });
+                    })
+                );
+            }
+        }
+        
+        // Wait for all pings to complete (with timeout)
+        await Promise.race([
+            Promise.all(pingPromises),
+            new Promise(resolve => setTimeout(resolve, 3000))
+        ]);
+        
+        console.log('Pre-scan ping complete');
+    }
+
+    /**
      * Scan the local network for devices with the target port open.
      * Strategy:
-     *  1. Read the ARP cache to find /24 blocks with known devices (fast, targeted).
-     *  2. Also scan the local NIC's own /24 and common private subnets.
-     *  3. Skip the full 169.254.0.0/16 sweep — it's too slow due to ARP timeouts on macOS.
+     *  1. Pre-scan ping to populate ARP cache and wake dormant devices
+     *  2. Read the ARP cache to find /24 blocks with known devices (fast, targeted).
+     *  3. Also scan the local NIC's own /24 and common private subnets.
+     *  4. Use TCP+ping testing for comprehensive discovery
      */
     async scanNetwork() {
         const networkInterfaces = this.getLocalNetworkInterfaces();
@@ -159,21 +330,24 @@ class NetworkScanner {
         const subnetsToScan = new Set();
         const classC_Mask = this.ipToInt('255.255.255.0');
 
-        // 1. Add ARP-cache subnets (fastest way to find link-local devices)
-        const arpSubnets = await this.getArpCacheSubnets();
-        for (const s of arpSubnets) subnetsToScan.add(s);
-
-        // 2. Add each local NIC's own /24
+        // 1. Add each local NIC's own /24
         for (const iface of networkInterfaces) {
             const ifaceInt = this.ipToInt(iface.address);
             const netAddr = (ifaceInt & classC_Mask) >>> 0;
             subnetsToScan.add(this.intToIp(netAddr));
         }
 
-        // 3. Add common private fallbacks
+        // 2. Add common private fallbacks
         subnetsToScan.add('192.168.1.0');
         subnetsToScan.add('192.168.0.0');
         subnetsToScan.add('10.0.0.0');
+
+        // 3. Pre-scan ping to populate ARP cache
+        await this.preScanPing(subnetsToScan);
+
+        // 4. Add ARP-cache subnets (now that we've refreshed the cache)
+        const arpSubnets = await this.getArpCacheSubnets();
+        for (const s of arpSubnets) subnetsToScan.add(s);
 
         // --- Expand subnets into individual IPs ---
         const ipsSet = new Set();
@@ -196,9 +370,10 @@ class NetworkScanner {
 
         console.log(`Scanning ${ipsToScan.length} unique IP addresses...`);
 
-        // --- Concurrent TCP scan ---
-        const concurrencyLimit = 200;
+        // --- Concurrent TCP scan with ping fallback ---
+        const concurrencyLimit = 100; // Reduced concurrency for ping operations
         const discoveredIPs = [];
+        const pingedIPs = []; // Track which IPs we pinged
         let inFlight = 0;
         let currentIndex = 0;
 
@@ -208,13 +383,50 @@ class NetworkScanner {
                     const ip = ipsToScan[currentIndex++];
                     inFlight++;
 
-                    this.testConnection(ip).then((isReachable) => {
+                    this.testConnection(ip).then(async (results) => {
                         inFlight--;
-                        if (isReachable) {
-                            console.log(`Discovered device at ${ip}:${this.targetPort}`);
-                            discoveredIPs.push(ip);
+                        
+                        if (results.reachable) {
+                            let discoveryMethod = 'TCP';
+                            if (results.ping && !results.tcp) {
+                                discoveryMethod = 'Ping';
+                            } else if (results.ping && results.tcp) {
+                                discoveryMethod = 'Ping+TCP';
+                            }
+                            
+                            // Verify it's actually an amplifier (only if TCP connection succeeded)
+                            let isAmplifier = false;
+                            if (results.tcp) {
+                                isAmplifier = await this.verifyAmplifier(ip);
+                            }
+                            
+                            if (isAmplifier) {
+                                console.log(`✓ Discovered amplifier at ${ip} (${discoveryMethod})`);
+                                discoveredIPs.push(ip);
+                            } else {
+                                console.log(`- Device at ${ip} (${discoveryMethod}) - not an amplifier`);
+                            }
+                            
+                            if (results.ping) {
+                                pingedIPs.push(ip);
+                            }
                         }
 
+                        if (currentIndex >= ipsToScan.length && inFlight === 0) {
+                            const summary = `Scan complete. Found ${discoveredIPs.length} amplifier(s)`;
+                            if (pingedIPs.length > 0) {
+                                console.log(`${summary} (${pingedIPs.length} required ping wake-up): ${pingedIPs.join(', ')}`);
+                            } else {
+                                console.log(summary);
+                            }
+                            resolve(discoveredIPs);
+                        } else {
+                            nextBatch();
+                        }
+                    }).catch(err => {
+                        inFlight--;
+                        console.warn(`Error testing ${ip}:`, err.message);
+                        
                         if (currentIndex >= ipsToScan.length && inFlight === 0) {
                             console.log(`Scan complete. Found ${discoveredIPs.length} device(s).`);
                             resolve(discoveredIPs);
